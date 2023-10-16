@@ -1,0 +1,21 @@
+[
+  {
+    "ID": 0,
+    "Name": "Test Sword",
+    "Type": "melee",
+    "Rarity": 0,
+    "Damage": 10,
+    "UseTime": 10,
+    "TexturePath": "Textures/tex_Player"
+  },
+  {
+    "ID": 1,
+    "Name": "Wooden Sword",
+    "Type": "melee",
+    "Rarity": 0,
+    "Damage": 12,
+    "UseTime": 12,
+    "TexturePath": "Textures/tex_Player"
+  }
+  // Add more items as needed
+]
