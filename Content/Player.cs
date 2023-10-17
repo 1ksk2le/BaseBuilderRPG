@@ -8,6 +8,7 @@ namespace BaseBuilderRPG
     {
         // Player attributes
         public Vector2 Position { get; set; }
+
         public float Speed { get; set; }
         public int Health { get; set; }
 
@@ -47,5 +48,4 @@ namespace BaseBuilderRPG
             spriteBatch.Draw(playerTexture, Position, Color.White);
         }
     }
-
 }
