@@ -116,6 +116,8 @@ namespace BaseBuilderRPG
                 spriteBatch.DrawString(Game1.TestFont, "Suffix: " + SuffixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -30), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
                 spriteBatch.DrawString(Game1.TestFont, "Prefix: " + PrefixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -40), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
                 spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
                 spriteBatch.Draw(Texture, Position, Color.White);
             }
         }
