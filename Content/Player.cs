@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BaseBuilderRPG.Content;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -6,19 +7,21 @@ namespace BaseBuilderRPG
 {
     public class Player
     {
+        public Inventory Inventory { get; private set; }
         public Vector2 Position { get; set; }
-
         public float Speed { get; set; }
         public int Health { get; set; }
 
         private Texture2D playerTexture;
 
-        public Player(Texture2D texture, Vector2 position)
+        public Player(Texture2D texture, Vector2 position, int inventoryRows, int inventoryColumns)
         {
             playerTexture = texture;
             Position = position;
             Speed = 1f;
             Health = 100;
+
+            Inventory = new Inventory(inventoryRows, inventoryColumns);
         }
 
         public void Update(GameTime gameTime)

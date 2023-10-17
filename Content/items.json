@@ -6,7 +6,7 @@
     "Rarity": 0,
     "Damage": 10,
     "UseTime": 10,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 1,
@@ -15,7 +15,7 @@
     "Rarity": 1,
     "Damage": 12,
     "UseTime": 12,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 2,
@@ -24,7 +24,7 @@
     "Rarity": 2,
     "Damage": 12,
     "UseTime": 12,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 3,
@@ -33,7 +33,7 @@
     "Rarity": 3,
     "Damage": 10,
     "UseTime": 10,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 4,
@@ -42,7 +42,7 @@
     "Rarity": 4,
     "Damage": 12,
     "UseTime": 12,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 5,
@@ -51,7 +51,7 @@
     "Rarity": 5,
     "Damage": 12,
     "UseTime": 12,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 6,
@@ -60,7 +60,7 @@
     "Rarity": 6,
     "Damage": 10,
     "UseTime": 10,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 7,
@@ -69,7 +69,7 @@
     "Rarity": 7,
     "Damage": 12,
     "UseTime": 12,
-    "TexturePath": "Textures/tex_Player"
+    "TexturePath": "Textures/tex_Test_Sword"
   }
   // Add more items as needed
 ]

@@ -22,6 +22,8 @@ namespace BaseBuilderRPG
         public int UseTime { get; set; } // ID of the suffix
         public Vector2 Position { get; set; } // ID of the suffix
 
+        public bool OnGround { get; set; }
+
         public Item(Texture2D texture, string texturePath, int id, string name, string type, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime)
         {
             Texture = texture;
@@ -36,6 +38,48 @@ namespace BaseBuilderRPG
             Damage = damage;
             Position = position;
             SetDefaults();
+        }
+
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (Texture != null && OnGround)
+            {
+                spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, -50), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, PrefixName + " " + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, -50), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "Suffix: " + SuffixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -30), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "Prefix: " + PrefixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -40), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.Draw(Texture, Position, Color.White);
+            }
+        }
+        public bool PlayerClose(Player player, GameTime gameTime)
+        {
+            float distance = Vector2.Distance(Position, player.Position);
+
+            if (distance <= 20f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void RemoveItem(List<Item> itemList)
+        {
+            itemList.Remove(this);
+        }
+
+        public Item Clone()
+        {
+            return new Item(Texture, TexturePath, ID, Name, Type, Position, Rarity, PrefixID, SuffixID, Damage, UseTime);
+        }
+
+        public Item Clone(int itemID, int prefixID, int suffixID)
+        {
+            return new Item(Texture, TexturePath, itemID, Name, Type, Position, Rarity, prefixID, suffixID, Damage, UseTime);
         }
 
         public void SetDefaults()
@@ -107,61 +151,6 @@ namespace BaseBuilderRPG
                     break;
             }
         }
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (Texture != null)
-            {
-                spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, -50), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, PrefixName + " " + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, -50), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "Suffix: " + SuffixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -30), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "Prefix: " + PrefixID.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -40), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, -20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.Draw(Texture, Position, Color.White);
-            }
-        }
-        public bool Kill { get; private set; }
-
-        public void InteractPlayer(Player player, GameTime gameTime)
-        {
-            float distance = Vector2.Distance(Position, player.Position);
-
-            if (distance <= 20f)
-            {
-                Kill = true;
-            }
-        }
-
-        public bool PlayerClose(Player player, GameTime gameTime)
-        {
-            float distance = Vector2.Distance(Position, player.Position);
-
-            if (distance <= 20f)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void RemoveItem(List<Item> itemList)
-        {
-            itemList.Remove(this);
-        }
-
-        public Item Clone()
-        {
-            // Create a deep copy of the item
-            return new Item(Texture, TexturePath, ID, Name, Type, Position, Rarity, PrefixID, SuffixID, Damage, UseTime);
-        }
-
-        public Item Clone(int itemID, int prefixID, int suffixID)
-        {
-            // Create a deep copy of the item with custom itemID, prefixID, and suffixID
-            return new Item(Texture, TexturePath, itemID, Name, Type, Position, Rarity, prefixID, suffixID, Damage, UseTime);
-        }
-
     }
 
 }
