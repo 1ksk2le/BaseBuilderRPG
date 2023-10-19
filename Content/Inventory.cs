@@ -8,38 +8,41 @@ namespace BaseBuilderRPG.Content
     public class Inventory
     {
         private List<Item> items;
-        public int rows;
-        public int columns;
+        public int Width;
+        public int Height;
 
-        public Inventory(int rows, int columns)
+        public Inventory(int w, int h)
         {
-            this.rows = rows;
-            this.columns = columns;
-            items = new List<Item>(rows * columns);
+            this.Width = h;
+            this.Height = w;
+            items = new List<Item>(w * h);
         }
-        public bool AddItem(Item item, List<Item> droppedItems)
+        public void PickItem(Item item, List<Item> droppedItems)
         {
-            if (item.IsStackable)
+            Item existingStack = items.FirstOrDefault(existingItem => existingItem.ID == item.ID && existingItem.StackSize < existingItem.StackLimit);
+            if (existingStack != null)
             {
-                // Check if there's an existing stack with the same ID
-                Item existingStack = items.FirstOrDefault(existingItem => existingItem.ID == item.ID && existingItem.StackSize < existingItem.StackLimit);
-
-                if (existingStack != null)
+                if (existingStack.StackLimit == 1)
+                {
+                    // Items with StackLimit 1 cannot be stacked, so add the item directly to the inventory
+                    items.Add(item);
+                }
+                else if (existingStack.StackSize < existingStack.StackLimit)
                 {
                     // Calculate available space in the existing stack
                     int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
 
                     if (spaceAvailable >= item.StackSize)
                     {
-                        // There's enough space in the existing stack for the entire incoming stack
+                        // There's enough space in the existing stack to pick up the entire incoming stack
                         existingStack.StackSize += item.StackSize;
-                        // Remove the item from the ground since it's picked up
+                        item.StackSize = 0; // The entire incoming stack has been added
+
                         if (item.OnGround)
                         {
-                            item.StackSize = 0;
+                            // Remove the item from the ground
                             droppedItems.Remove(item);
                         }
-                        return true;
                     }
                     else
                     {
@@ -49,37 +52,85 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
-
-            // If there's no existing stack or the item is not stackable, add it as a new item
-            items.Add(item);
-
-            // Remove the item from the ground if it's picked up
-            if (item.OnGround)
+            else if (!IsFull())
             {
-                droppedItems.Remove(item);
-            }
+                items.Add(item);
 
-            return true; // Return true if the item was successfully added
+                if (item.OnGround)
+                {
+                    // Remove the item from the ground
+                    droppedItems.Remove(item);
+                }
+            }
+            else
+            {
+                return;
+            }
         }
+
+
+
+
+        public bool AddItem(int itemID, int dropAmount)
+        {
+            Item newItem = CreateItem(itemID, dropAmount);
+
+            if (newItem != null)
+            {
+                if (items.Count < Width * Height)
+                {
+                    Item existingItem = items.Find(item => item.ID == itemID);
+
+                    if (existingItem != null)
+                    {
+                        int spaceAvailable = existingItem.StackLimit - existingItem.StackSize;
+
+                        if (spaceAvailable >= newItem.StackSize)
+                        {
+                            existingItem.StackSize += newItem.StackSize;
+                            return true;
+                        }
+                        else
+                        {
+                            existingItem.StackSize = existingItem.StackLimit;
+                            newItem.StackSize -= spaceAvailable;
+                        }
+                    }
+                    else
+                    {
+                        items.Add(newItem);
+                    }
+                }
+                else
+                {
+                }
+            }
+            return false;
+        }
+
+
+        private Item CreateItem(int itemID, int dropAmount)
+        {
+            Item originalItem = items.Find(item => item.ID == itemID);
+            if (originalItem != null)
+            {
+                Item spawnedItem = originalItem.Clone(itemID, dropAmount);
+                spawnedItem.OnGround = false;
+                return spawnedItem;
+            }
+            return null;
+        }
+
 
         public bool IsFull()
         {
-            if (items.Count < rows * columns)
+            if (items.Count < Width * Height)
             {
                 return false;
             }
             else
             {
                 return true;
-            }
-        }
-
-        public void AddItemByID(Item item, int itemID, int prefixID, int suffixID, int dropAmount)
-        {
-            Item spawnedItem = item.Clone(itemID, prefixID, suffixID, dropAmount);
-            if (items.Count < rows * columns)
-            {
-                items.Add(spawnedItem);
             }
         }
 
@@ -97,8 +148,8 @@ namespace BaseBuilderRPG.Content
         {
             int slotSize = 32;
             int slotSpacing = 10;
-            int rows = player.Inventory.rows;
-            int cols = player.Inventory.columns;
+            int maxWidth = player.Inventory.Width;
+            int maxHeight = player.Inventory.Height;
             int xStart = 10;
             int yStart = 50;
 
@@ -106,22 +157,22 @@ namespace BaseBuilderRPG.Content
 
             List<Item> items = player.Inventory.GetItems();
 
-            for (int row = 0; row < rows; row++)
+            for (int width = 0; width < maxWidth; width++)
             {
-                for (int col = 0; col < cols; col++)
+                for (int height = 0; height < maxHeight; height++)
                 {
-                    int x = xStart + col * (slotSize + slotSpacing);
-                    int y = yStart + row * (slotSize + slotSpacing);
+                    int x = xStart + height * (slotSize + slotSpacing);
+                    int y = yStart + width * (slotSize + slotSpacing);
 
                     spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), slotColor);
 
-                    int index = row * cols + col;
+                    int index = width * maxHeight + height;
                     if (index < items.Count)
                     {
                         Item item = items[index];
                         spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), item.RarityColor);
                         spriteBatch.Draw(item.Texture, new Vector2(x, y), Color.White);
-                        if (item.IsStackable)
+                        if (item.StackSize > 1)
                         {
                             spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 22, y + 16), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
                         }

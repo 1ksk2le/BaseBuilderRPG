@@ -7,7 +7,6 @@
     "Rarity": 2,
     "Damage": 10,
     "UseTime": 10,
-    "IsStackable": false,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
@@ -18,7 +17,6 @@
     "Rarity": 4,
     "Damage": 12,
     "UseTime": 12,
-    "IsStackable": false,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace BaseBuilderRPG
 {
@@ -56,7 +57,7 @@ namespace BaseBuilderRPG
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             outline = Content.Load<Effect>("Shaders/shader_Outline");
-            player = new Player(texPlayer, new Vector2(200, 200), 5, 5);
+            player = new Player(texPlayer, new Vector2(200, 200), 5, 1);
             droppedItems = new List<Item>();
         }
 
@@ -64,28 +65,15 @@ namespace BaseBuilderRPG
         {
             player.Update(gameTime);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.F) && !pKey.IsKeyDown(Keys.F))
+            List<Item> itemsToRemove = new List<Item>();
+            foreach (Item item in droppedItems.ToList()) // Create a copy of the list to avoid concurrent modification issues
             {
-                List<Item> itemsToRemove = new List<Item>();
-                foreach (Item item in droppedItems)
+                if (item.PlayerClose(player, gameTime))
                 {
-                    if (item.PlayerClose(player, gameTime))
-                    {
-                        Item newItem = item.Clone();
-                        if (player.Inventory.AddItem(newItem, droppedItems))
-                        {
-                            item.StackSize = 0;
-                            itemsToRemove.Add(item);
-                        }
-                    }
-                }
-
-                // Remove the picked up items from the droppedItems list
-                foreach (Item item in itemsToRemove)
-                {
-                    droppedItems.Remove(item);
+                    player.Inventory.PickItem(item, droppedItems);
                 }
             }
+
 
             if (Keyboard.GetState().IsKeyDown(Keys.X) && !pKey.IsKeyDown(Keys.X))
             {
@@ -97,17 +85,35 @@ namespace BaseBuilderRPG
                 prefixID = rand.Next(0, 4);
                 suffixID = rand.Next(0, 4);
                 Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
-                //DropItem(2, -1, -1, 1, mousePosition);
+                DropItem(rand.Next(items.Count - 1), prefixID, suffixID, rand.Next(1, 4), mousePosition + new Vector2(30, 30));
+                DropItem(2, -1, -1, 2, mousePosition);
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.V) && !pKey.IsKeyDown(Keys.V))
             {
-                foreach (Item item in items)
+                player.Inventory.AddItem(2, 3);
+                player.Inventory.AddItem(1, 3);
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Z) && !pKey.IsKeyDown(Keys.Z))
+            {
+                // Create a copy of the items list to avoid modifying it during enumeration
+                List<Item> itemsCopy = new List<Item>(player.Inventory.GetItems());
+
+                foreach (Item item in droppedItems)
                 {
-                    Item newItem = item.Clone();
-                    player.Inventory.AddItemByID(newItem, newItem.ID, 0, 0, 1);
+                    itemsToRemove.Add(item);
                 }
+                foreach (Item item in itemsCopy)
+                {
+                    player.Inventory.RemoveItem(item);
+                }
+
+            }
+
+            foreach (Item item in itemsToRemove)
+            {
+                droppedItems.Remove(item);
             }
 
             pKey = Keyboard.GetState();
@@ -124,8 +130,18 @@ namespace BaseBuilderRPG
             for (int i = 0; i < droppedItems.Count; i++)
             {
                 Item item = droppedItems[i];
-                spriteBatch.DrawString(Game1.TestFont, "[" + i.ToString() + "]", new Vector2(8, 260 + 10 * i), Color.Yellow, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName + " x" + item.StackSize, new Vector2(40, 260 + 10 * i), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, (i + 1).ToString() + "-", new Vector2(8, 260 + 10 * i), Color.Yellow, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(Game1.TestFont, "[" + item.ID + "]", new Vector2(26, 260 + 10 * i), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                if (item.Type == "weapon")
+                {
+                    spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName, new Vector2(44, 260 + 10 * i), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                }
+                else
+                {
+                    spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName + " x" + item.StackSize, new Vector2(44, 260 + 10 * i), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+
+                }
+
             }
 
             // In your Draw method:
