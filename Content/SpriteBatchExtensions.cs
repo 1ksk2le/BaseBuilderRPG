@@ -15,5 +15,4 @@ namespace BaseBuilderRPG.Content
             spriteBatch.Draw(pixel, rectangle, color);
         }
     }
-
 }

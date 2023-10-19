@@ -26,7 +26,7 @@ namespace BaseBuilderRPG
 
         public void Update(GameTime gameTime)
         {
-            Speed = 1f;
+            Speed = 2f;
 
             KeyboardState keyboardState = Keyboard.GetState();
             Vector2 movement = Vector2.Zero;
@@ -45,6 +45,7 @@ namespace BaseBuilderRPG
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            Inventory.Draw(spriteBatch, this);
             spriteBatch.Draw(playerTexture, Position, Color.White);
         }
     }

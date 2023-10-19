@@ -2,74 +2,31 @@
   {
     "ID": 0,
     "Name": "Test Sword",
-    "Type": "melee",
-    "Rarity": 0,
+    "Type": "weapon",
+    "DamageType": "melee",
+    "Rarity": 2,
     "Damage": 10,
     "UseTime": 10,
+    "IsStackable": false,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 1,
     "Name": "Wooden Sword",
-    "Type": "melee",
-    "Rarity": 1,
+    "Type": "weapon",
+    "DamageType": "melee",
+    "Rarity": 4,
     "Damage": 12,
     "UseTime": 12,
+    "IsStackable": false,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 2,
-    "Name": "Steel Pickaxe",
-    "Type": "melee",
-    "Rarity": 2,
-    "Damage": 12,
-    "UseTime": 12,
-    "TexturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "ID": 3,
-    "Name": "Iron Halberd",
-    "Type": "melee",
+    "Name": "Ruby",
+    "Type": "material",
     "Rarity": 3,
-    "Damage": 10,
-    "UseTime": 10,
-    "TexturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "ID": 4,
-    "Name": "Golden Scimitar",
-    "Type": "melee",
-    "Rarity": 4,
-    "Damage": 12,
-    "UseTime": 12,
-    "TexturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "ID": 5,
-    "Name": "East's Dagger",
-    "Type": "melee",
-    "Rarity": 5,
-    "Damage": 12,
-    "UseTime": 12,
-    "TexturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "ID": 6,
-    "Name": "Final Touch",
-    "Type": "melee",
-    "Rarity": 6,
-    "Damage": 10,
-    "UseTime": 10,
-    "TexturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "ID": 7,
-    "Name": "Zweihander",
-    "Type": "melee",
-    "Rarity": 7,
-    "Damage": 12,
-    "UseTime": 12,
-    "TexturePath": "Textures/tex_Test_Sword"
+    "StackLimit": 5,
+    "TexturePath": "Textures/tex_Ruby"
   }
-  // Add more items as needed
 ]
