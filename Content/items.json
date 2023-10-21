@@ -26,5 +26,13 @@
     "Rarity": 3,
     "StackLimit": 5,
     "TexturePath": "Textures/tex_Ruby"
+  },
+  {
+    "ID": 3,
+    "Name": "King's Ruby'",
+    "Type": "material",
+    "Rarity": 5,
+    "StackLimit": 5,
+    "TexturePath": "Textures/tex_Ruby"
   }
 ]

@@ -17,6 +17,7 @@ namespace BaseBuilderRPG.Content
             this.Height = w;
             items = new List<Item>(w * h);
         }
+
         public void PickItem(Item item, List<Item> droppedItems)
         {
             Item existingStack = items.FirstOrDefault(existingItem => existingItem.ID == item.ID && existingItem.StackSize < existingItem.StackLimit);
@@ -24,29 +25,24 @@ namespace BaseBuilderRPG.Content
             {
                 if (existingStack.StackLimit == 1)
                 {
-                    // Items with StackLimit 1 cannot be stacked, so add the item directly to the inventory
                     items.Add(item);
                 }
                 else if (existingStack.StackSize < existingStack.StackLimit)
                 {
-                    // Calculate available space in the existing stack
                     int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
 
                     if (spaceAvailable >= item.StackSize)
                     {
-                        // There's enough space in the existing stack to pick up the entire incoming stack
                         existingStack.StackSize += item.StackSize;
-                        item.StackSize = 0; // The entire incoming stack has been added
+                        item.StackSize = 0;
 
                         if (item.OnGround)
                         {
-                            // Remove the item from the ground
                             droppedItems.Remove(item);
                         }
                     }
                     else
                     {
-                        // The existing stack can't fit the entire incoming stack
                         existingStack.StackSize = existingStack.StackLimit;
                         item.StackSize -= spaceAvailable;
                     }
@@ -58,7 +54,6 @@ namespace BaseBuilderRPG.Content
 
                 if (item.OnGround)
                 {
-                    // Remove the item from the ground
                     droppedItems.Remove(item);
                 }
             }
@@ -68,45 +63,6 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-
-
-
-        public bool AddItem(int itemID, int dropAmount)
-        {
-            Item newItem = CreateItem(itemID, dropAmount);
-
-            if (newItem != null)
-            {
-                if (items.Count < Width * Height)
-                {
-                    Item existingItem = items.Find(item => item.ID == itemID);
-
-                    if (existingItem != null)
-                    {
-                        int spaceAvailable = existingItem.StackLimit - existingItem.StackSize;
-
-                        if (spaceAvailable >= newItem.StackSize)
-                        {
-                            existingItem.StackSize += newItem.StackSize;
-                            return true;
-                        }
-                        else
-                        {
-                            existingItem.StackSize = existingItem.StackLimit;
-                            newItem.StackSize -= spaceAvailable;
-                        }
-                    }
-                    else
-                    {
-                        items.Add(newItem);
-                    }
-                }
-                else
-                {
-                }
-            }
-            return false;
-        }
 
 
         private Item CreateItem(int itemID, int dropAmount)
@@ -121,7 +77,6 @@ namespace BaseBuilderRPG.Content
             return null;
         }
 
-
         public bool IsFull()
         {
             if (items.Count < Width * Height)
@@ -134,7 +89,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void RemoveItem(Item item)
+        public void RemoveFromInventory(Item item)
         {
             items.Remove(item);
         }
@@ -144,9 +99,44 @@ namespace BaseBuilderRPG.Content
             return items;
         }
 
+        public void Sort()
+        {
+            SortItemsCustom(items);
+        }
+        private void SortItemsCustom(List<Item> itemList)
+        {
+            itemList.Sort((item1, item2) =>
+            {
+                if (item1.Type == "weapon" && item2.Type != "weapon")
+                {
+                    // Sort weapons before non-weapons.
+                    return -1;
+                }
+                else if (item1.Type != "weapon" && item2.Type == "weapon")
+                {
+                    // Sort non-weapons after weapons.
+                    return 1;
+                }
+                else
+                {
+                    // If both items are either weapons or non-weapons, sort by rarity.
+                    int rarityComparison = item2.Rarity.CompareTo(item1.Rarity);
+                    if (rarityComparison == 0)
+                    {
+                        // If rarity is the same, prioritize items with lower stack sizes.
+                        return item2.StackSize.CompareTo(item1.StackSize);
+                    }
+                    return rarityComparison;
+                }
+            });
+        }
+
+
+
+
         public void Draw(SpriteBatch spriteBatch, Player player)
         {
-            int slotSize = 32;
+            int slotSize = 36;
             int slotSpacing = 10;
             int maxWidth = player.Inventory.Width;
             int maxHeight = player.Inventory.Height;
@@ -164,17 +154,20 @@ namespace BaseBuilderRPG.Content
                     int x = xStart + height * (slotSize + slotSpacing);
                     int y = yStart + width * (slotSize + slotSpacing);
 
+                    spriteBatch.DrawRectangle(new Rectangle(x - 2, y - 2, 40, 40), Color.Black);
                     spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), slotColor);
 
                     int index = width * maxHeight + height;
                     if (index < items.Count)
                     {
                         Item item = items[index];
+
                         spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), item.RarityColor);
-                        spriteBatch.Draw(item.Texture, new Vector2(x, y), Color.White);
+
+                        spriteBatch.Draw(item.Texture, new Vector2(x + 11, y + 4), Color.White);
                         if (item.StackSize > 1)
                         {
-                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 22, y + 16), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
+                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
                         }
                     }
                 }

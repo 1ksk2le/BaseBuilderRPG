@@ -8,6 +8,7 @@ namespace BaseBuilderRPG
     public class Player
     {
         public Inventory Inventory { get; private set; }
+        public Inventory BackPack { get; private set; }
         public Vector2 Position { get; set; }
         public float Speed { get; set; }
         public int Health { get; set; }
@@ -16,7 +17,7 @@ namespace BaseBuilderRPG
 
         private Texture2D playerTexture;
 
-        public Player(Texture2D texture, bool isActive, string name, Vector2 position, int inventoryRows, int inventoryColumns)
+        public Player(Texture2D texture, bool isActive, string name, Vector2 position, int invX, int invY)
         {
             playerTexture = texture;
             Position = position;
@@ -25,7 +26,7 @@ namespace BaseBuilderRPG
             IsActive = isActive;
             Name = name;
 
-            Inventory = new Inventory(inventoryRows, inventoryColumns);
+            Inventory = new Inventory(invX, invY);
         }
 
         public void Update(GameTime gameTime)
@@ -48,20 +49,26 @@ namespace BaseBuilderRPG
 
                 Position += movement;
             }
-
         }
-
 
         public void Draw(SpriteBatch spriteBatch)
         {
             if (IsActive)
             {
                 Inventory.Draw(spriteBatch, this);
-                spriteBatch.Draw(playerTexture, Position, Color.Blue);
+                spriteBatch.Draw(playerTexture, Position, Color.Lime);
+
             }
             else
             {
-                spriteBatch.Draw(playerTexture, Position, Color.White);
+                if (Vector2.Distance(Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y)) <= 30f)
+                {
+                    spriteBatch.Draw(playerTexture, Position, Color.PaleGreen);
+                }
+                else
+                {
+                    spriteBatch.Draw(playerTexture, Position, Color.Red);
+                }
             }
             spriteBatch.DrawString(Game1.TestFont, "[" + Name + "]", Position + new Vector2(-12, -20), (IsActive) ? Color.Yellow : Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
         }

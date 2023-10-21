@@ -13,19 +13,13 @@ namespace BaseBuilderRPG
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-
         private MouseState pMouse, cMouse;
         private KeyboardState pKey, cKey;
-
         private List<Player> players;
-
         private List<Item> items;
-        private List<Item> droppedItems;
-
+        private List<Item> groundItems;
         private Texture2D texPlayer;
-
         public static SpriteFont TestFont;
-
         public static Effect outline;
 
         public Game1()
@@ -57,34 +51,20 @@ namespace BaseBuilderRPG
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             outline = Content.Load<Effect>("Shaders/shader_Outline");
-            //player = new Player(texPlayer, new Vector2(200, 200), 5, 1);
             players = new List<Player>();
-            players.Add(new Player(texPlayer, true, "Dogu", new Vector2(200, 200), 5, 1));
-            players.Add(new Player(texPlayer, false, "John", new Vector2(300, 200), 5, 1));
-            players.Add(new Player(texPlayer, false, "Dummy", new Vector2(400, 200), 5, 1));
-            droppedItems = new List<Item>();
+            players.Add(new Player(texPlayer, true, "Dogu", new Vector2(200, 200), 10, 5));
+            players.Add(new Player(texPlayer, false, "Saffet", new Vector2(300, 200), 10, 5));
+            groundItems = new List<Item>();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            SelectPlayer(players);
+            List<Item> itemsToRemove = new List<Item>();
+
             foreach (Player player in players)
             {
                 player.Update(gameTime);
             }
-
-            List<Item> itemsToRemove = new List<Item>();
-            foreach (Item item in droppedItems.ToList()) // Create a copy of the list to avoid concurrent modification issues
-            {
-                foreach (Player player in players)
-                {
-                    if (item.PlayerClose(player, gameTime) && player.IsActive)
-                    {
-                        player.Inventory.PickItem(item, droppedItems);
-                    }
-                }
-            }
-
 
             if (Keyboard.GetState().IsKeyDown(Keys.X) && !pKey.IsKeyDown(Keys.X))
             {
@@ -96,43 +76,13 @@ namespace BaseBuilderRPG
                 prefixID = rand.Next(0, 4);
                 suffixID = rand.Next(0, 4);
                 Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                DropItem(rand.Next(items.Count - 1), prefixID, suffixID, rand.Next(1, 4), mousePosition + new Vector2(30, 30));
-                DropItem(2, -1, -1, 2, mousePosition);
+                DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.V) && !pKey.IsKeyDown(Keys.V))
-            {
-                foreach (Player player in players)
-                {
-                    if (player.IsActive)
-                    {
-                        player.Inventory.AddItem(2, 3);
-                        player.Inventory.AddItem(1, 3);
-                    }
-                }
-            }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Z) && !pKey.IsKeyDown(Keys.Z))
-            {
-                foreach (Player player in players)
-                {
-                    List<Item> itemsCopy = new List<Item>(player.Inventory.GetItems());
-
-                    foreach (Item item in droppedItems)
-                    {
-                        itemsToRemove.Add(item);
-                    }
-                    foreach (Item item in itemsCopy)
-                    {
-                        player.Inventory.RemoveItem(item);
-                    }
-                }
-            }
-
-            foreach (Item item in itemsToRemove)
-            {
-                droppedItems.Remove(item);
-            }
+            SelectPlayer(players, Keys.E, 30f);
+            PickItemsUp(players, groundItems);
+            ClearItems(itemsToRemove, true, true, Keys.C);
+            SortInventory(Keys.Z);
 
             pKey = Keyboard.GetState();
 
@@ -145,95 +95,122 @@ namespace BaseBuilderRPG
 
             spriteBatch.Begin();
 
-            for (int i = 0; i < droppedItems.Count; i++)
-            {
-                Item item = droppedItems[i];
-                spriteBatch.DrawString(Game1.TestFont, (i + 1).ToString() + "-", new Vector2(8, 260 + 10 * i), Color.Yellow, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "[" + item.ID + "]", new Vector2(26, 260 + 10 * i), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                if (item.Type == "weapon")
-                {
-                    spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName, new Vector2(44, 260 + 10 * i), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                }
-                else
-                {
-                    spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName + " x" + item.StackSize, new Vector2(44, 260 + 10 * i), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-
-                }
-
-            }
-
-            // In your Draw method:
-            foreach (Item item in droppedItems)
+            foreach (Item item in groundItems)
             {
                 item.Draw(spriteBatch);
             }
-
-            /*    if (item.PlayerClose(player, gameTime))
-                {
-                    if (player.Inventory.IsFull())
-                    {
-                        spriteBatch.DrawString(Game1.TestFont, "[INVENTORY IS FULL!!!]", player.Position + new Vector2(-30, 40), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                    }
-                    else
-                    {
-                        spriteBatch.DrawString(Game1.TestFont, "[Press F to pick up]", player.Position + new Vector2(-30, 40), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                        spriteBatch.DrawString(Game1.TestFont, item.PrefixName + item.Name + " " + item.SuffixName, player.Position + new Vector2(-30, 50), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                    }
-                }
-            }*/
 
             foreach (Player player in players)
             {
                 player.Draw(spriteBatch);
             }
 
-            spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + droppedItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + groundItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Game1.TestFont, "[INVENTORY]", new Vector2(10, 25), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        public void SelectPlayer(List<Player> players)
+        public void SortInventory(Keys key)
         {
-            foreach (Player player in players)
+            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
-                float distance = Vector2.Distance(player.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
-                if (Keyboard.GetState().IsKeyDown(Keys.G) && !pKey.IsKeyDown(Keys.G))
+                foreach (Player player in players)
                 {
-                    if (!player.IsActive)
+                    if (player.IsActive)
                     {
-                        if (distance <= 30f)
-                        {
-                            player.IsActive = true;
-                        }
-                        else
-                        {
-                            player.IsActive = false;
-                        }
-                    }
-                    else
-                    {
-                        player.IsActive = false;
+                        player.Inventory.Sort();
                     }
                 }
             }
+        }
 
+        public void SelectPlayer(List<Player> players, Keys key, float selectionDistance)
+        {
+            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            {
+                Player activePlayer = players.FirstOrDefault(p => p.IsActive);
+
+                if (activePlayer != null)
+                {
+                    activePlayer.IsActive = false;
+                }
+
+                Player closestPlayer = null;
+
+                foreach (Player player in players)
+                {
+                    float distance = Vector2.Distance(player.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+
+                    if (distance <= selectionDistance)
+                    {
+                        closestPlayer = player;
+                    }
+                }
+
+                if (closestPlayer != null)
+                {
+                    closestPlayer.IsActive = true;
+                }
+            }
+        }
+
+        public void PickItemsUp(List<Player> playerList, List<Item> itemsOnGround)
+        {
+            foreach (Item item in itemsOnGround.ToList())
+            {
+                foreach (Player player in playerList)
+                {
+                    if (item.PlayerClose(player, false, 20f) && player.IsActive)
+                    {
+                        player.Inventory.PickItem(item, itemsOnGround);
+                    }
+                }
+            }
         }
 
         private void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
         {
-            // Find the item with the specified itemID from the loaded items list
             Item originalItem = items.Find(item => item.ID == itemID);
 
-            // If the item is found, clone it with custom prefix and suffix IDs
             if (originalItem != null)
             {
                 Item spawnedItem = originalItem.Clone(itemID, prefixID, suffixID, dropAmount);
-                spawnedItem.Position = position; // Set the position correctly
+                spawnedItem.Position = position;
                 spawnedItem.OnGround = true;
-                droppedItems.Add(spawnedItem);
-                // Now, you can use the spawnedItem in your game logic, such as adding it to a list of items to be drawn and updated.
+                groundItems.Add(spawnedItem);
+            }
+        }
+
+        public void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, Keys key)
+        {
+            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            {
+                foreach (Player player in players)
+                {
+                    List<Item> itemsCopy = new List<Item>(player.Inventory.GetItems());
+
+                    if (clearGroundItems)
+                    {
+                        foreach (Item item in groundItems)
+                        {
+                            itemsToRemove.Add(item);
+                        }
+                    }
+                    if (clearInventory)
+                    {
+                        foreach (Item item in itemsCopy)
+                        {
+                            player.Inventory.RemoveFromInventory(item);
+                        }
+                    }
+                }
+            }
+            foreach (Item item in itemsToRemove)
+            {
+                groundItems.Remove(item);
             }
         }
     }
