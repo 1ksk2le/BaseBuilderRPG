@@ -52,8 +52,8 @@ namespace BaseBuilderRPG
             spriteBatch = new SpriteBatch(GraphicsDevice);
             outline = Content.Load<Effect>("Shaders/shader_Outline");
             players = new List<Player>();
-            players.Add(new Player(texPlayer, true, "Dogu", new Vector2(200, 200), 10, 5));
-            players.Add(new Player(texPlayer, false, "Saffet", new Vector2(300, 200), 10, 5));
+            players.Add(new Player(texPlayer, true, "East the Developer", new Vector2(200, 200), 5, 3));
+            players.Add(new Player(texPlayer, false, "Dummy", new Vector2(300, 200), 3, 5));
             groundItems = new List<Item>();
         }
 
@@ -77,6 +77,19 @@ namespace BaseBuilderRPG
                 suffixID = rand.Next(0, 4);
                 Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                 DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
+                foreach (Player player in players)
+                {
+                    if (player.IsActive)
+                    {
+                        Item originalItem = items.Find(item => item.ID == itemID);
+
+                        if (originalItem != null)
+                        {
+                            Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4));
+                            player.Inventory.AddItem(itemToAdd, groundItems);
+                        }
+                    }
+                }
             }
 
             SelectPlayer(players, Keys.E, 30f);
@@ -121,7 +134,7 @@ namespace BaseBuilderRPG
                 {
                     if (player.IsActive)
                     {
-                        player.Inventory.Sort();
+                        player.Inventory.SortItems();
                     }
                 }
             }
@@ -190,8 +203,6 @@ namespace BaseBuilderRPG
             {
                 foreach (Player player in players)
                 {
-                    List<Item> itemsCopy = new List<Item>(player.Inventory.GetItems());
-
                     if (clearGroundItems)
                     {
                         foreach (Item item in groundItems)
@@ -199,12 +210,9 @@ namespace BaseBuilderRPG
                             itemsToRemove.Add(item);
                         }
                     }
-                    if (clearInventory)
+                    if (clearInventory && player.IsActive)
                     {
-                        foreach (Item item in itemsCopy)
-                        {
-                            player.Inventory.RemoveFromInventory(item);
-                        }
+                        player.Inventory.ClearInventory();
                     }
                 }
             }

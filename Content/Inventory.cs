@@ -1,170 +1,144 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BaseBuilderRPG.Content;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace BaseBuilderRPG.Content
+namespace BaseBuilderRPG
 {
     public class Inventory
     {
-        private List<Item> items;
-        public int Width;
-        public int Height;
+        private Item[,] items; // 2D array to store items
+        public int Width { get; }
+        public int Height { get; }
 
-        public Inventory(int w, int h)
+        public Inventory(int width, int height)
         {
-            this.Width = h;
-            this.Height = w;
-            items = new List<Item>(w * h);
+            Width = width;
+            Height = height;
+            items = new Item[width, height];
+        }
+
+        public void AddItem(Item item, List<Item> droppedItems)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    Item existingStack = items[x, y];
+                    if (existingStack != null && existingStack.ID == item.ID && existingStack.StackSize < existingStack.StackLimit)
+                    {
+                        int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
+
+                        if (spaceAvailable >= item.StackSize)
+                        {
+                            existingStack.StackSize += item.StackSize;
+                            item.StackSize = 0;
+                            return;
+                        }
+                        else
+                        {
+                            existingStack.StackSize = existingStack.StackLimit;
+                            item.StackSize -= spaceAvailable;
+                        }
+                    }
+                }
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (items[x, y] == null)
+                    {
+                        items[x, y] = item;
+                        return;
+                    }
+                }
+            }
+
+            if (item.StackSize > 0)
+            {
+                droppedItems.Add(item);
+            }
         }
 
         public void PickItem(Item item, List<Item> droppedItems)
         {
-            Item existingStack = items.FirstOrDefault(existingItem => existingItem.ID == item.ID && existingItem.StackSize < existingItem.StackLimit);
-            if (existingStack != null)
+            for (int y = 0; y < Height; y++)
             {
-                if (existingStack.StackLimit == 1)
+                for (int x = 0; x < Width; x++)
                 {
-                    items.Add(item);
-                }
-                else if (existingStack.StackSize < existingStack.StackLimit)
-                {
-                    int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
-
-                    if (spaceAvailable >= item.StackSize)
+                    Item existingStack = items[x, y];
+                    if (existingStack != null && existingStack.ID == item.ID && existingStack.StackSize < existingStack.StackLimit)
                     {
-                        existingStack.StackSize += item.StackSize;
-                        item.StackSize = 0;
+                        int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
+
+                        if (spaceAvailable >= item.StackSize)
+                        {
+                            existingStack.StackSize += item.StackSize;
+                            item.StackSize = 0;
+
+                            if (item.OnGround)
+                            {
+                                droppedItems.Remove(item);
+                            }
+
+                            return;
+                        }
+                        else
+                        {
+                            existingStack.StackSize = existingStack.StackLimit;
+                            item.StackSize -= spaceAvailable;
+                        }
+                    }
+                }
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (items[x, y] == null)
+                    {
+                        items[x, y] = item;
 
                         if (item.OnGround)
                         {
                             droppedItems.Remove(item);
                         }
-                    }
-                    else
-                    {
-                        existingStack.StackSize = existingStack.StackLimit;
-                        item.StackSize -= spaceAvailable;
+
+                        return;
                     }
                 }
             }
-            else if (!IsFull())
-            {
-                items.Add(item);
-
-                if (item.OnGround)
-                {
-                    droppedItems.Remove(item);
-                }
-            }
-            else
-            {
-                return;
-            }
         }
-
-
-
-        private Item CreateItem(int itemID, int dropAmount)
-        {
-            Item originalItem = items.Find(item => item.ID == itemID);
-            if (originalItem != null)
-            {
-                Item spawnedItem = originalItem.Clone(itemID, dropAmount);
-                spawnedItem.OnGround = false;
-                return spawnedItem;
-            }
-            return null;
-        }
-
-        public bool IsFull()
-        {
-            if (items.Count < Width * Height)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        public void RemoveFromInventory(Item item)
-        {
-            items.Remove(item);
-        }
-
-        public List<Item> GetItems()
-        {
-            return items;
-        }
-
-        public void Sort()
-        {
-            SortItemsCustom(items);
-        }
-        private void SortItemsCustom(List<Item> itemList)
-        {
-            itemList.Sort((item1, item2) =>
-            {
-                if (item1.Type == "weapon" && item2.Type != "weapon")
-                {
-                    // Sort weapons before non-weapons.
-                    return -1;
-                }
-                else if (item1.Type != "weapon" && item2.Type == "weapon")
-                {
-                    // Sort non-weapons after weapons.
-                    return 1;
-                }
-                else
-                {
-                    // If both items are either weapons or non-weapons, sort by rarity.
-                    int rarityComparison = item2.Rarity.CompareTo(item1.Rarity);
-                    if (rarityComparison == 0)
-                    {
-                        // If rarity is the same, prioritize items with lower stack sizes.
-                        return item2.StackSize.CompareTo(item1.StackSize);
-                    }
-                    return rarityComparison;
-                }
-            });
-        }
-
-
-
 
         public void Draw(SpriteBatch spriteBatch, Player player)
         {
             int slotSize = 36;
             int slotSpacing = 10;
-            int maxWidth = player.Inventory.Width;
-            int maxHeight = player.Inventory.Height;
             int xStart = 10;
             int yStart = 50;
 
             Color slotColor = Color.White;
 
-            List<Item> items = player.Inventory.GetItems();
-
-            for (int width = 0; width < maxWidth; width++)
+            for (int width = 0; width < player.Inventory.Width; width++)
             {
-                for (int height = 0; height < maxHeight; height++)
+                for (int height = 0; height < player.Inventory.Height; height++)
                 {
-                    int x = xStart + height * (slotSize + slotSpacing);
-                    int y = yStart + width * (slotSize + slotSpacing);
+                    int x = xStart + width * (slotSize + slotSpacing);
+                    int y = yStart + height * (slotSize + slotSpacing);
 
-                    spriteBatch.DrawRectangle(new Rectangle(x - 2, y - 2, 40, 40), Color.Black);
                     spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), slotColor);
 
-                    int index = width * maxHeight + height;
-                    if (index < items.Count)
-                    {
-                        Item item = items[index];
+                    Item item = player.Inventory.GetItem(width, height);
 
+                    if (item != null)
+                    {
                         spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), item.RarityColor);
 
                         spriteBatch.Draw(item.Texture, new Vector2(x + 11, y + 4), Color.White);
+
                         if (item.StackSize > 1)
                         {
                             spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
@@ -173,5 +147,116 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
+
+        public void ClearInventory()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    items[x, y] = null;
+                }
+            }
+        }
+
+
+        public bool RemoveItem(int x, int y)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height && items[x, y] != null)
+            {
+                items[x, y] = null;
+                return true;
+            }
+            return false;
+        }
+
+        public Item GetItem(int x, int y)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                return items[x, y];
+            }
+            return null;
+        }
+
+        public List<Item> GetAllItems()
+        {
+            List<Item> itemList = new List<Item>();
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    Item item = items[x, y];
+                    if (item != null)
+                    {
+                        itemList.Add(item);
+                    }
+                }
+            }
+
+            return itemList;
+        }
+
+        public void SortItems()
+        {
+            List<Item> itemList = GetAllItems();
+
+            itemList.Sort((item1, item2) =>
+            {
+                if (item1.Type == "weapon" && item2.Type != "weapon")
+                {
+                    return -1;
+                }
+                else if (item1.Type != "weapon" && item2.Type == "weapon")
+                {
+                    return 1;
+                }
+                else
+                {
+                    int rarityComparison = item2.Rarity.CompareTo(item1.Rarity);
+                    if (rarityComparison == 0)
+                    {
+                        return item2.StackSize.CompareTo(item1.StackSize);
+                    }
+                    return rarityComparison;
+                }
+            });
+
+            int index = 0;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (index < itemList.Count)
+                    {
+                        items[x, y] = itemList[index];
+                        index++;
+                    }
+                    else
+                    {
+                        items[x, y] = null;
+                    }
+                }
+            }
+        }
+
+
+        public bool IsFull()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (items[x, y] == null)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
     }
 }
+
