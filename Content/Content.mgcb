@@ -26,6 +26,18 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/shader_Outline.fx
 
+#begin Textures/tex_Eraan_Shield.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/tex_Eraan_Shield.png
+
 #begin Textures/tex_Player.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -61,4 +73,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/tex_Test_Sword.png
+
+#begin Textures/tex_UI_Inventory_Slot.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/tex_UI_Inventory_Slot.png
 

@@ -27,8 +27,10 @@ namespace BaseBuilderRPG
         public Vector2 Position { get; set; }
         public bool OnGround { get; set; }
         public bool CanBeUsed { get; set; }
+        public bool HasTooltip { get; set; }
+        public List<string> ToolTips { get; set; }
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount)
         {
             Texture = texture;
             TexturePath = texturePath;
@@ -40,9 +42,11 @@ namespace BaseBuilderRPG
             SuffixID = suffixID;
             UseTime = useTime;
             Damage = damage;
+            DamageType = damageType;
             Position = position;
+            HasTooltip = false;
 
-            if (Type != "weapon")
+            if (Type != "Weapon")
             {
                 DamageType = "";
                 Damage = -1;
@@ -56,10 +60,24 @@ namespace BaseBuilderRPG
             else
             {
                 StackLimit = 1;
-                StackSize = 1;
             }
 
             SetDefaults();
+
+            ToolTips = new List<string>();
+
+            ToolTips.Add(PrefixName + " " + Name + " " + SuffixName);
+
+            ToolTips.Add("[" + Type + "]");
+            if (Damage > 0)
+            {
+                ToolTips.Add(Damage.ToString() + " " + DamageType + " damage");
+            }
+            if (UseTime > 0)
+            {
+                ToolTips.Add(UseTime.ToString() + " use time");
+            }
+            TooltipsBasedOnID();
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -67,7 +85,7 @@ namespace BaseBuilderRPG
             if (Texture != null && OnGround)
             {
                 spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, 30), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                if (Type == "weapon")
+                if (Type == "Weapon")
                 {
                     spriteBatch.DrawString(Game1.TestFont, PrefixName + "" + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, 30), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
                 }
@@ -117,17 +135,17 @@ namespace BaseBuilderRPG
 
         public Item Clone()
         {
-            return new Item(Texture, TexturePath, ID, Name, Type, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize);
+            return new Item(Texture, TexturePath, ID, Name, Type, DamageType, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize);
         }
 
         public Item Clone(int itemID, int prefixID, int suffixID, int dropAmount)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, Position, Rarity, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, Rarity, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount);
         }
 
         public Item Clone(int itemID, int dropAmount)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount);
         }
 
         public void SetDefaults()
@@ -173,19 +191,19 @@ namespace BaseBuilderRPG
             switch (PrefixID)
             {
                 case 0:
-                    PrefixName = "Broken ";
+                    PrefixName = "Broken";
                     break;
 
                 case 1:
-                    PrefixName = "Reinforced ";
+                    PrefixName = "Reinforced";
                     break;
 
                 case 2:
-                    PrefixName = "Magical ";
+                    PrefixName = "Magical";
                     break;
 
                 case 3:
-                    PrefixName = "Unwieldy ";
+                    PrefixName = "Unwieldy";
                     break;
 
                 default:
@@ -213,6 +231,15 @@ namespace BaseBuilderRPG
                 default:
                     SuffixName = "";
                     break;
+            }
+        }
+
+        private void TooltipsBasedOnID()
+        {
+            if (ID == 3)
+            {
+                HasTooltip = true;
+                ToolTips.Add("'The one and only jewel of King East the III.'");
             }
         }
     }

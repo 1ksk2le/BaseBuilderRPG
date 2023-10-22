@@ -1,6 +1,7 @@
 ﻿using BaseBuilderRPG.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG
@@ -115,7 +116,7 @@ namespace BaseBuilderRPG
 
         public void Draw(SpriteBatch spriteBatch, Player player)
         {
-            int slotSize = 36;
+            int slotSize = 40;
             int slotSpacing = 10;
             int xStart = 10;
             int yStart = 50;
@@ -129,20 +130,21 @@ namespace BaseBuilderRPG
                     int x = xStart + width * (slotSize + slotSpacing);
                     int y = yStart + height * (slotSize + slotSpacing);
 
-                    spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), slotColor);
-
+                    //spriteBatch.Draw(Game1.texInventorySlot, new Vector2(x - 6, y - 6), Color.White);
                     Item item = player.Inventory.GetItem(width, height);
-
                     if (item != null)
                     {
                         spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), item.RarityColor);
-
                         spriteBatch.Draw(item.Texture, new Vector2(x + 11, y + 4), Color.White);
 
-                        if (item.StackSize > 1)
+                        if (item.StackSize > 1 && item.Type != "Accessory" && item.Type != "Weapon")
                         {
                             spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
                         }
+                    }
+                    else
+                    {
+                        spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), Color.White);
                     }
                 }
             }
@@ -204,11 +206,11 @@ namespace BaseBuilderRPG
 
             itemList.Sort((item1, item2) =>
             {
-                if (item1.Type == "weapon" && item2.Type != "weapon")
+                if (item1.Type == "Weapon" && item2.Type != "Weapon")
                 {
                     return -1;
                 }
-                else if (item1.Type != "weapon" && item2.Type == "weapon")
+                else if (item1.Type != "Weapon" && item2.Type == "Weapon")
                 {
                     return 1;
                 }
@@ -241,6 +243,11 @@ namespace BaseBuilderRPG
             }
         }
 
+        public bool IsSlotHovered(int slotX, int slotY)
+        {
+            Rectangle slotRect = new Rectangle(slotX, slotY, 36, 36);
+            return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
+        }
 
         public bool IsFull()
         {

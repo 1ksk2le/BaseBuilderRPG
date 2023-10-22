@@ -71,5 +71,8 @@ namespace BaseBuilderRPG
             }
             spriteBatch.DrawString(Game1.TestFont, "[" + Name + "]", Position + new Vector2(-12, -20), (IsActive) ? Color.Yellow : Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
         }
+
+
+
     }
 }

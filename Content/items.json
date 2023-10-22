@@ -2,7 +2,7 @@
   {
     "ID": 0,
     "Name": "Test Sword",
-    "Type": "weapon",
+    "Type": "Weapon",
     "DamageType": "melee",
     "Rarity": 2,
     "Damage": 10,
@@ -12,7 +12,7 @@
   {
     "ID": 1,
     "Name": "Wooden Sword",
-    "Type": "weapon",
+    "Type": "Weapon",
     "DamageType": "melee",
     "Rarity": 4,
     "Damage": 12,
@@ -22,17 +22,25 @@
   {
     "ID": 2,
     "Name": "Ruby",
-    "Type": "material",
+    "Type": "Material",
     "Rarity": 3,
     "StackLimit": 9999,
     "TexturePath": "Textures/tex_Ruby"
   },
   {
     "ID": 3,
-    "Name": "King's Ruby'",
-    "Type": "material",
+    "Name": "King's Ruby",
+    "Type": "Material",
     "Rarity": 5,
     "StackLimit": 9999,
     "TexturePath": "Textures/tex_Ruby"
+  },
+  {
+    "ID": 4,
+    "Name": "Eraan's Shield",
+    "Type": "Accessory",
+    "Rarity": 6,
+    "StackLimit": 1,
+    "TexturePath": "Textures/tex_Eraan_Shield"
   }
 ]
