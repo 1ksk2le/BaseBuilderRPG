@@ -20,11 +20,17 @@ namespace BaseBuilderRPG
         private List<Item> items;
         private List<Item> groundItems;
         private Texture2D texPlayer;
-        public static Texture2D texInventorySlot;
+        public static Texture2D texInventory;
+        public static Texture2D texInventorySlotBackground;
+        public static Texture2D texAccessorySlotBackground;
+        public static Texture2D texMainSlotBackground;
         public static SpriteFont TestFont;
         public static Effect outline;
 
         private Item hoveredItem;
+        private Item mouseItem;
+
+        public static Vector2 basePosInventory = new Vector2(0, 0);
 
         public Game1()
         {
@@ -41,7 +47,10 @@ namespace BaseBuilderRPG
         {
             TestFont = Content.Load<SpriteFont>("Font_Test");
             texPlayer = Content.Load<Texture2D>("Textures/tex_Player");
-            texInventorySlot = Content.Load<Texture2D>("Textures/tex_UI_Inventory_Slot");
+            texInventory = Content.Load<Texture2D>("Textures/tex_UI_Inventory");
+            texInventorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Inventory_Slot_Background");
+            texAccessorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Accessory_Slot_Background");
+            texMainSlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Main_Slot_Background");
             string json = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(json);
             foreach (Item item in items)
@@ -57,8 +66,8 @@ namespace BaseBuilderRPG
             spriteBatch = new SpriteBatch(GraphicsDevice);
             outline = Content.Load<Effect>("Shaders/shader_Outline");
             players = new List<Player>();
-            players.Add(new Player(texPlayer, true, "East the Developer", new Vector2(200, 200), 5, 3));
-            players.Add(new Player(texPlayer, false, "Dummy", new Vector2(300, 200), 3, 5));
+            players.Add(new Player(texPlayer, true, "East the Developer", new Vector2(200, 200)));
+            players.Add(new Player(texPlayer, false, "Dummy", new Vector2(300, 200)));
             groundItems = new List<Item>();
         }
 
@@ -71,70 +80,16 @@ namespace BaseBuilderRPG
                 player.Update(gameTime);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.X) && !pKey.IsKeyDown(Keys.X))
-            {
-                Random rand = new Random();
-                int itemID = rand.Next(0, items.Count);
-                int prefixID;
-                int suffixID;
 
-                prefixID = rand.Next(0, 4);
-                suffixID = rand.Next(0, 4);
-                Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
-                foreach (Player player in players)
-                {
-                    if (player.IsActive)
-                    {
-                        Item originalItem = items.Find(item => item.ID == itemID);
-
-                        if (originalItem != null)
-                        {
-                            Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4));
-                            //player.Inventory.AddItem(itemToAdd, groundItems);
-                        }
-                    }
-                }
-            }
-
+            SpawnItem(Keys.X, true);
             SelectPlayer(players, Keys.E, 30f);
-            PickItemsUp(players, groundItems);
-            ClearItems(itemsToRemove, true, true, Keys.C);
+            PickItemsUp(players, groundItems, Keys.F);
+            ClearItems(itemsToRemove, true, true, true, Keys.C);
             SortInventory(Keys.Z);
+            HandleInventoryInteractions();
 
 
-            bool isMouseOverItem = false; // Add a flag
-
-            foreach (Player player in players)
-            {
-                if (player.IsActive)
-                {
-                    for (int y = 0; y < player.Inventory.Height; y++)
-                    {
-                        for (int x = 0; x < player.Inventory.Width; x++)
-                        {
-                            int slotSize = 40;
-                            int slotSpacing = 10;
-                            int slotX = x * (slotSize + slotSpacing) + 10;
-                            int slotY = y * (slotSize + slotSpacing) + 50;
-
-                            if (player.Inventory.IsSlotHovered(slotX, slotY))
-                            {
-                                hoveredItem = player.Inventory.GetItem(x, y);
-                                isMouseOverItem = true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!isMouseOverItem)
-            {
-                hoveredItem = null;
-            }
-
-
-
+            pMouse = Mouse.GetState();
             pKey = Keyboard.GetState();
 
             base.Update(gameTime);
@@ -156,28 +111,10 @@ namespace BaseBuilderRPG
                 player.Draw(spriteBatch);
             }
 
-            if (hoveredItem != null)
-            {
-                string displayText = hoveredItem.PrefixName + hoveredItem.Name + " " + hoveredItem.SuffixName;
-                if (hoveredItem.Damage > 0)
-                {
-                    displayText += "\nDamage: " + hoveredItem.Damage.ToString() + " " + hoveredItem.DamageType + " damage";
-                }
-                if (hoveredItem.UseTime > 0)
-                {
-                    displayText += "\nUse Time: " + hoveredItem.UseTime;
-                }
-
-
-
-
-            }
-
-
             spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + groundItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Game1.TestFont, "[INVENTORY]", new Vector2(10, 25), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
 
-            if (hoveredItem != null)
+            if (hoveredItem != null && mouseItem == null)
             {
                 float maxTextWidth = 0;
                 foreach (string tooltip in hoveredItem.ToolTips)
@@ -206,7 +143,7 @@ namespace BaseBuilderRPG
                             break;
                     }
 
-                    if (i == hoveredItem.ToolTips.Count - 1 && hoveredItem.HasTooltip)
+                    if (hoveredItem.ToolTips[i].StartsWith("'"))
                     {
                         toolTipColor = Color.Aquamarine;
                     }
@@ -216,23 +153,228 @@ namespace BaseBuilderRPG
 
                     int tooltipY = (int)Mouse.GetState().Y + i * ((int)textSize.Y);
 
-                    //spriteBatch.DrawRectangle(new Rectangle((int)Mouse.GetState().X, tooltipY, (int)backgroundSize.X, (int)backgroundSize.Y), Color.White);
                     spriteBatch.DrawRectangle(new Rectangle((int)Mouse.GetState().X + xOffSet - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoveredItem.RarityColor);
                     spriteBatch.DrawRectangle(new Rectangle((int)Mouse.GetState().X + xOffSet - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor);
 
-                    spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 6), toolTipColor);
+                    if (i == 0 || i == 1)
+                    {
+                        spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 5), toolTipColor);
+                    }
+
                 }
             }
 
-
-
+            if (mouseItem != null)
+            {
+                spriteBatch.Draw(mouseItem.Texture, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.White);
+            }
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
+        private void SpawnItem(Keys key, bool addInventory)
+        {
+            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            {
+                Random rand = new Random();
+                int itemID = rand.Next(0, items.Count);
+                int prefixID;
+                int suffixID;
 
-        public void SortInventory(Keys key)
+                prefixID = rand.Next(0, 4);
+                suffixID = rand.Next(0, 4);
+                if (addInventory)
+                {
+                    foreach (Player player in players)
+                    {
+                        if (player.IsActive)
+                        {
+                            Item originalItem = items.Find(item => item.ID == itemID);
+
+                            if (originalItem != null)
+                            {
+                                Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4));
+                                player.Inventory.AddItem(itemToAdd, groundItems);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                    DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
+                }
+            }
+        }
+        private void HandleInventoryInteractions()
+        {
+            bool isMouseOverItem = false;
+
+            foreach (Player player in players)
+            {
+                if (player.IsActive)
+                {
+                    for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
+                    {
+                        Vector2 position = EquipmentSlotPositions(i);
+                        if (player.Inventory.equipmentSlots[i].EquippedItem != null)
+                        {
+                            if (player.Inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                            {
+                                isMouseOverItem = true;
+                                hoveredItem = player.Inventory.GetEquippedItem(i); // Adjust the slot parameter as needed
+                            }
+                        }
+                    }
+                    for (int y = 0; y < player.Inventory.Height; y++)
+                    {
+                        for (int x = 0; x < player.Inventory.Width; x++)
+                        {
+                            int slotSize = 44;
+                            int slotSpacing = 0;
+                            int slotX = x * (slotSize + slotSpacing) + 10;
+                            int slotY = y * (slotSize + slotSpacing) + 50;
+
+                            if (player.Inventory.IsSlotHovered(slotX, slotY))
+                            {
+                                hoveredItem = player.Inventory.GetItem(x, y);
+                                isMouseOverItem = true;
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
+            foreach (Item item in groundItems)
+            {
+                if (item.InteractsWithMouse())
+                {
+                    hoveredItem = item;
+                    isMouseOverItem = true;
+                }
+            }
+
+            if (!isMouseOverItem)
+            {
+                hoveredItem = null;
+            }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+            {
+                foreach (Player player in players)
+                {
+                    if (player.IsActive)
+                    {
+                        for (int y = 0; y < player.Inventory.Height; y++)
+                        {
+                            for (int x = 0; x < player.Inventory.Width; x++)
+                            {
+                                int slotSize = 44;
+                                int slotSpacing = 0;
+                                int slotX = x * (slotSize + slotSpacing) + 10;
+                                int slotY = y * (slotSize + slotSpacing) + 50;
+
+                                if (player.Inventory.IsSlotHovered(slotX, slotY))
+                                {
+                                    if (mouseItem == null)
+                                    {
+                                        mouseItem = player.Inventory.GetItem(x, y);
+                                        player.Inventory.RemoveItem(x, y);
+                                    }
+                                    else
+                                    {
+                                        Item temp = mouseItem;
+                                        mouseItem = player.Inventory.GetItem(x, y);
+                                        player.Inventory.SetItem(x, y, temp);
+                                    }
+                                }
+                            }
+                        }
+                        for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
+                        {
+                            Vector2 position = EquipmentSlotPositions(i);
+                            if (player.Inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                            {
+                                var equipSlot = player.Inventory.equipmentSlots[i];
+                                if (mouseItem == null)
+                                {
+                                    mouseItem = player.Inventory.GetEquippedItem(i);
+                                    equipSlot.EquippedItem = null;
+                                }
+                                else
+                                {
+                                    if (mouseItem.Type == equipSlot.SlotType)
+                                    {
+                                        Item temp = mouseItem;
+                                        mouseItem = player.Inventory.GetEquippedItem(i);
+                                        equipSlot.EquippedItem = temp;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (Mouse.GetState().RightButton == ButtonState.Pressed && pMouse.RightButton == ButtonState.Released)
+            {
+                foreach (Player player in players)
+                {
+                    if (player.IsActive)
+                    {
+                        if (mouseItem != null)
+                        {
+
+                            mouseItem.Position = player.Position;
+                            mouseItem.OnGround = true;
+                            groundItems.Add(mouseItem);
+                            mouseItem = null;
+                        }
+
+                        for (int y = 0; y < player.Inventory.Height; y++)
+                        {
+                            for (int x = 0; x < player.Inventory.Width; x++)
+                            {
+                                int slotSize = 44;
+                                int slotSpacing = 0;
+                                int slotX = x * (slotSize + slotSpacing) + 10;
+                                int slotY = y * (slotSize + slotSpacing) + 50;
+                                if (player.Inventory.IsSlotHovered(slotX, slotY))
+                                {
+                                    hoveredItem = player.Inventory.GetItem(x, y);
+                                    if (hoveredItem != null)
+                                    {
+                                        player.Inventory.EquipItem(hoveredItem, groundItems, x, y);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
+                        {
+                            Vector2 position = EquipmentSlotPositions(i);
+                            if (player.Inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                            {
+                                if (!player.Inventory.IsFull() && player.Inventory.equipmentSlots[i].EquippedItem != null)
+                                {
+                                    player.Inventory.AddItem(player.Inventory.equipmentSlots[i].EquippedItem, groundItems);
+                                    player.Inventory.equipmentSlots[i].EquippedItem = null;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private void SortInventory(Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
@@ -245,8 +387,7 @@ namespace BaseBuilderRPG
                 }
             }
         }
-
-        public void SelectPlayer(List<Player> players, Keys key, float selectionDistance)
+        private void SelectPlayer(List<Player> players, Keys key, float selectionDistance)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
@@ -275,21 +416,24 @@ namespace BaseBuilderRPG
                 }
             }
         }
-
-        public void PickItemsUp(List<Player> playerList, List<Item> itemsOnGround)
+        private void PickItemsUp(List<Player> playerList, List<Item> itemsOnGround, Keys key)
         {
             foreach (Item item in itemsOnGround.ToList())
             {
                 foreach (Player player in playerList)
                 {
-                    if (item.PlayerClose(player, false, 20f) && player.IsActive)
+                    if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
                     {
-                        player.Inventory.PickItem(item, itemsOnGround);
+                        if (item.PlayerClose(player, 20f) && player.IsActive)
+                        {
+                            player.Inventory.PickItem(item, itemsOnGround);
+                        }
+
                     }
+
                 }
             }
         }
-
         private void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
         {
             Item originalItem = items.Find(item => item.ID == itemID);
@@ -302,8 +446,7 @@ namespace BaseBuilderRPG
                 groundItems.Add(spawnedItem);
             }
         }
-
-        public void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, Keys key)
+        private void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
@@ -320,12 +463,51 @@ namespace BaseBuilderRPG
                     {
                         player.Inventory.ClearInventory();
                     }
+                    if (clearEquippedItems && player.IsActive)
+                    {
+                        player.Inventory.ClearEquippedItems();
+                    }
                 }
             }
             foreach (Item item in itemsToRemove)
             {
                 groundItems.Remove(item);
             }
+        }
+
+        public static Vector2 EquipmentSlotPositions(int i)
+        {
+            Vector2 position;
+            switch (i)
+            {
+                case 0:
+                    position = new Vector2(240, 112);
+                    break;
+
+                case 1:
+                    position = new Vector2(300, 112);
+                    break;
+
+                case 2:
+                    position = new Vector2(360, 112);
+                    break;
+
+                case 3:
+                    position = new Vector2(300, 172);
+                    break;
+
+                case 4:
+                    position = new Vector2(300, 52);
+                    break;
+
+                case 5:
+                    position = new Vector2(300, 50);
+                    break;
+                default:
+                    position = Vector2.Zero;
+                    break;
+            }
+            return position;
         }
     }
 }

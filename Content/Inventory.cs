@@ -1,14 +1,13 @@
-﻿using BaseBuilderRPG.Content;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-
 namespace BaseBuilderRPG
 {
     public class Inventory
     {
-        private Item[,] items; // 2D array to store items
+        private Item[,] items;
+        public List<EquipmentSlot> equipmentSlots;
         public int Width { get; }
         public int Height { get; }
 
@@ -17,7 +16,103 @@ namespace BaseBuilderRPG
             Width = width;
             Height = height;
             items = new Item[width, height];
+
+            equipmentSlots = new List<EquipmentSlot>
+            {
+                new EquipmentSlot("Weapon"),
+                new EquipmentSlot("Armor"),
+                new EquipmentSlot("Offhand"),
+                new EquipmentSlot("Boots"),
+                new EquipmentSlot("Helmet"),
+                new EquipmentSlot("Accessory")
+            };
         }
+
+
+
+        public void Draw(SpriteBatch spriteBatch, Player player)
+        {
+            int slotSize = 44;
+            int slotSpacing = 0;
+            int xStart = 10;
+            int yStart = 50;
+
+            Color slotColor = Color.White;
+
+            spriteBatch.Draw(Game1.texInventory, new Vector2(10, 42), Color.White);
+            for (int width = 0; width < player.Inventory.Width; width++)
+            {
+                for (int height = 0; height < player.Inventory.Height; height++)
+                {
+                    int x = xStart + width * (slotSize + slotSpacing);
+                    int y = yStart + height * (slotSize + slotSpacing);
+
+
+                    Item item = player.Inventory.GetItem(width, height);
+                    if (item != null)
+                    {
+                        spriteBatch.Draw(Game1.texInventorySlotBackground, new Vector2(x, y), item.RarityColor);
+                        spriteBatch.Draw(item.Texture, new Vector2(x + item.Texture.Width / 2, y + 8), Color.White);
+
+                        if (item.StackSize > 1 && item.Type != "Offhand" && item.Type != "Weapon")
+                        {
+                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
+                        }
+                    }
+
+                }
+
+            }
+
+
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (equipmentSlots[i].EquippedItem != null)
+                {
+                    Vector2 position = Game1.EquipmentSlotPositions(i);
+                    if (equipmentSlots[i].EquippedItem.Type == "Accessory")
+                    {
+
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(Game1.texMainSlotBackground, position, equipmentSlots[i].EquippedItem.RarityColor);
+                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, position, Color.White);
+                    }
+
+                }
+                /* new EquipmentSlot("Weapon"),
+                new EquipmentSlot("Armor"),
+                new EquipmentSlot("Offhand"),
+                new EquipmentSlot("Boots"),
+                new EquipmentSlot("Helmet"),
+                new EquipmentSlot("Accessory")*/
+            }
+
+        }
+
+        public void EquipItem(Item item, List<Item> itemsToRemove, int x, int y)
+        {
+            foreach (var slot in equipmentSlots)
+            {
+                if (slot.SlotType == item.Type)
+                {
+                    if (slot.EquippedItem == null)
+                    {
+                        slot.EquippedItem = item;
+                        items[x, y] = null;
+                    }
+                    else
+                    {
+                        var existingItem = slot.EquippedItem;
+                        items[x, y] = existingItem;
+                        slot.EquippedItem = item;
+                    }
+                    return;
+                }
+            }
+        }
+
 
         public void AddItem(Item item, List<Item> droppedItems)
         {
@@ -114,42 +209,6 @@ namespace BaseBuilderRPG
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Player player)
-        {
-            int slotSize = 40;
-            int slotSpacing = 10;
-            int xStart = 10;
-            int yStart = 50;
-
-            Color slotColor = Color.White;
-
-            for (int width = 0; width < player.Inventory.Width; width++)
-            {
-                for (int height = 0; height < player.Inventory.Height; height++)
-                {
-                    int x = xStart + width * (slotSize + slotSpacing);
-                    int y = yStart + height * (slotSize + slotSpacing);
-
-                    //spriteBatch.Draw(Game1.texInventorySlot, new Vector2(x - 6, y - 6), Color.White);
-                    Item item = player.Inventory.GetItem(width, height);
-                    if (item != null)
-                    {
-                        spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), item.RarityColor);
-                        spriteBatch.Draw(item.Texture, new Vector2(x + 11, y + 4), Color.White);
-
-                        if (item.StackSize > 1 && item.Type != "Accessory" && item.Type != "Weapon")
-                        {
-                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
-                        }
-                    }
-                    else
-                    {
-                        spriteBatch.DrawRectangle(new Rectangle(x, y, slotSize, slotSize), Color.White);
-                    }
-                }
-            }
-        }
-
         public void ClearInventory()
         {
             for (int x = 0; x < Width; x++)
@@ -158,6 +217,14 @@ namespace BaseBuilderRPG
                 {
                     items[x, y] = null;
                 }
+            }
+        }
+
+        public void ClearEquippedItems()
+        {
+            for (int x = 0; x < equipmentSlots.Count; x++)
+            {
+                equipmentSlots[x].EquippedItem = null;
             }
         }
 
@@ -179,6 +246,18 @@ namespace BaseBuilderRPG
                 return items[x, y];
             }
             return null;
+        }
+
+        public Item GetEquippedItem(int slot)
+        {
+            if (equipmentSlots[slot].EquippedItem != null)
+            {
+                return equipmentSlots[slot].EquippedItem;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public List<Item> GetAllItems()
@@ -245,8 +324,28 @@ namespace BaseBuilderRPG
 
         public bool IsSlotHovered(int slotX, int slotY)
         {
-            Rectangle slotRect = new Rectangle(slotX, slotY, 36, 36);
+            Rectangle slotRect = new Rectangle(slotX, slotY, 44, 44);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
+        }
+        public bool IsEquipmentSlotHovered(int x, int y, int slot)
+        {
+            if (slot == 5)
+            {
+                Rectangle slotRect = new Rectangle(x, y, 44, 44);
+                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                Rectangle slotRect = new Rectangle(x, y, 52, 52);
+                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool IsFull()
@@ -264,6 +363,26 @@ namespace BaseBuilderRPG
             return true;
         }
 
+        public void SetItem(int x, int y, Item item)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                items[x, y] = item;
+            }
+        }
+
     }
+
+    public class EquipmentSlot
+    {
+        public string SlotType { get; }
+        public Item EquippedItem { get; set; }
+
+        public EquipmentSlot(string slotType)
+        {
+            SlotType = slotType;
+        }
+    }
+
 }
 

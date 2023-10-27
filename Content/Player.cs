@@ -16,7 +16,7 @@ namespace BaseBuilderRPG
 
         private Texture2D playerTexture;
 
-        public Player(Texture2D texture, bool isActive, string name, Vector2 position, int invX, int invY)
+        public Player(Texture2D texture, bool isActive, string name, Vector2 position)
         {
             playerTexture = texture;
             Position = position;
@@ -25,7 +25,7 @@ namespace BaseBuilderRPG
             IsActive = isActive;
             Name = name;
 
-            Inventory = new Inventory(invX, invY);
+            Inventory = new Inventory(5, 4);
         }
 
         public void Update(GameTime gameTime)
@@ -54,8 +54,8 @@ namespace BaseBuilderRPG
         {
             if (IsActive)
             {
-                Inventory.Draw(spriteBatch, this);
                 spriteBatch.Draw(playerTexture, Position, Color.Lime);
+                Inventory.Draw(spriteBatch, this);
 
             }
             else

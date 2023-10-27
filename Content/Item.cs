@@ -27,7 +27,6 @@ namespace BaseBuilderRPG
         public Vector2 Position { get; set; }
         public bool OnGround { get; set; }
         public bool CanBeUsed { get; set; }
-        public bool HasTooltip { get; set; }
         public List<string> ToolTips { get; set; }
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount)
@@ -44,7 +43,6 @@ namespace BaseBuilderRPG
             Damage = damage;
             DamageType = damageType;
             Position = position;
-            HasTooltip = false;
 
             if (Type != "Weapon")
             {
@@ -55,11 +53,12 @@ namespace BaseBuilderRPG
                 UseTime = -1;
                 Damage = -1;
                 StackLimit = stackLimit;
-                StackSize = dropAmount;
+                StackSize = (StackLimit == 1) ? 1 : dropAmount;
             }
             else
             {
                 StackLimit = 1;
+                StackSize = 1;
             }
 
             SetDefaults();
@@ -84,48 +83,51 @@ namespace BaseBuilderRPG
         {
             if (Texture != null && OnGround)
             {
-                spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, 30), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                if (Type == "Weapon")
+                /*spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, 30), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                if (StackLimit > 1)
                 {
-                    spriteBatch.DrawString(Game1.TestFont, PrefixName + "" + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, 30), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                }
-                else
-                {
-                    spriteBatch.DrawString(Game1.TestFont, PrefixName + "" + Name + " " + SuffixName + " x" + StackSize, Position + new Vector2(-Texture.Width * 2 / 2, 30), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                }
+                    spriteBatch.DrawString(Game1.TestFont, PrefixName + " " + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, 30), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                }*/
 
                 spriteBatch.Draw(Texture, Position, Color.White);
-                spriteBatch.DrawString(Game1.TestFont, "Rarity: " + Rarity.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, 40), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "Type: " + Type, Position + new Vector2(-Texture.Width * 2 / 2, 60), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                spriteBatch.DrawString(Game1.TestFont, "On Ground: " + OnGround.ToString(), Position + new Vector2(-Texture.Width * 2 / 2, 70), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            }
-        }
-
-        public bool PlayerClose(Player player, bool includeMouse, float pickRange)
-        {
-            float distance = Vector2.Distance(Position, player.Position);
-            float mouseDistance;
-            mouseDistance = Vector2.Distance(Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
-            if (distance <= pickRange)
-            {
-                if (includeMouse)
+                string itemName;
+                if (Type != "Weapon")
                 {
-                    if (mouseDistance <= pickRange)
+                    if (StackLimit == 1)
                     {
-                        return true;
+                        itemName = "[" + Name + "]";
                     }
                     else
                     {
-                        return false;
+                        itemName = "[" + Name + " x" + StackSize + "]";
                     }
-                }
-                return true;
 
+                }
+                else
+                {
+                    itemName = "[" + PrefixName + " " + Name + " " + SuffixName + "]";
+                }
+                spriteBatch.DrawString(Game1.TestFont, itemName, new Vector2(Position.X - Game1.TestFont.MeasureString(itemName).X / 2f + Texture.Width / 2, Position.Y + Texture.Height), RarityColor);
+            }
+        }
+
+        public bool PlayerClose(Player player, float pickRange)
+        {
+            float distance = Vector2.Distance(Position, player.Position);
+            if (distance <= pickRange)
+            {
+                return true;
             }
             else
             {
                 return false;
             }
+        }
+
+        public bool InteractsWithMouse()
+        {
+            Rectangle slotRect = new Rectangle((int)Position.X, (int)Position.Y, this.Texture.Width, this.Texture.Height);
+            return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
 
         public void RemoveItem(List<Item> itemList)
@@ -238,8 +240,8 @@ namespace BaseBuilderRPG
         {
             if (ID == 3)
             {
-                HasTooltip = true;
                 ToolTips.Add("'The one and only jewel of King East the III.'");
+                ToolTips.Add("'This is the first item that has a tooltip'");
             }
         }
     }
