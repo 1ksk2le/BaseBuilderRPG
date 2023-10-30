@@ -37,7 +37,8 @@ namespace BaseBuilderRPG
             int xStart = 10;
             int yStart = 50;
 
-            spriteBatch.Draw(Game1.texInventory, new Vector2(10, 42), Color.White);
+
+            spriteBatch.Draw(Game1.texInventory, new Vector2(10, 42), null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.95f);
             for (int width = 0; width < player.Inventory.Width; width++)
             {
                 for (int height = 0; height < player.Inventory.Height; height++)
@@ -48,7 +49,7 @@ namespace BaseBuilderRPG
                     Item item = player.Inventory.GetItem(width, height);
                     if (item != null)
                     {
-                        spriteBatch.Draw(Game1.texInventorySlotBackground, new Vector2(x, y), item.RarityColor);
+                        spriteBatch.Draw(Game1.texInventorySlotBackground, new Vector2(x, y), null, item.RarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
 
                         float scale = 1f;
                         if (item.Texture.Width > slotSize || item.Texture.Height > slotSize)
@@ -58,11 +59,11 @@ namespace BaseBuilderRPG
 
                         Vector2 itemPosition = new Vector2(x + slotSize / 2, y + slotSize / 2);
 
-                        spriteBatch.Draw(item.Texture, itemPosition, null, Color.White, 0f, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), scale, SpriteEffects.None, 0f);
+                        spriteBatch.Draw(item.Texture, itemPosition, null, Color.White, 0f, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), scale, SpriteEffects.None, 0.97f);
 
                         if (item.StackSize > 1 && item.Type != "Offhand" && item.Type != "Weapon")
                         {
-                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1.2f, SpriteEffects.None, 1f);
+                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1.2f, SpriteEffects.None, 0.97f);
                         }
                     }
                 }
@@ -90,12 +91,11 @@ namespace BaseBuilderRPG
 
                         Vector2 itemPosition = new(position.X + equipmentSlotSize / 2, position.Y + equipmentSlotSize / 2);
 
-                        spriteBatch.Draw(Game1.texMainSlotBackground, position, equipmentSlots[i].EquippedItem.RarityColor);
-                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, itemPosition + new Vector2(-2, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].EquippedItem.Texture.Width / 2, equipmentSlots[i].EquippedItem.Texture.Height / 2), scale, SpriteEffects.None, 0f);
+                        spriteBatch.Draw(Game1.texMainSlotBackground, position, null, equipmentSlots[i].EquippedItem.RarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, itemPosition + new Vector2(-2, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].EquippedItem.Texture.Width / 2, equipmentSlots[i].EquippedItem.Texture.Height / 2), scale, SpriteEffects.None, 0.97f);
                     }
                 }
             }
-
         }
 
         public void EquipItem(Item item, List<Item> itemsToRemove, int x, int y)

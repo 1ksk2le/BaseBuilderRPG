@@ -67,8 +67,9 @@ namespace BaseBuilderRPG
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             players = new List<Player>();
-            players.Add(new Player(texPlayer, true, "East the Developer", 140, new Vector2(200, 200)));
-            players.Add(new Player(texPlayer, false, "Dummy", 100, new Vector2(300, 200)));
+            players.Add(new Player(texPlayer, true, "East", 140, new Vector2(10, 500)));
+            players.Add(new Player(texPlayer, false, "Dummy", 100, new Vector2(30, 500)));
+            players.Add(new Player(texPlayer, false, "West", 100, new Vector2(50, 500)));
             groundItems = new List<Item>();
         }
 
@@ -87,7 +88,7 @@ namespace BaseBuilderRPG
             }
 
             SpawnItem(Keys.X, true);
-            SelectPlayer(players, Keys.E, 30f);
+            SelectPlayer(players, Keys.E);
             PickItemsUp(players, groundItems, Keys.F);
             ClearItems(itemsToRemove, true, true, true, Keys.C);
             SortInventory(Keys.Z);
@@ -110,13 +111,14 @@ namespace BaseBuilderRPG
                 item.Draw(spriteBatch);
             }
 
-            spriteBatch.Begin();
-
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
                 player.Draw(spriteBatch);
             }
+            spriteBatch.End();
 
+            spriteBatch.Begin();
 
             spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + groundItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Game1.TestFont, "[INVENTORY]", new Vector2(10, 25), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
@@ -395,7 +397,7 @@ namespace BaseBuilderRPG
             }
         }
 
-        private void SelectPlayer(List<Player> players, Keys key, float selectionDistance)
+        private void SelectPlayer(List<Player> players, Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
@@ -410,9 +412,8 @@ namespace BaseBuilderRPG
 
                 foreach (Player player in players)
                 {
-                    float distance = Vector2.Distance(player.Position, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
-
-                    if (distance <= selectionDistance)
+                    Rectangle slotRect = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.PlayerTexture.Width, player.PlayerTexture.Height);
+                    if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
                     {
                         closestPlayer = player;
                     }
