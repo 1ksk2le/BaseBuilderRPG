@@ -14,8 +14,8 @@ namespace BaseBuilderRPG
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private MouseState pMouse, cMouse;
-        private KeyboardState pKey, cKey;
+        private MouseState pMouse;
+        private KeyboardState pKey;
         private List<Player> players;
         private List<Item> items;
         private List<Item> groundItems;
@@ -25,7 +25,8 @@ namespace BaseBuilderRPG
         public static Texture2D texAccessorySlotBackground;
         public static Texture2D texMainSlotBackground;
         public static SpriteFont TestFont;
-        public static Effect outline;
+
+        public static Effect OutlineShader;
 
         private Item hoveredItem;
         private Item mouseItem;
@@ -45,6 +46,7 @@ namespace BaseBuilderRPG
 
         protected override void Initialize()
         {
+            OutlineShader = Content.Load<Effect>("Shaders/Outline");
             TestFont = Content.Load<SpriteFont>("Font_Test");
             texPlayer = Content.Load<Texture2D>("Textures/tex_Player");
             texInventory = Content.Load<Texture2D>("Textures/tex_UI_Inventory");
@@ -64,10 +66,9 @@ namespace BaseBuilderRPG
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            outline = Content.Load<Effect>("Shaders/shader_Outline");
             players = new List<Player>();
-            players.Add(new Player(texPlayer, true, "East the Developer", new Vector2(200, 200)));
-            players.Add(new Player(texPlayer, false, "Dummy", new Vector2(300, 200)));
+            players.Add(new Player(texPlayer, true, "East the Developer", 140, new Vector2(200, 200)));
+            players.Add(new Player(texPlayer, false, "Dummy", 100, new Vector2(300, 200)));
             groundItems = new List<Item>();
         }
 
@@ -80,6 +81,10 @@ namespace BaseBuilderRPG
                 player.Update(gameTime);
             }
 
+            foreach (Item item in groundItems)
+            {
+                item.Update(gameTime);
+            }
 
             SpawnItem(Keys.X, true);
             SelectPlayer(players, Keys.E, 30f);
@@ -87,7 +92,6 @@ namespace BaseBuilderRPG
             ClearItems(itemsToRemove, true, true, true, Keys.C);
             SortInventory(Keys.Z);
             HandleInventoryInteractions();
-
 
             pMouse = Mouse.GetState();
             pKey = Keyboard.GetState();
@@ -99,17 +103,20 @@ namespace BaseBuilderRPG
         {
             GraphicsDevice.Clear(Color.DarkSlateBlue);
 
-            spriteBatch.Begin();
+
 
             foreach (Item item in groundItems)
             {
                 item.Draw(spriteBatch);
             }
 
+            spriteBatch.Begin();
+
             foreach (Player player in players)
             {
                 player.Draw(spriteBatch);
             }
+
 
             spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + groundItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Game1.TestFont, "[INVENTORY]", new Vector2(10, 25), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
@@ -133,10 +140,12 @@ namespace BaseBuilderRPG
                             toolTipColor = Color.Black;
                             bgColor = hoveredItem.RarityColor;
                             break;
+
                         case 1:
                             toolTipColor = Color.Yellow;
                             bgColor = Color.Black;
                             break;
+
                         default:
                             toolTipColor = Color.White;
                             bgColor = Color.Black;
@@ -164,7 +173,6 @@ namespace BaseBuilderRPG
                     {
                         spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 5), toolTipColor);
                     }
-
                 }
             }
 
@@ -177,6 +185,7 @@ namespace BaseBuilderRPG
 
             base.Draw(gameTime);
         }
+
         private void SpawnItem(Keys key, bool addInventory)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
@@ -211,6 +220,7 @@ namespace BaseBuilderRPG
                 }
             }
         }
+
         private void HandleInventoryInteractions()
         {
             bool isMouseOverItem = false;
@@ -247,8 +257,6 @@ namespace BaseBuilderRPG
                             }
                         }
                     }
-
-
                 }
             }
 
@@ -316,7 +324,6 @@ namespace BaseBuilderRPG
                                         mouseItem = player.Inventory.GetEquippedItem(i);
                                         equipSlot.EquippedItem = temp;
                                     }
-
                                 }
                             }
                         }
@@ -332,7 +339,6 @@ namespace BaseBuilderRPG
                     {
                         if (mouseItem != null)
                         {
-
                             mouseItem.Position = player.Position;
                             mouseItem.OnGround = true;
                             groundItems.Add(mouseItem);
@@ -374,6 +380,7 @@ namespace BaseBuilderRPG
                 }
             }
         }
+
         private void SortInventory(Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
@@ -387,6 +394,7 @@ namespace BaseBuilderRPG
                 }
             }
         }
+
         private void SelectPlayer(List<Player> players, Keys key, float selectionDistance)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
@@ -416,6 +424,7 @@ namespace BaseBuilderRPG
                 }
             }
         }
+
         private void PickItemsUp(List<Player> playerList, List<Item> itemsOnGround, Keys key)
         {
             foreach (Item item in itemsOnGround.ToList())
@@ -428,12 +437,11 @@ namespace BaseBuilderRPG
                         {
                             player.Inventory.PickItem(item, itemsOnGround);
                         }
-
                     }
-
                 }
             }
         }
+
         private void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
         {
             Item originalItem = items.Find(item => item.ID == itemID);
@@ -446,6 +454,7 @@ namespace BaseBuilderRPG
                 groundItems.Add(spawnedItem);
             }
         }
+
         private void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
@@ -481,28 +490,29 @@ namespace BaseBuilderRPG
             switch (i)
             {
                 case 0:
-                    position = new Vector2(240, 112);
+                    position = new Vector2(242, 114);
                     break;
 
                 case 1:
-                    position = new Vector2(300, 112);
+                    position = new Vector2(302, 114);
                     break;
 
                 case 2:
-                    position = new Vector2(360, 112);
+                    position = new Vector2(362, 114);
                     break;
 
                 case 3:
-                    position = new Vector2(300, 172);
+                    position = new Vector2(302, 174);
                     break;
 
                 case 4:
-                    position = new Vector2(300, 52);
+                    position = new Vector2(302, 54);
                     break;
 
                 case 5:
-                    position = new Vector2(300, 50);
+                    position = new Vector2(302, 52);
                     break;
+
                 default:
                     position = Vector2.Zero;
                     break;

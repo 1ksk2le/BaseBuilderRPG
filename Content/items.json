@@ -37,10 +37,10 @@
   },
   {
     "ID": 4,
-    "Name": "Eraan's Shield",
+    "Name": "Test Shield",
     "Type": "Offhand",
     "Rarity": 6,
     "StackLimit": 1,
-    "TexturePath": "Textures/tex_Eraan_Shield"
+    "TexturePath": "Textures/tex_Test_Shield"
   }
 ]

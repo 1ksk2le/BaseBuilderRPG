@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG
@@ -28,6 +29,8 @@ namespace BaseBuilderRPG
         public bool OnGround { get; set; }
         public bool CanBeUsed { get; set; }
         public List<string> ToolTips { get; set; }
+
+        private float levitationTimer = 0.0f;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount)
         {
@@ -79,17 +82,45 @@ namespace BaseBuilderRPG
             TooltipsBasedOnID();
         }
 
+        public void Update(GameTime gameTime)
+        {
+            levitationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             if (Texture != null && OnGround)
             {
-                /*spriteBatch.DrawString(Game1.TestFont, "[" + ID + "]", Position + new Vector2(-Texture.Width * 2 / 2 - 18, 30), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                if (StackLimit > 1)
-                {
-                    spriteBatch.DrawString(Game1.TestFont, PrefixName + " " + Name + " " + SuffixName, Position + new Vector2(-Texture.Width * 2 / 2, 30), RarityColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-                }*/
+                float levitationSpeed = 3f;
+                float levitationAmplitude = 0.5f;
 
-                spriteBatch.Draw(Texture, Position, Color.White);
+                float levitationOffset = (float)Math.Sin(levitationTimer * levitationSpeed) * levitationAmplitude;
+
+                float itemScale = 1.0f + 0.25f * levitationOffset;
+
+                Color shadowColor = new Color(0, 0, 0, 150);
+                float shadowScaleFactor = 1.2f;
+                float shadowOffsetY = 6;
+
+
+
+                spriteBatch.Begin();
+
+                Vector2 shadowPosition = Position + new Vector2(Texture.Width / 2, Texture.Height / 2);
+                shadowPosition.Y += shadowOffsetY + levitationOffset;
+                spriteBatch.Draw(Texture, shadowPosition, null, shadowColor, 0, new Vector2(Texture.Width / 2, Texture.Height / 2), itemScale * shadowScaleFactor, SpriteEffects.None, 0);
+
+                spriteBatch.End();
+
+                Game1.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / Texture.Width, 1.0f / Texture.Height));
+                Game1.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
+
+                spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Game1.OutlineShader, null);
+                spriteBatch.Draw(Texture, Position + new Vector2(Texture.Width / 2, Texture.Height / 2), null, Color.White, 0, new Vector2(Texture.Width / 2, Texture.Height / 2), itemScale, SpriteEffects.None, 0);
+
+                spriteBatch.End();
+
+                spriteBatch.Begin();
                 string itemName;
                 if (Type != "Weapon")
                 {
@@ -101,15 +132,19 @@ namespace BaseBuilderRPG
                     {
                         itemName = "[" + Name + " x" + StackSize + "]";
                     }
-
                 }
                 else
                 {
                     itemName = "[" + PrefixName + " " + Name + " " + SuffixName + "]";
                 }
-                spriteBatch.DrawString(Game1.TestFont, itemName, new Vector2(Position.X - Game1.TestFont.MeasureString(itemName).X / 2f + Texture.Width / 2, Position.Y + Texture.Height), RarityColor);
+
+                //spriteBatch.DrawString(Game1.TestFont, itemName, new Vector2(Position.X - Game1.TestFont.MeasureString(itemName).X / 2f + Texture.Width / 2, Position.Y + Texture.Height + 4), RarityColor);
+                spriteBatch.End();
             }
         }
+
+
+
 
         public bool PlayerClose(Player player, float pickRange)
         {
@@ -126,7 +161,7 @@ namespace BaseBuilderRPG
 
         public bool InteractsWithMouse()
         {
-            Rectangle slotRect = new Rectangle((int)Position.X, (int)Position.Y, this.Texture.Width, this.Texture.Height);
+            Rectangle slotRect = new((int)Position.X, (int)Position.Y, this.Texture.Width, this.Texture.Height);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
 

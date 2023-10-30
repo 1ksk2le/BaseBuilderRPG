@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
+
 namespace BaseBuilderRPG
 {
     public class Inventory
@@ -28,16 +30,12 @@ namespace BaseBuilderRPG
             };
         }
 
-
-
         public void Draw(SpriteBatch spriteBatch, Player player)
         {
             int slotSize = 44;
             int slotSpacing = 0;
             int xStart = 10;
             int yStart = 50;
-
-            Color slotColor = Color.White;
 
             spriteBatch.Draw(Game1.texInventory, new Vector2(10, 42), Color.White);
             for (int width = 0; width < player.Inventory.Width; width++)
@@ -47,22 +45,29 @@ namespace BaseBuilderRPG
                     int x = xStart + width * (slotSize + slotSpacing);
                     int y = yStart + height * (slotSize + slotSpacing);
 
-
                     Item item = player.Inventory.GetItem(width, height);
                     if (item != null)
                     {
                         spriteBatch.Draw(Game1.texInventorySlotBackground, new Vector2(x, y), item.RarityColor);
-                        spriteBatch.Draw(item.Texture, new Vector2(x + item.Texture.Width / 2, y + 8), Color.White);
+
+                        float scale = 1f;
+                        if (item.Texture.Width > slotSize || item.Texture.Height > slotSize)
+                        {
+                            scale = Math.Min((float)slotSize / item.Texture.Width, (float)slotSize / item.Texture.Height);
+                        }
+
+                        Vector2 itemPosition = new Vector2(x + slotSize / 2, y + slotSize / 2);
+
+                        spriteBatch.Draw(item.Texture, itemPosition, null, Color.White, 0f, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), scale, SpriteEffects.None, 0f);
 
                         if (item.StackSize > 1 && item.Type != "Offhand" && item.Type != "Weapon")
                         {
-                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 20), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
+                            spriteBatch.DrawString(Game1.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1.2f, SpriteEffects.None, 1f);
                         }
                     }
-
                 }
-
             }
+
 
 
             for (int i = 0; i < equipmentSlots.Count; i++)
@@ -72,21 +77,23 @@ namespace BaseBuilderRPG
                     Vector2 position = Game1.EquipmentSlotPositions(i);
                     if (equipmentSlots[i].EquippedItem.Type == "Accessory")
                     {
-
+                        // Handle accessory-specific logic if needed
                     }
                     else
                     {
-                        spriteBatch.Draw(Game1.texMainSlotBackground, position, equipmentSlots[i].EquippedItem.RarityColor);
-                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, position, Color.White);
-                    }
+                        int equipmentSlotSize = 52;
+                        float scale = 1f;
+                        if (equipmentSlots[i].EquippedItem.Texture.Width > equipmentSlotSize || equipmentSlots[i].EquippedItem.Texture.Height > equipmentSlotSize)
+                        {
+                            scale = Math.Min((float)equipmentSlotSize / equipmentSlots[i].EquippedItem.Texture.Width, (float)equipmentSlotSize / equipmentSlots[i].EquippedItem.Texture.Height);
+                        }
 
+                        Vector2 itemPosition = new(position.X + equipmentSlotSize / 2, position.Y + equipmentSlotSize / 2);
+
+                        spriteBatch.Draw(Game1.texMainSlotBackground, position, equipmentSlots[i].EquippedItem.RarityColor);
+                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, itemPosition + new Vector2(-2, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].EquippedItem.Texture.Width / 2, equipmentSlots[i].EquippedItem.Texture.Height / 2), scale, SpriteEffects.None, 0f);
+                    }
                 }
-                /* new EquipmentSlot("Weapon"),
-                new EquipmentSlot("Armor"),
-                new EquipmentSlot("Offhand"),
-                new EquipmentSlot("Boots"),
-                new EquipmentSlot("Helmet"),
-                new EquipmentSlot("Accessory")*/
             }
 
         }
@@ -112,7 +119,6 @@ namespace BaseBuilderRPG
                 }
             }
         }
-
 
         public void AddItem(Item item, List<Item> droppedItems)
         {
@@ -228,7 +234,6 @@ namespace BaseBuilderRPG
             }
         }
 
-
         public bool RemoveItem(int x, int y)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height && items[x, y] != null)
@@ -327,11 +332,12 @@ namespace BaseBuilderRPG
             Rectangle slotRect = new Rectangle(slotX, slotY, 44, 44);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
+
         public bool IsEquipmentSlotHovered(int x, int y, int slot)
         {
             if (slot == 5)
             {
-                Rectangle slotRect = new Rectangle(x, y, 44, 44);
+                Rectangle slotRect = new(x, y, 44, 44);
                 if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
                 {
                     return true;
@@ -370,7 +376,6 @@ namespace BaseBuilderRPG
                 items[x, y] = item;
             }
         }
-
     }
 
     public class EquipmentSlot
@@ -383,6 +388,4 @@ namespace BaseBuilderRPG
             SlotType = slotType;
         }
     }
-
 }
-
