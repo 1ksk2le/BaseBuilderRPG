@@ -1,2 +1,2 @@
-﻿using var game = new BaseBuilderRPG.Game1();
+﻿using var game = new BaseBuilderRPG.Main();
 game.Run();

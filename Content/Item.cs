@@ -18,6 +18,8 @@ namespace BaseBuilderRPG
         public int Rarity { get; set; }
         public int StackLimit { get; set; }
         public int StackSize { get; set; }
+        public int Shoot { get; set; }
+        public float ShootSpeed { get; set; }
         public string TexturePath { get; set; }
         public string Name { get; set; }
         public string SuffixName { get; set; }
@@ -32,7 +34,7 @@ namespace BaseBuilderRPG
 
         private float levitationTimer = 0.0f;
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, int rarity, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, float shootSpeed, int rarity, int shoot, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount, bool onGround)
         {
             Texture = texture;
             TexturePath = texturePath;
@@ -46,10 +48,12 @@ namespace BaseBuilderRPG
             Damage = damage;
             DamageType = damageType;
             Position = position;
+            OnGround = onGround;
 
             if (Type != "Weapon")
             {
                 DamageType = "";
+                Shoot = -1;
                 Damage = -1;
                 PrefixID = -1;
                 SuffixID = -1;
@@ -62,8 +66,17 @@ namespace BaseBuilderRPG
             {
                 StackLimit = 1;
                 StackSize = 1;
+                if (DamageType != "ranged")
+                {
+                    Shoot = -1;
+                    ShootSpeed = 0f;
+                }
+                else
+                {
+                    Shoot = shoot;
+                    ShootSpeed = shootSpeed;
+                }
             }
-
             SetDefaults();
 
             ToolTips = new List<string>();
@@ -78,6 +91,10 @@ namespace BaseBuilderRPG
             if (UseTime > 0)
             {
                 ToolTips.Add(UseTime.ToString() + " use time");
+            }
+            if (Shoot > -1)
+            {
+                ToolTips.Add(ShootSpeed.ToString() + " velocity");
             }
             TooltipsBasedOnID();
         }
@@ -102,8 +119,6 @@ namespace BaseBuilderRPG
                 float shadowScaleFactor = 1.2f;
                 float shadowOffsetY = 6;
 
-
-
                 spriteBatch.Begin();
 
                 Vector2 shadowPosition = Position + new Vector2(Texture.Width / 2, Texture.Height / 2);
@@ -112,10 +127,10 @@ namespace BaseBuilderRPG
 
                 spriteBatch.End();
 
-                Game1.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / Texture.Width, 1.0f / Texture.Height));
-                Game1.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
+                Main.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / Texture.Width, 1.0f / Texture.Height));
+                Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
 
-                spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Game1.OutlineShader, null);
+                spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.OutlineShader, null);
                 spriteBatch.Draw(Texture, Position + new Vector2(Texture.Width / 2, Texture.Height / 2), null, Color.White, 0, new Vector2(Texture.Width / 2, Texture.Height / 2), itemScale, SpriteEffects.None, 0);
 
                 spriteBatch.End();
@@ -143,9 +158,6 @@ namespace BaseBuilderRPG
             }
         }
 
-
-
-
         public bool PlayerClose(Player player, float pickRange)
         {
             float distance = Vector2.Distance(Position, player.Position);
@@ -170,19 +182,19 @@ namespace BaseBuilderRPG
             itemList.Remove(this);
         }
 
-        public Item Clone()
+        public Item Clone(bool onGround)
         {
-            return new Item(Texture, TexturePath, ID, Name, Type, DamageType, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize);
+            return new Item(Texture, TexturePath, ID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize, onGround);
         }
 
-        public Item Clone(int itemID, int prefixID, int suffixID, int dropAmount)
+        public Item Clone(int itemID, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, Rarity, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount, OnGround);
         }
 
-        public Item Clone(int itemID, int dropAmount)
+        public Item Clone(int itemID, int dropAmount, bool onGround)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, Rarity, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount, onGround);
         }
 
         public void SetDefaults()
@@ -190,7 +202,7 @@ namespace BaseBuilderRPG
             switch (Rarity)
             {
                 case 0:
-                    RarityColor = Color.SlateGray;
+                    RarityColor = Color.LightGray;
                     break;
 
                 case 1:
@@ -198,23 +210,23 @@ namespace BaseBuilderRPG
                     break;
 
                 case 2:
-                    RarityColor = Color.Chartreuse;
+                    RarityColor = new Color(30, 255, 0);
                     break;
 
                 case 3:
-                    RarityColor = Color.DodgerBlue;
+                    RarityColor = new Color(0, 112, 221);
                     break;
 
                 case 4:
-                    RarityColor = Color.MediumSlateBlue;
+                    RarityColor = new Color(163, 53, 238);
                     break;
 
                 case 5:
-                    RarityColor = Color.Yellow;
+                    RarityColor = Color.Gold;
                     break;
 
                 case 6:
-                    RarityColor = Color.OrangeRed;
+                    RarityColor = new Color(255, 128, 0);
                     break;
 
                 case 7:
@@ -273,10 +285,9 @@ namespace BaseBuilderRPG
 
         private void TooltipsBasedOnID()
         {
-            if (ID == 3)
+            if (ID == 5)
             {
-                ToolTips.Add("'The one and only jewel of King East the III.'");
-                ToolTips.Add("'This is the first item that has a tooltip'");
+                ToolTips.Add("'Shoots a single wooden arrow in a straight line.'");
             }
         }
     }

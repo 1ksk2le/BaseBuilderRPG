@@ -42,5 +42,17 @@
     "Rarity": 6,
     "StackLimit": 1,
     "TexturePath": "Textures/tex_Test_Shield"
+  },
+  {
+    "ID": 5,
+    "Name": "Test Bow",
+    "Type": "Weapon",
+    "DamageType": "ranged",
+    "Rarity": 7,
+    "Damage": 12,
+    "UseTime": 2,
+    "Shoot": 0,
+    "ShootSpeed": 3.5,
+    "TexturePath": "Textures/tex_Test_Bow"
   }
 ]

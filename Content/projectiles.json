@@ -1,0 +1,16 @@
+[
+  {
+    "ID": 0,
+    "AI": 0,
+    "Name": "Test Arrow",
+    "LifeTime": 2,
+    "TexturePath": "Textures/tex_Wooden_Arrow"
+  },
+  {
+    "ID": 1,
+    "AI": 0,
+    "Name": "Wooden Arrow",
+    "LifeTime": 2,
+    "TexturePath": "Textures/tex_Wooden_Arrow"
+  }
+]

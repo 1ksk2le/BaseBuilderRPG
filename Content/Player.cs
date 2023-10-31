@@ -17,6 +17,7 @@ namespace BaseBuilderRPG
 
         public Texture2D PlayerTexture;
 
+
         public Player(Texture2D texture, bool isActive, string name, int healthMax, Vector2 position)
         {
             PlayerTexture = texture;
@@ -76,32 +77,30 @@ namespace BaseBuilderRPG
 
             // spriteBatch.DrawString(Game1.TestFont, "Health: " + Health.ToString() + "/" + HealthMax.ToString(), Position + new Vector2(-12, 30), (IsActive) ? Color.Black : Color.Transparent, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.92f);
             string textToDisplay = "[" + Name + "]";
-            Vector2 textSize = Game1.TestFont.MeasureString(textToDisplay);
+            Vector2 textSize = Main.TestFont.MeasureString(textToDisplay);
             Vector2 textPosition = Position + new Vector2(0, -14);
             textPosition.X = (Position.X + (PlayerTexture.Width / 2) - (textSize.X / 2) * 0.8f);
-            spriteBatch.DrawString(Game1.TestFont, textToDisplay, textPosition + new Vector2(4, 0), (IsActive) ? Color.Yellow : Color.Black, 0, Vector2.Zero, 0.8f, SpriteEffects.None, 0.92f);
-
+            spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition + new Vector2(4, 0), (IsActive) ? Color.Yellow : Color.Black, 0, Vector2.Zero, 0.8f, SpriteEffects.None, 0.92f);
 
             if (IsActive)
             {
                 Inventory.Draw(spriteBatch, this);
             }
-
         }
 
         public void PreDraw(SpriteBatch spriteBatch)
         {
-            if (Inventory.equipmentSlots[2].EquippedItem != null)
+            if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
                 spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 45f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, (IsActive) ? 0.79f : 0.68f);
             }
-
         }
+
         public void PostDraw(SpriteBatch spriteBatch)
         {
-            if (Inventory.equipmentSlots[0].EquippedItem != null)
+            if (Inventory.equipmentSlots[0].EquippedItem != null) // Weapon
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[0].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width, PlayerTexture.Height), null, Color.White, 90f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, (IsActive) ? 0.81f : 0.71f);
+                spriteBatch.Draw(Inventory.equipmentSlots[0].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, (IsActive) ? 0.81f : 0.71f);
             }
         }
     }

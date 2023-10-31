@@ -10,20 +10,28 @@ using System.Linq;
 
 namespace BaseBuilderRPG
 {
-    public class Game1 : Game
+    public class Main : Game
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private MouseState pMouse;
         private KeyboardState pKey;
+
         private List<Player> players;
+
         private List<Item> items;
+        private List<Item> itemsToRemove;
         private List<Item> groundItems;
+
+        private List<Projectile> projectiles;
+        private List<Projectile> projectilesToRemove;
+
         private Texture2D texPlayer;
         public static Texture2D texInventory;
         public static Texture2D texInventorySlotBackground;
         public static Texture2D texAccessorySlotBackground;
         public static Texture2D texMainSlotBackground;
+
         public static SpriteFont TestFont;
 
         public static Effect OutlineShader;
@@ -31,16 +39,19 @@ namespace BaseBuilderRPG
         private Item hoveredItem;
         private Item mouseItem;
 
+        private Dictionary<int, Projectile> projectileDictionary;
+
+        private float shootTimer = 0;
         public static Vector2 basePosInventory = new Vector2(0, 0);
 
-        public Game1()
+        public Main()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            graphics.PreferredBackBufferWidth = 1000;
-            graphics.PreferredBackBufferHeight = 1000;
+            graphics.PreferredBackBufferWidth = 1680;
+            graphics.PreferredBackBufferHeight = 1050;
             graphics.ApplyChanges();
         }
 
@@ -53,12 +64,26 @@ namespace BaseBuilderRPG
             texInventorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Inventory_Slot_Background");
             texAccessorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Accessory_Slot_Background");
             texMainSlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Main_Slot_Background");
-            string json = File.ReadAllText("Content/items.json");
-            items = JsonConvert.DeserializeObject<List<Item>>(json);
+
+            string itemsJson = File.ReadAllText("Content/items.json");
+            items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
             foreach (Item item in items)
             {
                 item.Texture = Content.Load<Texture2D>(item.TexturePath);
             }
+            // Initialize a dictionary to store projectile data
+            projectileDictionary = new Dictionary<int, Projectile>();
+
+            // Load your projectile data from JSON and add it to the dictionary
+            string projectilesJson = File.ReadAllText("Content/projectiles.json");
+            projectiles = JsonConvert.DeserializeObject<List<Projectile>>(projectilesJson);
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Texture = Content.Load<Texture2D>(projectile.TexturePath);
+                // Add the projectile data to the dictionary with ID as the key
+                projectileDictionary.Add(projectile.ID, projectile);
+            }
+
 
             base.Initialize();
         }
@@ -70,13 +95,13 @@ namespace BaseBuilderRPG
             players.Add(new Player(texPlayer, true, "East", 140, new Vector2(10, 500)));
             players.Add(new Player(texPlayer, false, "Dummy", 100, new Vector2(30, 500)));
             players.Add(new Player(texPlayer, false, "West", 100, new Vector2(50, 500)));
+            projectilesToRemove = new List<Projectile>();
             groundItems = new List<Item>();
+            itemsToRemove = new List<Item>();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            List<Item> itemsToRemove = new List<Item>();
-
             foreach (Player player in players)
             {
                 player.Update(gameTime);
@@ -87,6 +112,31 @@ namespace BaseBuilderRPG
                 item.Update(gameTime);
             }
 
+            foreach (Projectile projectile in projectiles)
+            {
+                if (projectile.IsAlive)
+                {
+                    projectile.Update(gameTime);
+                }
+                else
+                {
+                    projectilesToRemove.Add(projectile);
+                }
+
+            }
+
+            foreach (Projectile projectile in projectilesToRemove)
+            {
+                projectiles.Remove(projectile);
+            }
+
+            Item originalItem = items.Find(item => item.ID == 5);
+            if (originalItem != null)
+            {
+                Item itemToAdd = originalItem.Clone(5, -1, -1, 1, false);
+                players[0].Inventory.equipmentSlots[0].EquippedItem = itemToAdd;
+            }
+
             SpawnItem(Keys.X, true);
             SelectPlayer(players, Keys.E);
             PickItemsUp(players, groundItems, Keys.F);
@@ -94,21 +144,71 @@ namespace BaseBuilderRPG
             SortInventory(Keys.Z);
             HandleInventoryInteractions();
 
+            Shoot(gameTime);
             pMouse = Mouse.GetState();
             pKey = Keyboard.GetState();
+
+
 
             base.Update(gameTime);
         }
 
+        private void Shoot(GameTime gameTime)
+        {
+            foreach (Player player in players)
+            {
+                var equippedWeapon = player.Inventory.equipmentSlots[0].EquippedItem;
+                if (equippedWeapon != null && equippedWeapon.Shoot > -1 && player.IsActive)
+                {
+                    if (shootTimer > 0)
+                    {
+                        shootTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    }
+
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed && shootTimer <= 0)
+                    {
+                        if (projectileDictionary.TryGetValue(equippedWeapon.Shoot, out var projectileData))
+                        {
+                            Projectile proj = new Projectile(
+                                texture: Content.Load<Texture2D>(projectileData.TexturePath),
+                                texturePath: projectileData.TexturePath,
+                                name: projectileData.Name,
+                                id: equippedWeapon.Shoot,
+                                ai: projectileData.AI,
+                                damage: equippedWeapon.Damage,
+                                lifeTime: projectileData.LifeTime,
+                                knockBack: projectileData.KnockBack,
+                                position: player.Position,
+                                owner: player,
+                                isAlive: true
+                            );
+
+                            proj.Speed = equippedWeapon.ShootSpeed;
+
+                            projectiles.Add(proj);
+
+                            shootTimer = equippedWeapon.UseTime;
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkSlateBlue);
-
+            GraphicsDevice.Clear(Color.Gray);
 
 
             foreach (Item item in groundItems)
             {
                 item.Draw(spriteBatch);
+            }
+
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Draw(spriteBatch);
             }
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, Matrix.Identity);
@@ -120,15 +220,18 @@ namespace BaseBuilderRPG
 
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(Game1.TestFont, "Items on the ground: " + groundItems.Count, new Vector2(10, 10), Color.Red, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            spriteBatch.DrawString(Game1.TestFont, "[INVENTORY]", new Vector2(10, 25), Color.Black, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "ELAPSED GAME TIME: " + gameTime.ElapsedGameTime.TotalSeconds.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF PROJS: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS (!!!): " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF GROUND ITEMS: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + shootTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
 
             if (hoveredItem != null && mouseItem == null)
             {
                 float maxTextWidth = 0;
                 foreach (string tooltip in hoveredItem.ToolTips)
                 {
-                    Vector2 textSize = Game1.TestFont.MeasureString(tooltip);
+                    Vector2 textSize = Main.TestFont.MeasureString(tooltip);
                     maxTextWidth = Math.Max(maxTextWidth, textSize.X);
                 }
 
@@ -159,7 +262,7 @@ namespace BaseBuilderRPG
                         toolTipColor = Color.Aquamarine;
                     }
 
-                    Vector2 textSize = Game1.TestFont.MeasureString(hoveredItem.ToolTips[i]);
+                    Vector2 textSize = Main.TestFont.MeasureString(hoveredItem.ToolTips[i]);
                     Vector2 backgroundSize = new Vector2(maxTextWidth, textSize.Y);
 
                     int tooltipY = (int)Mouse.GetState().Y + i * ((int)textSize.Y);
@@ -169,11 +272,11 @@ namespace BaseBuilderRPG
 
                     if (i == 0 || i == 1)
                     {
-                        spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
                     }
                     else
                     {
-                        spriteBatch.DrawString(Game1.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 5), toolTipColor);
                     }
                 }
             }
@@ -209,7 +312,7 @@ namespace BaseBuilderRPG
 
                             if (originalItem != null)
                             {
-                                Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4));
+                                Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4), false);
                                 player.Inventory.AddItem(itemToAdd, groundItems);
                             }
                         }
@@ -449,7 +552,7 @@ namespace BaseBuilderRPG
 
             if (originalItem != null)
             {
-                Item spawnedItem = originalItem.Clone(itemID, prefixID, suffixID, dropAmount);
+                Item spawnedItem = originalItem.Clone(itemID, prefixID, suffixID, dropAmount, true);
                 spawnedItem.Position = position;
                 spawnedItem.OnGround = true;
                 groundItems.Add(spawnedItem);

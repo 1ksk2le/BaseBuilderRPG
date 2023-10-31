@@ -24,6 +24,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Content\projectiles.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\items.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
