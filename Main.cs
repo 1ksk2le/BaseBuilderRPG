@@ -98,6 +98,12 @@ namespace BaseBuilderRPG
             projectilesToRemove = new List<Projectile>();
             groundItems = new List<Item>();
             itemsToRemove = new List<Item>();
+
+            Random rand = new Random();
+            foreach (Item item in items)
+            {
+                DropItem(item.ID, -1, -1, 1, new Vector2(500 + item.ID * 50, 300));
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -112,6 +118,8 @@ namespace BaseBuilderRPG
                 item.Update(gameTime);
             }
 
+
+
             foreach (Projectile projectile in projectiles)
             {
                 if (projectile.IsAlive)
@@ -122,7 +130,6 @@ namespace BaseBuilderRPG
                 {
                     projectilesToRemove.Add(projectile);
                 }
-
             }
 
             foreach (Projectile projectile in projectilesToRemove)
@@ -222,7 +229,7 @@ namespace BaseBuilderRPG
 
             spriteBatch.DrawString(Main.TestFont, "ELAPSED GAME TIME: " + gameTime.ElapsedGameTime.TotalSeconds.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF PROJS: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS (!!!): " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS (DICTIONARY KULLAN): " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF GROUND ITEMS: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + shootTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
 

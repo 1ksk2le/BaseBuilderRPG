@@ -14,11 +14,11 @@ namespace BaseBuilderRPG
         public int PrefixID { get; set; }
         public int SuffixID { get; set; }
         public int Damage { get; set; }
-        public int UseTime { get; set; }
         public int Rarity { get; set; }
         public int StackLimit { get; set; }
         public int StackSize { get; set; }
         public int Shoot { get; set; }
+        public float UseTime { get; set; }
         public float ShootSpeed { get; set; }
         public string TexturePath { get; set; }
         public string Name { get; set; }
@@ -34,7 +34,7 @@ namespace BaseBuilderRPG
 
         private float levitationTimer = 0.0f;
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, float shootSpeed, int rarity, int shoot, int prefixID, int suffixID, int damage, int useTime, int stackLimit, int dropAmount, bool onGround)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, float shootSpeed, int rarity, int shoot, int prefixID, int suffixID, int damage, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
             Texture = texture;
             TexturePath = texturePath;

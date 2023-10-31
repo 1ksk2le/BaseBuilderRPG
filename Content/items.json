@@ -48,9 +48,21 @@
     "Name": "Test Bow",
     "Type": "Weapon",
     "DamageType": "ranged",
-    "Rarity": 7,
+    "Rarity": 1,
     "Damage": 12,
     "UseTime": 2,
+    "Shoot": 0,
+    "ShootSpeed": 3.5,
+    "TexturePath": "Textures/tex_Test_Bow"
+  },
+  {
+    "ID": 6,
+    "Name": "Amazing Bow",
+    "Type": "Weapon",
+    "DamageType": "ranged",
+    "Rarity": 7,
+    "Damage": 12,
+    "UseTime": 0.5,
     "Shoot": 0,
     "ShootSpeed": 3.5,
     "TexturePath": "Textures/tex_Test_Bow"
