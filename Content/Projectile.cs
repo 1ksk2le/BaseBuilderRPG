@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace BaseBuilderRPG
+namespace BaseBuilderRPG.Content
 {
     public class Projectile
     {
@@ -27,7 +27,6 @@ namespace BaseBuilderRPG
         private float Rotation;
         public Player Owner { get; set; }
 
-
         public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float lifeTime, float knockBack, Vector2 position, Player owner, bool isAlive)
         {
             CurrentLifeTime = 0f;
@@ -47,9 +46,9 @@ namespace BaseBuilderRPG
             IsAlive = isAlive;
             SetDefaults();
         }
+
         private void SetDefaults()
         {
-
         }
 
         public void Update(GameTime gameTime)
@@ -89,7 +88,7 @@ namespace BaseBuilderRPG
                     }
                     else
                     {
-                        scale = MathHelper.Lerp(1f, 0.3f, (CurrentLifeTime - (LifeTime / 2)) / (LifeTime / 2));
+                        scale = MathHelper.Lerp(1f, 0.3f, (CurrentLifeTime - LifeTime / 2) / (LifeTime / 2));
                     }
                 }
 
@@ -108,10 +107,12 @@ namespace BaseBuilderRPG
         {
             return new Projectile(Texture, TexturePath, Name, ID, AI, Damage, LifeTime, KnockBack, Position, owner, isAlive);
         }
+
         public Projectile Clone(int id, int ai, int damage, Vector2 pos, Player owner, bool isAlive)
         {
             return new Projectile(Texture, TexturePath, Name, id, ai, damage, LifeTime, KnockBack, pos, owner, isAlive);
         }
+
         public Projectile Clone(int id, int damage, Vector2 pos, Player owner, bool isAlive)
         {
             return new Projectile(Texture, TexturePath, Name, id, AI, damage, LifeTime, KnockBack, pos, owner, isAlive);

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace BaseBuilderRPG
+namespace BaseBuilderRPG.Content
 {
     public class Item
     {
@@ -26,6 +26,7 @@ namespace BaseBuilderRPG
         public string PrefixName { get; set; }
         public string Type { get; set; }
         public string DamageType { get; set; }
+        public string WeaponType { get; set; }
         public Color RarityColor { get; set; }
         public Vector2 Position { get; set; }
         public bool OnGround { get; set; }
@@ -34,7 +35,7 @@ namespace BaseBuilderRPG
 
         private float levitationTimer = 0.0f;
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, Vector2 position, float shootSpeed, int rarity, int shoot, int prefixID, int suffixID, int damage, float useTime, int stackLimit, int dropAmount, bool onGround)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
             Texture = texture;
             TexturePath = texturePath;
@@ -47,6 +48,7 @@ namespace BaseBuilderRPG
             UseTime = useTime;
             Damage = damage;
             DamageType = damageType;
+            WeaponType = weaponType;
             Position = position;
             OnGround = onGround;
 
@@ -60,7 +62,7 @@ namespace BaseBuilderRPG
                 UseTime = -1;
                 Damage = -1;
                 StackLimit = stackLimit;
-                StackSize = (StackLimit == 1) ? 1 : dropAmount;
+                StackSize = StackLimit == 1 ? 1 : dropAmount;
             }
             else
             {
@@ -83,10 +85,15 @@ namespace BaseBuilderRPG
 
             ToolTips.Add(PrefixName + " " + Name + " " + SuffixName);
 
-            ToolTips.Add("[" + Type + "]");
+
             if (Damage > 0)
             {
+                ToolTips.Add("[" + Type + " - " + WeaponType + "]");
                 ToolTips.Add(Damage.ToString() + " " + DamageType + " damage");
+            }
+            else
+            {
+                ToolTips.Add("[" + Type + "]");
             }
             if (UseTime > 0)
             {
@@ -173,7 +180,7 @@ namespace BaseBuilderRPG
 
         public bool InteractsWithMouse()
         {
-            Rectangle slotRect = new((int)Position.X, (int)Position.Y, this.Texture.Width, this.Texture.Height);
+            Rectangle slotRect = new((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
 
@@ -184,17 +191,17 @@ namespace BaseBuilderRPG
 
         public Item Clone(bool onGround)
         {
-            return new Item(Texture, TexturePath, ID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize, onGround);
+            return new Item(Texture, TexturePath, ID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, StackSize, onGround);
         }
 
         public Item Clone(int itemID, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount, OnGround);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount, OnGround);
         }
 
         public Item Clone(int itemID, int dropAmount, bool onGround)
         {
-            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount, onGround);
+            return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount, onGround);
         }
 
         public void SetDefaults()

@@ -87,7 +87,6 @@ namespace BaseBuilderRPG
                 projectileDictionary.Add(projectile.ID, projectile);
             }
 
-
             base.Initialize();
         }
 
@@ -166,8 +165,6 @@ namespace BaseBuilderRPG
             pMouse = Mouse.GetState();
             pKey = Keyboard.GetState();
 
-
-
             base.Update(gameTime);
         }
 
@@ -212,12 +209,9 @@ namespace BaseBuilderRPG
             }
         }
 
-
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Gray);
-
 
             foreach (Item item in groundItems)
             {
@@ -232,7 +226,7 @@ namespace BaseBuilderRPG
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
-                player.Draw(spriteBatch);
+                player.Draw(spriteBatch, gameTime);
             }
             spriteBatch.End();
 
@@ -328,27 +322,7 @@ namespace BaseBuilderRPG
                         {
                             if (itemDictionary.TryGetValue(itemID, out var itemData))
                             {
-                                Item item = new Item(
-                                    texture: Content.Load<Texture2D>(itemData.TexturePath),
-                                    texturePath: itemData.TexturePath,
-                                    id: itemID,
-                                    name: itemData.Name,
-                                    type: itemData.Type,
-                                    damageType: itemData.DamageType,
-                                    position: itemData.Position,
-                                    shootSpeed: itemData.ShootSpeed,
-                                    rarity: itemData.Rarity,
-                                    shoot: itemData.Shoot,
-                                    prefixID: prefixID,
-                                    suffixID: suffixID,
-                                    damage: itemData.Damage,
-                                    useTime: itemData.UseTime,
-                                    stackLimit: itemData.StackLimit,
-                                    dropAmount: (itemData.StackLimit == 1) ? 1 : itemData.StackSize,
-                                    onGround: itemData.OnGround
-                                );
-
-                                player.Inventory.AddItem(item, groundItems);
+                                player.Inventory.AddItem(NewItem(itemData, Vector2.Zero, prefixID, suffixID, 1, false), groundItems);
                             }
                         }
                     }
@@ -572,7 +546,7 @@ namespace BaseBuilderRPG
                 {
                     if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
                     {
-                        if (item.PlayerClose(player, 20f) && player.IsActive)
+                        if (item.PlayerClose(player, 40f) && player.IsActive)
                         {
                             player.Inventory.PickItem(item, itemsOnGround);
                         }
@@ -585,28 +559,13 @@ namespace BaseBuilderRPG
         {
             if (itemDictionary.TryGetValue(itemID, out var itemData))
             {
-                Item item = new Item(
-                    texture: Content.Load<Texture2D>(itemData.TexturePath),
-                    texturePath: itemData.TexturePath,
-                    id: itemID,
-                    name: itemData.Name,
-                    type: itemData.Type,
-                    damageType: itemData.DamageType,
-                    position: position,
-                    shootSpeed: itemData.ShootSpeed,
-                    rarity: itemData.Rarity,
-                    shoot: itemData.Shoot,
-                    prefixID: prefixID,
-                    suffixID: suffixID,
-                    damage: itemData.Damage,
-                    useTime: itemData.UseTime,
-                    stackLimit: itemData.StackLimit,
-                    dropAmount: (itemData.StackLimit == 1) ? 1 : dropAmount,
-                    onGround: true
-                );
-
-                groundItems.Add(item);
+                groundItems.Add(NewItem(itemData, position, prefixID, suffixID, dropAmount, true));
             }
+        }
+
+        private Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
+        {
+            return new Item(itemData.Texture, itemData.TexturePath, itemData.ID, itemData.Name, itemData.Type, itemData.DamageType, itemData.WeaponType, position, itemData.ShootSpeed, itemData.Shoot, itemData.Rarity, prefixID, suffixID, itemData.Damage, itemData.UseTime, itemData.StackLimit, dropAmount, onGround);
         }
 
         private void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)

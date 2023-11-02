@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace BaseBuilderRPG
+namespace BaseBuilderRPG.Content
 {
     public class Inventory
     {
@@ -67,7 +67,6 @@ namespace BaseBuilderRPG
                             Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(255 / 255f, 255 / 255f, 255 / 255f, 255 / 255f));
 
                             spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.98f);
-
                         }
                     }
                 }

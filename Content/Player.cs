@@ -2,27 +2,24 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace BaseBuilderRPG
+namespace BaseBuilderRPG.Content
 {
     public class Player
     {
         public Inventory Inventory { get; private set; }
         public Inventory BackPack { get; private set; }
         public Vector2 Position { get; set; }
-        public float Speed { get; set; }
         public int Health { get; set; }
         public int HealthMax { get; set; }
         public bool IsActive { get; set; }
         public string Name { get; set; }
 
         public Texture2D PlayerTexture;
-
-
+        private Vector2 Velocity;
         public Player(Texture2D texture, bool isActive, string name, int healthMax, Vector2 position)
         {
             PlayerTexture = texture;
             Position = position;
-            Speed = 1f;
             Health = 100;
             IsActive = isActive;
             Name = name;
@@ -32,29 +29,44 @@ namespace BaseBuilderRPG
             Inventory = new Inventory(5, 4);
         }
 
+        private float rotationAngle;
+        private float rotationSpeed = MathHelper.TwoPi; // Adjust the speed of the swing
+        private float spriteAngleOffset = MathHelper.PiOver4;
         public void Update(GameTime gameTime)
         {
-            Speed = 2f;
-
             KeyboardState keyboardState = Keyboard.GetState();
-            Vector2 movement = Vector2.Zero;
 
+            Movement(Vector2.Zero, keyboardState);
+            OneHandedSwing(gameTime);
+        }
+
+        private void Movement(Vector2 movement, KeyboardState keyboardState, float Speed = 2f)
+        {
             if (IsActive)
             {
                 if (keyboardState.IsKeyDown(Keys.W))
-                    movement.Y -= Speed;
+                    movement.Y = -Speed;
                 if (keyboardState.IsKeyDown(Keys.S))
-                    movement.Y += Speed;
+                    movement.Y = Speed;
                 if (keyboardState.IsKeyDown(Keys.A))
-                    movement.X -= Speed;
+                    movement.X = -Speed;
                 if (keyboardState.IsKeyDown(Keys.D))
-                    movement.X += Speed;
+                    movement.X = Speed;
 
-                Position += movement;
+                if (movement != Vector2.Zero)
+                    movement.Normalize();
+
+                Velocity = movement * Speed;
+
+                Position += Velocity;
+            }
+            else
+            {
+                Velocity = Vector2.Zero;
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             PreDraw(spriteBatch);
             if (IsActive)
@@ -73,14 +85,14 @@ namespace BaseBuilderRPG
                     spriteBatch.Draw(PlayerTexture, Position, null, Color.Red, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.69f);
                 }
             }
-            PostDraw(spriteBatch);
+            PostDraw(spriteBatch, gameTime);
 
             // spriteBatch.DrawString(Game1.TestFont, "Health: " + Health.ToString() + "/" + HealthMax.ToString(), Position + new Vector2(-12, 30), (IsActive) ? Color.Black : Color.Transparent, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.92f);
             string textToDisplay = "[" + Name + "]";
             Vector2 textSize = Main.TestFont.MeasureString(textToDisplay);
             Vector2 textPosition = Position + new Vector2(0, -14);
-            textPosition.X = (Position.X + (PlayerTexture.Width / 2) - (textSize.X / 2) * 0.8f);
-            spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition + new Vector2(4, 0), (IsActive) ? Color.Yellow : Color.Black, 0, Vector2.Zero, 0.8f, SpriteEffects.None, 0.92f);
+            textPosition.X = Position.X + PlayerTexture.Width / 2 - textSize.X / 2 * 0.8f;
+            spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition + new Vector2(4, 0), IsActive ? Color.Yellow : Color.Black, 0, Vector2.Zero, 0.8f, SpriteEffects.None, 0.92f);
 
             if (IsActive)
             {
@@ -92,15 +104,63 @@ namespace BaseBuilderRPG
         {
             if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 45f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, (IsActive) ? 0.79f : 0.68f);
+                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 45f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, IsActive ? 0.79f : 0.68f);
             }
         }
 
-        public void PostDraw(SpriteBatch spriteBatch)
+        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (Inventory.equipmentSlots[0].EquippedItem != null) // Weapon
+            var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
+            if (equippedWeapon != null)
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[0].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, (IsActive) ? 0.81f : 0.71f);
+                if (equippedWeapon.WeaponType == "One Handed Sword")
+                {
+                    spriteBatch.Draw(equippedWeapon.Texture, Position + new Vector2(0, PlayerTexture.Height / 2), null, Color.White, rotationAngle + spriteAngleOffset,
+                    new Vector2(0, equippedWeapon.Texture.Height), 0.7f, SpriteEffects.None, IsActive ? 0.81f : 0.71f);
+                }
+            }
+        }
+
+
+        private bool isSwinging;
+        private float swingTime;
+        private void OneHandedSwing(GameTime gameTime)
+        {
+            var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
+            if (equippedWeapon != null && equippedWeapon.WeaponType == "One Handed Sword" && IsActive)
+            {
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    if (!isSwinging)
+                    {
+                        isSwinging = true;
+                        swingTime = 0;
+                        rotationAngle = -180 * MathHelper.Pi / 180;
+                    }
+                }
+                else
+                {
+                    if (!isSwinging)
+                    {
+                        rotationAngle = MathHelper.PiOver4;
+                    }
+                }
+                if (isSwinging)
+                {
+                    swingTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                    if (swingTime >= Inventory.equipmentSlots[0].EquippedItem.UseTime)
+                    {
+                        isSwinging = false;
+                        swingTime = 0;
+                        rotationAngle = 45 * MathHelper.Pi / 180;
+                    }
+                    else
+                    {
+                        float progress = swingTime / Inventory.equipmentSlots[0].EquippedItem.UseTime;
+                        rotationAngle = MathHelper.Lerp(-180 * MathHelper.Pi / 180, 45 * MathHelper.Pi / 180, progress);
+                    }
+                }
             }
         }
     }

@@ -4,51 +4,35 @@
     "Name": "Test Sword",
     "Type": "Weapon",
     "DamageType": "melee",
-    "Rarity": 2,
+    "WeaponType": "One Handed Sword",
+    "Rarity": 10,
     "Damage": 10,
     "UseTime": 10,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
     "ID": 1,
-    "Name": "Wooden Sword",
-    "Type": "Weapon",
-    "DamageType": "melee",
-    "Rarity": 4,
-    "Damage": 12,
-    "UseTime": 12,
-    "TexturePath": "Textures/tex_Test_Sword"
+    "Name": "Test Material",
+    "Type": "Material",
+    "Rarity": 10,
+    "StackLimit": 9999,
+    "TexturePath": "Textures/tex_Ruby"
   },
   {
     "ID": 2,
-    "Name": "Ruby",
-    "Type": "Material",
-    "Rarity": 3,
-    "StackLimit": 9999,
-    "TexturePath": "Textures/tex_Ruby"
-  },
-  {
-    "ID": 3,
-    "Name": "King's Ruby",
-    "Type": "Material",
-    "Rarity": 5,
-    "StackLimit": 9999,
-    "TexturePath": "Textures/tex_Ruby"
-  },
-  {
-    "ID": 4,
     "Name": "Test Shield",
     "Type": "Offhand",
-    "Rarity": 6,
+    "Rarity": 10,
     "StackLimit": 1,
     "TexturePath": "Textures/tex_Test_Shield"
   },
   {
-    "ID": 5,
+    "ID": 3,
     "Name": "Test Bow",
     "Type": "Weapon",
     "DamageType": "ranged",
-    "Rarity": 1,
+    "WeaponType": "Bow",
+    "Rarity": 10,
     "Damage": 12,
     "UseTime": 2,
     "Shoot": 0,
@@ -56,15 +40,27 @@
     "TexturePath": "Textures/tex_Test_Bow"
   },
   {
-    "ID": 6,
-    "Name": "Amazing Bow",
+    "ID": 4,
+    "Name": "Wooden Sword",
     "Type": "Weapon",
-    "DamageType": "ranged",
-    "Rarity": 7,
-    "Damage": 12,
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 0,
+    "Damage": 5,
+    "UseTime": 1,
+    "Shoot": -1,
+    "ShootSpeed": 0,
+    "TexturePath": "Textures/Weapons/Wooden_Sword"
+  },
+  {
+    "ID": 5,
+    "Name": "Officer Milliath's Blade",
+    "Type": "Weapon",
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 2,
+    "Damage": 8,
     "UseTime": 0.5,
-    "Shoot": 0,
-    "ShootSpeed": 4.5,
-    "TexturePath": "Textures/tex_Test_Bow"
+    "TexturePath": "Textures/Weapons/Milliath_Sword"
   }
 ]
