@@ -93,7 +93,7 @@ namespace BaseBuilderRPG
                     }
                 }
 
-                spriteBatch.Draw(Texture, Position + new Vector2(0, 10), null, new Color(0, 0, 0, 150), Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
+                spriteBatch.Draw(Texture, Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
                 spriteBatch.Draw(Texture, Position, null, Color.White, Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale, SpriteEffects.None, 0);
                 spriteBatch.End();
             }

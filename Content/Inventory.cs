@@ -63,7 +63,11 @@ namespace BaseBuilderRPG
 
                         if (item.StackLimit > 1)
                         {
+                            Main.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / 1f, 1.0f / 1f));
+                            Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(255 / 255f, 255 / 255f, 255 / 255f, 255 / 255f));
+
                             spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.98f);
+
                         }
                     }
                 }

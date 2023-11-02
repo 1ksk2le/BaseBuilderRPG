@@ -17,6 +17,8 @@ namespace BaseBuilderRPG
         private MouseState pMouse;
         private KeyboardState pKey;
 
+        private int amountOfItems;
+
         private List<Player> players;
 
         private List<Item> items;
@@ -40,6 +42,7 @@ namespace BaseBuilderRPG
         private Item mouseItem;
 
         private Dictionary<int, Projectile> projectileDictionary;
+        private Dictionary<int, Item> itemDictionary;
 
         private float shootTimer = 0;
         public static Vector2 basePosInventory = new Vector2(0, 0);
@@ -65,22 +68,22 @@ namespace BaseBuilderRPG
             texAccessorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Accessory_Slot_Background");
             texMainSlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Main_Slot_Background");
 
+            itemDictionary = new Dictionary<int, Item>();
             string itemsJson = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
             foreach (Item item in items)
             {
                 item.Texture = Content.Load<Texture2D>(item.TexturePath);
+                itemDictionary.Add(item.ID, item);
             }
-            // Initialize a dictionary to store projectile data
-            projectileDictionary = new Dictionary<int, Projectile>();
+            amountOfItems = items.Count;
 
-            // Load your projectile data from JSON and add it to the dictionary
+            projectileDictionary = new Dictionary<int, Projectile>();
             string projectilesJson = File.ReadAllText("Content/projectiles.json");
             projectiles = JsonConvert.DeserializeObject<List<Projectile>>(projectilesJson);
             foreach (Projectile projectile in projectiles)
             {
                 projectile.Texture = Content.Load<Texture2D>(projectile.TexturePath);
-                // Add the projectile data to the dictionary with ID as the key
                 projectileDictionary.Add(projectile.ID, projectile);
             }
 
@@ -112,14 +115,22 @@ namespace BaseBuilderRPG
             {
                 player.Update(gameTime);
             }
-
             foreach (Item item in groundItems)
             {
                 item.Update(gameTime);
             }
-
-
-
+            foreach (Item item in items)
+            {
+                if (!item.OnGround)
+                {
+                    itemsToRemove.Add(item);
+                }
+            }
+            foreach (Item item in itemsToRemove)
+            {
+                groundItems.Remove(item);
+                items.Remove(item);
+            }
             foreach (Projectile projectile in projectiles)
             {
                 if (projectile.IsAlive)
@@ -131,7 +142,6 @@ namespace BaseBuilderRPG
                     projectilesToRemove.Add(projectile);
                 }
             }
-
             foreach (Projectile projectile in projectilesToRemove)
             {
                 projectiles.Remove(projectile);
@@ -144,7 +154,8 @@ namespace BaseBuilderRPG
                 players[0].Inventory.equipmentSlots[0].EquippedItem = itemToAdd;
             }
 
-            SpawnItem(Keys.X, true);
+            Random rand = new Random();
+            SpawnItem(Keys.X, true, rand.Next(0, amountOfItems));
             SelectPlayer(players, Keys.E);
             PickItemsUp(players, groundItems, Keys.F);
             ClearItems(itemsToRemove, true, true, true, Keys.C);
@@ -298,29 +309,46 @@ namespace BaseBuilderRPG
             base.Draw(gameTime);
         }
 
-        private void SpawnItem(Keys key, bool addInventory)
+        private void SpawnItem(Keys key, bool addInventory, int itemID)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
                 Random rand = new Random();
-                int itemID = rand.Next(0, items.Count);
                 int prefixID;
                 int suffixID;
 
                 prefixID = rand.Next(0, 4);
                 suffixID = rand.Next(0, 4);
+
                 if (addInventory)
                 {
                     foreach (Player player in players)
                     {
                         if (player.IsActive)
                         {
-                            Item originalItem = items.Find(item => item.ID == itemID);
-
-                            if (originalItem != null)
+                            if (itemDictionary.TryGetValue(itemID, out var itemData))
                             {
-                                Item itemToAdd = originalItem.Clone(itemID, prefixID, suffixID, rand.Next(1, 4), false);
-                                player.Inventory.AddItem(itemToAdd, groundItems);
+                                Item item = new Item(
+                                    texture: Content.Load<Texture2D>(itemData.TexturePath),
+                                    texturePath: itemData.TexturePath,
+                                    id: itemID,
+                                    name: itemData.Name,
+                                    type: itemData.Type,
+                                    damageType: itemData.DamageType,
+                                    position: itemData.Position,
+                                    shootSpeed: itemData.ShootSpeed,
+                                    rarity: itemData.Rarity,
+                                    shoot: itemData.Shoot,
+                                    prefixID: prefixID,
+                                    suffixID: suffixID,
+                                    damage: itemData.Damage,
+                                    useTime: itemData.UseTime,
+                                    stackLimit: itemData.StackLimit,
+                                    dropAmount: (itemData.StackLimit == 1) ? 1 : itemData.StackSize,
+                                    onGround: itemData.OnGround
+                                );
+
+                                player.Inventory.AddItem(item, groundItems);
                             }
                         }
                     }
@@ -555,14 +583,29 @@ namespace BaseBuilderRPG
 
         private void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
         {
-            Item originalItem = items.Find(item => item.ID == itemID);
-
-            if (originalItem != null)
+            if (itemDictionary.TryGetValue(itemID, out var itemData))
             {
-                Item spawnedItem = originalItem.Clone(itemID, prefixID, suffixID, dropAmount, true);
-                spawnedItem.Position = position;
-                spawnedItem.OnGround = true;
-                groundItems.Add(spawnedItem);
+                Item item = new Item(
+                    texture: Content.Load<Texture2D>(itemData.TexturePath),
+                    texturePath: itemData.TexturePath,
+                    id: itemID,
+                    name: itemData.Name,
+                    type: itemData.Type,
+                    damageType: itemData.DamageType,
+                    position: position,
+                    shootSpeed: itemData.ShootSpeed,
+                    rarity: itemData.Rarity,
+                    shoot: itemData.Shoot,
+                    prefixID: prefixID,
+                    suffixID: suffixID,
+                    damage: itemData.Damage,
+                    useTime: itemData.UseTime,
+                    stackLimit: itemData.StackLimit,
+                    dropAmount: (itemData.StackLimit == 1) ? 1 : dropAmount,
+                    onGround: true
+                );
+
+                groundItems.Add(item);
             }
         }
 
@@ -588,10 +631,6 @@ namespace BaseBuilderRPG
                         player.Inventory.ClearEquippedItems();
                     }
                 }
-            }
-            foreach (Item item in itemsToRemove)
-            {
-                groundItems.Remove(item);
             }
         }
 

@@ -115,7 +115,7 @@ namespace BaseBuilderRPG
 
                 float itemScale = 1.0f + 0.25f * levitationOffset;
 
-                Color shadowColor = new Color(0, 0, 0, 150);
+                Color shadowColor = new Color(0, 0, 0, 200);
                 float shadowScaleFactor = 1.2f;
                 float shadowOffsetY = 6;
 
@@ -288,6 +288,10 @@ namespace BaseBuilderRPG
             if (ID == 5)
             {
                 ToolTips.Add("'Shoots a single wooden arrow in a straight line.'");
+            }
+            if (ID == 6)
+            {
+                ToolTips.Add("'Arrows straight from the heaven..!'");
             }
         }
     }

@@ -52,7 +52,7 @@
     "Damage": 12,
     "UseTime": 2,
     "Shoot": 0,
-    "ShootSpeed": 3.5,
+    "ShootSpeed": 4.5,
     "TexturePath": "Textures/tex_Test_Bow"
   },
   {
@@ -64,7 +64,7 @@
     "Damage": 12,
     "UseTime": 0.5,
     "Shoot": 0,
-    "ShootSpeed": 3.5,
+    "ShootSpeed": 4.5,
     "TexturePath": "Textures/tex_Test_Bow"
   }
 ]
