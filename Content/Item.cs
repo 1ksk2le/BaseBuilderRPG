@@ -294,11 +294,7 @@ namespace BaseBuilderRPG.Content
         {
             if (ID == 5)
             {
-                ToolTips.Add("'Shoots a single wooden arrow in a straight line.'");
-            }
-            if (ID == 6)
-            {
-                ToolTips.Add("'Arrows straight from the heaven..!'");
+                ToolTips.Add("'A strange gift from the Art Loving Officer...'");
             }
         }
     }

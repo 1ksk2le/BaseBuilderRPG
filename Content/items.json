@@ -7,7 +7,7 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 10,
     "Damage": 10,
-    "UseTime": 10,
+    "UseTime": 1,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
@@ -41,7 +41,7 @@
   },
   {
     "ID": 4,
-    "Name": "Wooden Sword",
+    "Name": "Wooden Baton",
     "Type": "Weapon",
     "DamageType": "melee",
     "WeaponType": "One Handed Sword",
@@ -51,7 +51,8 @@
     "Shoot": -1,
     "ShootSpeed": 0,
     "TexturePath": "Textures/Weapons/Wooden_Sword"
-  },
+  }
+  /*
   {
     "ID": 5,
     "Name": "Officer Milliath's Blade",
@@ -62,5 +63,5 @@
     "Damage": 8,
     "UseTime": 0.5,
     "TexturePath": "Textures/Weapons/Milliath_Sword"
-  }
+  }*/
 ]

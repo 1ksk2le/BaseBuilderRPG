@@ -16,6 +16,7 @@ namespace BaseBuilderRPG.Content
 
         public Texture2D PlayerTexture;
         private Vector2 Velocity;
+        private int Direction;
         public Player(Texture2D texture, bool isActive, string name, int healthMax, Vector2 position)
         {
             PlayerTexture = texture;
@@ -30,8 +31,6 @@ namespace BaseBuilderRPG.Content
         }
 
         private float rotationAngle;
-        private float rotationSpeed = MathHelper.TwoPi; // Adjust the speed of the swing
-        private float spriteAngleOffset = MathHelper.PiOver4;
         public void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
@@ -49,9 +48,15 @@ namespace BaseBuilderRPG.Content
                 if (keyboardState.IsKeyDown(Keys.S))
                     movement.Y = Speed;
                 if (keyboardState.IsKeyDown(Keys.A))
+                {
+                    Direction = -1;
                     movement.X = -Speed;
+                }
                 if (keyboardState.IsKeyDown(Keys.D))
+                {
+                    Direction = 1;
                     movement.X = Speed;
+                }
 
                 if (movement != Vector2.Zero)
                     movement.Normalize();
@@ -68,21 +73,22 @@ namespace BaseBuilderRPG.Content
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+            SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             PreDraw(spriteBatch);
             if (IsActive)
             {
-                spriteBatch.Draw(PlayerTexture, Position, null, Color.Lime, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.80f);
+                spriteBatch.Draw(PlayerTexture, Position, null, Color.Lime, 0f, Vector2.Zero, 1f, eff, 0.80f);
             }
             else
             {
                 Rectangle slotRect = new Rectangle((int)Position.X, (int)Position.Y, PlayerTexture.Width, PlayerTexture.Height);
                 if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
                 {
-                    spriteBatch.Draw(PlayerTexture, Position, null, Color.PaleGreen, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.7f);
+                    spriteBatch.Draw(PlayerTexture, Position, null, Color.PaleGreen, 0f, Vector2.Zero, 1f, eff, 0.7f);
                 }
                 else
                 {
-                    spriteBatch.Draw(PlayerTexture, Position, null, Color.Red, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.69f);
+                    spriteBatch.Draw(PlayerTexture, Position, null, Color.Red, 0f, Vector2.Zero, 1f, eff, 0.69f);
                 }
             }
             PostDraw(spriteBatch, gameTime);
@@ -100,26 +106,42 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void PreDraw(SpriteBatch spriteBatch)
+        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), null, Color.White, 45f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 1f, SpriteEffects.None, IsActive ? 0.79f : 0.68f);
+                SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.None;
+                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width, PlayerTexture.Height / 2), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, eff, IsActive ? 0.79f : 0.68f);
             }
         }
-
-        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void PreDraw(SpriteBatch spriteBatch)
         {
             var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
             if (equippedWeapon != null)
             {
                 if (equippedWeapon.WeaponType == "One Handed Sword")
                 {
-                    spriteBatch.Draw(equippedWeapon.Texture, Position + new Vector2(0, PlayerTexture.Height / 2), null, Color.White, rotationAngle + spriteAngleOffset,
-                    new Vector2(0, equippedWeapon.Texture.Height), 0.7f, SpriteEffects.None, IsActive ? 0.81f : 0.71f);
+                    float start = (Direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
+                    float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
+                    SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
+
+                    Vector2 weaponPosition = Position + new Vector2(8, PlayerTexture.Height / 2);
+                    Vector2 weaponOrigin = (Direction == 1) ? new Vector2(0, PlayerTexture.Height) : new Vector2(0, 0);
+                    if (isSwinging)
+                    {
+                        spriteBatch.Draw(equippedWeapon.Texture, weaponPosition, null, Color.White, rotationAngle, weaponOrigin, 0.8f, eff, IsActive ? 0.81f : 0.71f);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(equippedWeapon.Texture, weaponPosition, null, Color.White, end, weaponOrigin, 0.8f, eff, IsActive ? 0.81f : 0.71f);
+                    }
                 }
             }
         }
+
+
+
+
 
 
         private bool isSwinging;
@@ -129,22 +151,21 @@ namespace BaseBuilderRPG.Content
             var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
             if (equippedWeapon != null && equippedWeapon.WeaponType == "One Handed Sword" && IsActive)
             {
+                float start = (Direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
+                float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
+
+
+
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
                     if (!isSwinging)
                     {
                         isSwinging = true;
                         swingTime = 0;
-                        rotationAngle = -180 * MathHelper.Pi / 180;
+                        rotationAngle = start;
                     }
                 }
-                else
-                {
-                    if (!isSwinging)
-                    {
-                        rotationAngle = MathHelper.PiOver4;
-                    }
-                }
+
                 if (isSwinging)
                 {
                     swingTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -153,12 +174,12 @@ namespace BaseBuilderRPG.Content
                     {
                         isSwinging = false;
                         swingTime = 0;
-                        rotationAngle = 45 * MathHelper.Pi / 180;
+                        rotationAngle = end;
                     }
                     else
                     {
                         float progress = swingTime / Inventory.equipmentSlots[0].EquippedItem.UseTime;
-                        rotationAngle = MathHelper.Lerp(-180 * MathHelper.Pi / 180, 45 * MathHelper.Pi / 180, progress);
+                        rotationAngle = MathHelper.Lerp(start, end, progress);
                     }
                 }
             }
