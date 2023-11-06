@@ -27,7 +27,7 @@ namespace BaseBuilderRPG.Content
         private float Rotation;
         public Player Owner { get; set; }
 
-        public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float lifeTime, float knockBack, Vector2 position, Player owner, bool isAlive)
+        public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
         {
             CurrentLifeTime = 0f;
             Texture = texture;
@@ -37,6 +37,7 @@ namespace BaseBuilderRPG.Content
             Name = name;
             Damage = damage;
             LifeTime = lifeTime;
+            Speed = speed;
             KnockBack = knockBack;
             Position = position;
             Owner = owner;
@@ -55,6 +56,7 @@ namespace BaseBuilderRPG.Content
         {
             if (CurrentLifeTime >= LifeTime)
             {
+                Kill();
                 IsAlive = false;
             }
             else
@@ -72,12 +74,14 @@ namespace BaseBuilderRPG.Content
             }
         }
 
+        private void Kill()
+        {
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             if (Texture != null && IsAlive)
             {
-                spriteBatch.Begin();
-
                 float scale = 1.0f;
 
                 if (AI == 0)
@@ -94,7 +98,6 @@ namespace BaseBuilderRPG.Content
 
                 spriteBatch.Draw(Texture, Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
                 spriteBatch.Draw(Texture, Position, null, Color.White, Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale, SpriteEffects.None, 0);
-                spriteBatch.End();
             }
         }
 
@@ -103,7 +106,7 @@ namespace BaseBuilderRPG.Content
             projectiles.Remove(this);
         }
 
-        public Projectile Clone(Player owner, bool isAlive)
+        /*public Projectile Clone(Player owner, bool isAlive)
         {
             return new Projectile(Texture, TexturePath, Name, ID, AI, Damage, LifeTime, KnockBack, Position, owner, isAlive);
         }
@@ -116,6 +119,6 @@ namespace BaseBuilderRPG.Content
         public Projectile Clone(int id, int damage, Vector2 pos, Player owner, bool isAlive)
         {
             return new Projectile(Texture, TexturePath, Name, id, AI, damage, LifeTime, KnockBack, pos, owner, isAlive);
-        }
+        }*/
     }
 }

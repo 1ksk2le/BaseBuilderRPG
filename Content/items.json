@@ -52,16 +52,4 @@
     "ShootSpeed": 0,
     "TexturePath": "Textures/Weapons/Wooden_Sword"
   }
-  /*
-  {
-    "ID": 5,
-    "Name": "Officer Milliath's Blade",
-    "Type": "Weapon",
-    "DamageType": "melee",
-    "WeaponType": "One Handed Sword",
-    "Rarity": 2,
-    "Damage": 8,
-    "UseTime": 0.5,
-    "TexturePath": "Textures/Weapons/Milliath_Sword"
-  }*/
 ]

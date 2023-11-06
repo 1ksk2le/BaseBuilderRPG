@@ -25,9 +25,6 @@ namespace BaseBuilderRPG
         private List<Item> itemsToRemove;
         private List<Item> groundItems;
 
-        private List<Projectile> projectiles;
-        private List<Projectile> projectilesToRemove;
-
         private Texture2D texPlayer;
         public static Texture2D texInventory;
         public static Texture2D texInventorySlotBackground;
@@ -41,11 +38,12 @@ namespace BaseBuilderRPG
         private Item hoveredItem;
         private Item mouseItem;
 
-        private Dictionary<int, Projectile> projectileDictionary;
-        private Dictionary<int, Item> itemDictionary;
+        public Dictionary<int, Item> itemDictionary;
 
         private float shootTimer = 0;
         public static Vector2 basePosInventory = new Vector2(0, 0);
+
+        private Projectile_Manager projManager;
 
         public Main()
         {
@@ -60,6 +58,10 @@ namespace BaseBuilderRPG
 
         protected override void Initialize()
         {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            projManager = new Projectile_Manager(this, spriteBatch); // Create and initialize projManager here
+            Components.Add(projManager);
+
             OutlineShader = Content.Load<Effect>("Shaders/Outline");
             TestFont = Content.Load<SpriteFont>("Font_Test");
             texPlayer = Content.Load<Texture2D>("Textures/tex_Player");
@@ -78,26 +80,16 @@ namespace BaseBuilderRPG
             }
             amountOfItems = items.Count;
 
-            projectileDictionary = new Dictionary<int, Projectile>();
-            string projectilesJson = File.ReadAllText("Content/projectiles.json");
-            projectiles = JsonConvert.DeserializeObject<List<Projectile>>(projectilesJson);
-            foreach (Projectile projectile in projectiles)
-            {
-                projectile.Texture = Content.Load<Texture2D>(projectile.TexturePath);
-                projectileDictionary.Add(projectile.ID, projectile);
-            }
-
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+
             players = new List<Player>();
             players.Add(new Player(texPlayer, true, "East", 140, new Vector2(10, 500)));
             players.Add(new Player(texPlayer, false, "Dummy", 100, new Vector2(30, 500)));
             players.Add(new Player(texPlayer, false, "West", 100, new Vector2(50, 500)));
-            projectilesToRemove = new List<Projectile>();
             groundItems = new List<Item>();
             itemsToRemove = new List<Item>();
 
@@ -106,6 +98,8 @@ namespace BaseBuilderRPG
             {
                 DropItem(item.ID, -1, -1, 1, new Vector2(500 + item.ID * 50, 300));
             }
+            base.LoadContent();
+            projManager.LoadContentExternally();
         }
 
         protected override void Update(GameTime gameTime)
@@ -129,21 +123,6 @@ namespace BaseBuilderRPG
             {
                 groundItems.Remove(item);
                 items.Remove(item);
-            }
-            foreach (Projectile projectile in projectiles)
-            {
-                if (projectile.IsAlive)
-                {
-                    projectile.Update(gameTime);
-                }
-                else
-                {
-                    projectilesToRemove.Add(projectile);
-                }
-            }
-            foreach (Projectile projectile in projectilesToRemove)
-            {
-                projectiles.Remove(projectile);
             }
 
             Item originalItem = items.Find(item => item.ID == 5);
@@ -182,28 +161,8 @@ namespace BaseBuilderRPG
 
                     if (Mouse.GetState().LeftButton == ButtonState.Pressed && shootTimer <= 0)
                     {
-                        if (projectileDictionary.TryGetValue(equippedWeapon.Shoot, out var projectileData))
-                        {
-                            Projectile proj = new Projectile(
-                                texture: Content.Load<Texture2D>(projectileData.TexturePath),
-                                texturePath: projectileData.TexturePath,
-                                name: projectileData.Name,
-                                id: equippedWeapon.Shoot,
-                                ai: projectileData.AI,
-                                damage: equippedWeapon.Damage,
-                                lifeTime: projectileData.LifeTime,
-                                knockBack: projectileData.KnockBack,
-                                position: player.Position,
-                                owner: player,
-                                isAlive: true
-                            );
-
-                            proj.Speed = equippedWeapon.ShootSpeed;
-
-                            projectiles.Add(proj);
-
-                            shootTimer = equippedWeapon.UseTime;
-                        }
+                        Projectile_Manager.NewProjectile(equippedWeapon.Shoot, equippedWeapon.Damage, 2, 2f, equippedWeapon.ShootSpeed, player.Position, player, true);
+                        shootTimer = equippedWeapon.UseTime;
                     }
                 }
             }
@@ -218,11 +177,6 @@ namespace BaseBuilderRPG
                 item.Draw(spriteBatch);
             }
 
-            foreach (Projectile projectile in projectiles)
-            {
-                projectile.Draw(spriteBatch);
-            }
-
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
@@ -231,9 +185,8 @@ namespace BaseBuilderRPG
             spriteBatch.End();
 
             spriteBatch.Begin();
-
             spriteBatch.DrawString(Main.TestFont, "ELAPSED GAME TIME: " + gameTime.ElapsedGameTime.TotalSeconds.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF PROJS: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS (DICTIONARY KULLAN): " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF GROUND ITEMS: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + shootTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
@@ -563,7 +516,7 @@ namespace BaseBuilderRPG
             }
         }
 
-        private Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
+        public Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
             return new Item(itemData.Texture, itemData.TexturePath, itemData.ID, itemData.Name, itemData.Type, itemData.DamageType, itemData.WeaponType, position, itemData.ShootSpeed, itemData.Shoot, itemData.Rarity, prefixID, suffixID, itemData.Damage, itemData.UseTime, itemData.StackLimit, dropAmount, onGround);
         }

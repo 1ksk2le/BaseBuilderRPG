@@ -105,15 +105,6 @@ namespace BaseBuilderRPG.Content
                 Inventory.Draw(spriteBatch, this);
             }
         }
-
-        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
-            {
-                SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.None;
-                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width, PlayerTexture.Height / 2), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, eff, IsActive ? 0.79f : 0.68f);
-            }
-        }
         public void PreDraw(SpriteBatch spriteBatch)
         {
             var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
@@ -121,11 +112,10 @@ namespace BaseBuilderRPG.Content
             {
                 if (equippedWeapon.WeaponType == "One Handed Sword")
                 {
-                    float start = (Direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                     float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                     SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
-                    Vector2 weaponPosition = Position + new Vector2(8, PlayerTexture.Height / 2);
+                    Vector2 weaponPosition = Position + new Vector2(7.5f, PlayerTexture.Height / 2);
                     Vector2 weaponOrigin = (Direction == 1) ? new Vector2(0, PlayerTexture.Height) : new Vector2(0, 0);
                     if (isSwinging)
                     {
@@ -138,14 +128,17 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
-
-
-
-
-
-
+        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
+            {
+                SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.None;
+                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 1.5f), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, eff, IsActive ? 0.79f : 0.68f);
+            }
+        }
         private bool isSwinging;
         private float swingTime;
+
         private void OneHandedSwing(GameTime gameTime)
         {
             var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
