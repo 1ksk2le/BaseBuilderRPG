@@ -26,7 +26,7 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Outline.fx
 
-#begin Textures/tex_Player_Arm.png
+#begin Textures/Player/tex_Player_Body.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -36,9 +36,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/tex_Player_Arm.png
+/build:Textures/Player/tex_Player_Body.png
 
-#begin Textures/tex_Player.png
+#begin Textures/Player/tex_Player_Eyes.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -48,7 +48,19 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/tex_Player.png
+/build:Textures/Player/tex_Player_Eyes.png
+
+#begin Textures/Player/tex_Player_Head.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Player/tex_Player_Head.png
 
 #begin Textures/tex_Ruby.png
 /importer:TextureImporter

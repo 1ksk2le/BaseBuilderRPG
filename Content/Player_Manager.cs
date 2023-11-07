@@ -17,6 +17,8 @@ namespace BaseBuilderRPG.Content
         private Dictionary<int, Item> itemDictionary;
         private Item_Manager itemManager;
         private Texture2D _texture;
+        private Texture2D _textureHead;
+        private Texture2D _textureEyes;
         private float shootTimer = 0;
 
         private Item hoveredItem;
@@ -30,7 +32,9 @@ namespace BaseBuilderRPG.Content
         {
             this.spriteBatch = spriteBatch;
 
-            _texture = game.Content.Load<Texture2D>("Textures/tex_Player");
+            _texture = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Body");
+            _textureHead = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Head");
+            _textureEyes = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Eyes");
 
             players = new List<Player>();
             items = _items;
@@ -40,9 +44,9 @@ namespace BaseBuilderRPG.Content
             itemManager = _itemManager;
             pKey = _keyboardState;
 
-            players.Add(new Player(_texture, true, "East", 140, new Vector2(10, 500)));
-            players.Add(new Player(_texture, false, "Dummy", 100, new Vector2(30, 500)));
-            players.Add(new Player(_texture, false, "West", 100, new Vector2(50, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 140, 0.9f, new Vector2(10, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Gentelman One", 100, 0.35f, new Vector2(30, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Gentelman Two", 100, 0.1f, new Vector2(50, 500)));
         }
 
         public void Load()
@@ -82,16 +86,34 @@ namespace BaseBuilderRPG.Content
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, null, null, null, Matrix.Identity);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
+
                 player.Draw(spriteBatch, gameTime);
+
+                string textToDisplay = "[" + player.Name + "]";
+                Vector2 textSize = Main.TestFont.MeasureString(textToDisplay);
+                Vector2 textPosition = player.Position + new Vector2(0, -14);
+                Color nameColor;
+                Rectangle slotRect = new((int)player.Position.X, (int)player.Position.Y, _texture.Width, _texture.Height);
+                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                {
+                    nameColor = Color.Lime;
+                }
+                else
+                {
+                    nameColor = Color.Black;
+                }
+
+                textPosition.X = player.Position.X + _texture.Width / 2 - textSize.X / 2;
+                spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition, player.IsActive ? Color.Yellow : nameColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.92f);
             }
+            spriteBatch.End();
+
+            spriteBatch.Begin();
 
             spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + shootTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-
-            spriteBatch.End();
-            spriteBatch.Begin();
             DrawInventory(gameTime);
             spriteBatch.End();
 
