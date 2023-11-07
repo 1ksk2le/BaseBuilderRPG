@@ -8,7 +8,7 @@
   },
   {
     "ID": 1,
-    "AI": 0,
+    "AI": 1,
     "Name": "Wooden Arrow",
     "LifeTime": 2,
     "TexturePath": "Textures/tex_Wooden_Arrow"

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
@@ -33,7 +32,7 @@ namespace BaseBuilderRPG.Content
         public bool CanBeUsed { get; set; }
         public List<string> ToolTips { get; set; }
 
-        private float levitationTimer = 0.0f;
+        public float LevitationTimer = 0.0f;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
@@ -108,61 +107,7 @@ namespace BaseBuilderRPG.Content
 
         public void Update(GameTime gameTime)
         {
-            levitationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (Texture != null && OnGround)
-            {
-                float levitationSpeed = 3f;
-                float levitationAmplitude = 0.5f;
-
-                float levitationOffset = (float)Math.Sin(levitationTimer * levitationSpeed) * levitationAmplitude;
-
-                float itemScale = 1.0f + 0.25f * levitationOffset;
-
-                Color shadowColor = new Color(0, 0, 0, 200);
-                float shadowScaleFactor = 1.2f;
-                float shadowOffsetY = 6;
-
-                spriteBatch.Begin();
-
-                Vector2 shadowPosition = Position + new Vector2(Texture.Width / 2, Texture.Height / 2);
-                shadowPosition.Y += shadowOffsetY + levitationOffset;
-                spriteBatch.Draw(Texture, shadowPosition, null, shadowColor, 0, new Vector2(Texture.Width / 2, Texture.Height / 2), itemScale * shadowScaleFactor, SpriteEffects.None, 0);
-
-                spriteBatch.End();
-
-                Main.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / Texture.Width, 1.0f / Texture.Height));
-                Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
-
-                spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.OutlineShader, null);
-                spriteBatch.Draw(Texture, Position + new Vector2(Texture.Width / 2, Texture.Height / 2), null, Color.White, 0, new Vector2(Texture.Width / 2, Texture.Height / 2), itemScale, SpriteEffects.None, 0);
-
-                spriteBatch.End();
-
-                spriteBatch.Begin();
-                string itemName;
-                if (Type != "Weapon")
-                {
-                    if (StackLimit == 1)
-                    {
-                        itemName = "[" + Name + "]";
-                    }
-                    else
-                    {
-                        itemName = "[" + Name + " x" + StackSize + "]";
-                    }
-                }
-                else
-                {
-                    itemName = "[" + PrefixName + " " + Name + " " + SuffixName + "]";
-                }
-
-                //spriteBatch.DrawString(Game1.TestFont, itemName, new Vector2(Position.X - Game1.TestFont.MeasureString(itemName).X / 2f + Texture.Width / 2, Position.Y + Texture.Height + 4), RarityColor);
-                spriteBatch.End();
-            }
+            LevitationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         public bool PlayerClose(Player player, float pickRange)

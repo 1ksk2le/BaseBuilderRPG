@@ -24,7 +24,7 @@ namespace BaseBuilderRPG.Content
         public Vector2 Position { get; set; }
         private Vector2 SpawnPosition;
         private Vector2 Target;
-        private float Rotation;
+        public float Rotation;
         public Player Owner { get; set; }
 
         public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
@@ -56,7 +56,6 @@ namespace BaseBuilderRPG.Content
         {
             if (CurrentLifeTime >= LifeTime)
             {
-                Kill();
                 IsAlive = false;
             }
             else
@@ -64,7 +63,7 @@ namespace BaseBuilderRPG.Content
                 CurrentLifeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            if (AI == 0)
+            if (AI == 0 || AI == 1)
             {
                 Vector2 direction = Target - SpawnPosition;
                 direction.Normalize();
@@ -74,30 +73,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void Kill()
+        public void Kill()
         {
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (Texture != null && IsAlive)
+            if (AI == 0)
             {
-                float scale = 1.0f;
-
-                if (AI == 0)
-                {
-                    if (CurrentLifeTime < LifeTime / 2)
-                    {
-                        scale = MathHelper.Lerp(0.3f, 1f, CurrentLifeTime / (LifeTime / 2));
-                    }
-                    else
-                    {
-                        scale = MathHelper.Lerp(1f, 0.3f, (CurrentLifeTime - LifeTime / 2) / (LifeTime / 2));
-                    }
-                }
-
-                spriteBatch.Draw(Texture, Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
-                spriteBatch.Draw(Texture, Position, null, Color.White, Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), scale, SpriteEffects.None, 0);
+                Projectile_Manager.NewProjectile(id: 1, damage: 10, lifeTime: 2, knockBack: 3, speed: 10, position: Position, owner: Owner, isAlive: true);
             }
         }
 

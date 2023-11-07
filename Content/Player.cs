@@ -16,7 +16,7 @@ namespace BaseBuilderRPG.Content
 
         public Texture2D PlayerTexture;
         private Vector2 Velocity;
-        private int Direction;
+        private int Direction = 1;
         public Player(Texture2D texture, bool isActive, string name, int healthMax, Vector2 position)
         {
             PlayerTexture = texture;
