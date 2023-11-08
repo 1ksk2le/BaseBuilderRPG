@@ -19,7 +19,7 @@ namespace BaseBuilderRPG.Content
         private Texture2D _texture;
         private Texture2D _textureHead;
         private Texture2D _textureEyes;
-        private float shootTimer = 0;
+        private float useTimer = 0;
 
         private Item hoveredItem;
         private Item mouseItem;
@@ -45,8 +45,9 @@ namespace BaseBuilderRPG.Content
             pKey = _keyboardState;
 
             players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 140, 0.9f, new Vector2(10, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Gentelman One", 100, 0.35f, new Vector2(30, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Gentelman Two", 100, 0.1f, new Vector2(50, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Milliath", 100, 1f, new Vector2(30, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));
         }
 
         public void Load()
@@ -113,7 +114,7 @@ namespace BaseBuilderRPG.Content
 
             spriteBatch.Begin();
 
-            spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + shootTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + useTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             DrawInventory(gameTime);
             spriteBatch.End();
 
@@ -190,15 +191,15 @@ namespace BaseBuilderRPG.Content
                 var equippedWeapon = player.Inventory.equipmentSlots[0].EquippedItem;
                 if (equippedWeapon != null && equippedWeapon.Shoot > -1 && player.IsActive)
                 {
-                    if (shootTimer > 0)
+                    if (useTimer > 0)
                     {
-                        shootTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                        useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
                     }
 
-                    if (Mouse.GetState().LeftButton == ButtonState.Pressed && shootTimer <= 0)
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed && useTimer <= 0)
                     {
                         Projectile_Manager.NewProjectile(equippedWeapon.Shoot, equippedWeapon.Damage, 2, 2f, equippedWeapon.ShootSpeed, player.Position, player, true);
-                        shootTimer = equippedWeapon.UseTime;
+                        useTimer = equippedWeapon.UseTime;
                     }
                 }
             }
@@ -306,10 +307,10 @@ namespace BaseBuilderRPG.Content
                     {
                         for (int x = 0; x < player.Inventory.Width; x++)
                         {
-                            int slotSize = 44;
-                            int slotSpacing = 0;
-                            int slotX = x * (slotSize + slotSpacing) + 10;
-                            int slotY = y * (slotSize + slotSpacing) + 50;
+                            int slotSize = Main.inventorySlotSize;
+                            int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                            int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
+
 
                             if (player.Inventory.IsSlotHovered(slotX, slotY))
                             {
@@ -345,10 +346,9 @@ namespace BaseBuilderRPG.Content
                         {
                             for (int x = 0; x < player.Inventory.Width; x++)
                             {
-                                int slotSize = 44;
-                                int slotSpacing = 0;
-                                int slotX = x * (slotSize + slotSpacing) + 10;
-                                int slotY = y * (slotSize + slotSpacing) + 50;
+                                int slotSize = Main.inventorySlotSize;
+                                int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                                int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
 
                                 if (player.Inventory.IsSlotHovered(slotX, slotY))
                                 {
@@ -410,10 +410,9 @@ namespace BaseBuilderRPG.Content
                         {
                             for (int x = 0; x < player.Inventory.Width; x++)
                             {
-                                int slotSize = 44;
-                                int slotSpacing = 0;
-                                int slotX = x * (slotSize + slotSpacing) + 10;
-                                int slotY = y * (slotSize + slotSpacing) + 50;
+                                int slotSize = Main.inventorySlotSize;
+                                int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                                int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
                                 if (player.Inventory.IsSlotHovered(slotX, slotY))
                                 {
                                     hoveredItem = player.Inventory.GetItem(x, y);

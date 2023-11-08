@@ -37,7 +37,7 @@ namespace BaseBuilderRPG.Content
 
             FinalSkinColor = GetSkinColor(SkinColor);
 
-            Inventory = new Inventory(5, 4);
+            Inventory = new Inventory(5, 6);
         }
 
         private float rotationAngle;
@@ -51,22 +51,29 @@ namespace BaseBuilderRPG.Content
 
         private void Movement(Vector2 movement, KeyboardState keyboardState, float Speed = 2f)
         {
+            MouseState mouseState = Mouse.GetState();
+
+
             if (IsActive)
             {
+                if (Position.X > mouseState.X)
+                {
+                    Direction = -1;
+                }
+                else
+                {
+                    Direction = 1;
+                }
+
+
                 if (keyboardState.IsKeyDown(Keys.W))
                     movement.Y = -Speed;
                 if (keyboardState.IsKeyDown(Keys.S))
                     movement.Y = Speed;
                 if (keyboardState.IsKeyDown(Keys.A))
-                {
-                    Direction = -1;
                     movement.X = -Speed;
-                }
                 if (keyboardState.IsKeyDown(Keys.D))
-                {
-                    Direction = 1;
                     movement.X = Speed;
-                }
 
                 if (movement != Vector2.Zero)
                     movement.Normalize();
@@ -97,10 +104,8 @@ namespace BaseBuilderRPG.Content
             Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y);
             Vector2 directionToMouse = mousePosition - Position;
 
-            float maxHeadRotation = MathHelper.ToRadians(30);
-
+            float maxHeadRotation = MathHelper.ToRadians(20);
             float rotation = (float)Math.Atan2(directionToMouse.Y * Direction, directionToMouse.X * Direction);
-
             rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
 
             spriteBatch.Draw(PlayerTexture, Position, null, GetSkinColor(SkinColor), 0f, Vector2.Zero, 1f, eff, IsActive ? 0.851f : 0.751f);
@@ -110,20 +115,20 @@ namespace BaseBuilderRPG.Content
                 Vector2 headOrigin = new Vector2(PlayerHeadTexture.Width / 2, PlayerHeadTexture.Height);
                 Vector2 eyesOrigin = new Vector2(PlayerEyeTexture.Width / 2, (PlayerEyeTexture.Height) / 2);
 
-                spriteBatch.Draw(PlayerHeadTexture, Position + new Vector2(PlayerHeadTexture.Width / 2, PlayerHeadTexture.Height), null, GetSkinColor(SkinColor), rotation, headOrigin, 1f, eff, 0.852f);
+                spriteBatch.Draw(PlayerHeadTexture, Position + new Vector2(PlayerHeadTexture.Width / 2 - 2 * Direction, PlayerHeadTexture.Height), null, GetSkinColor(SkinColor), rotation, headOrigin, 1f, eff, 0.852f);
 
                 Rectangle sourceRect = new Rectangle(0, 0, PlayerEyeTexture.Width, PlayerEyeTexture.Height / 2);
-                spriteBatch.Draw(PlayerEyeTexture, Position + new Vector2(PlayerEyeTexture.Width / 2, PlayerEyeTexture.Height / 2), sourceRect, Color.White, rotation, eyesOrigin, 1f, eff, 0.853f);
+                spriteBatch.Draw(PlayerEyeTexture, Position + new Vector2(PlayerEyeTexture.Width / 2 - 2 * Direction, PlayerEyeTexture.Height / 2), sourceRect, Color.White, rotation, eyesOrigin, 1f, eff, 0.853f);
             }
             else
             {
-                spriteBatch.Draw(PlayerHeadTexture, Position, null, GetSkinColor(SkinColor), 0f, Vector2.Zero, 1f, eff, 0.752f);
+                spriteBatch.Draw(PlayerHeadTexture, Position + new Vector2(-2 * Direction, 0), null, GetSkinColor(SkinColor), 0f, Vector2.Zero, 1f, eff, 0.752f);
 
                 Rectangle sourceRect = new Rectangle(0, 0, PlayerEyeTexture.Width, PlayerEyeTexture.Height / 2);
-                spriteBatch.Draw(PlayerEyeTexture, Position, sourceRect, Color.White, 0f, Vector2.Zero, 1f, eff, 0.753f);
+                spriteBatch.Draw(PlayerEyeTexture, Position + new Vector2(-2 * Direction, 0), sourceRect, Color.White, 0f, Vector2.Zero, 1f, eff, 0.753f);
             }
 
-            PostDraw(spriteBatch, gameTime);
+            PostDraw(spriteBatch, gameTime, rotation);
 
             if (IsActive)
             {
@@ -157,15 +162,36 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
-        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot)
         {
+            SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(Direction == 1 ? 0 : 22, PlayerTexture.Height / 1.2f), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, SpriteEffects.None, IsActive ? 0.861f : 0.761f);
+                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(Direction == 1 ? 0 : 22, PlayerTexture.Height / 1.2f), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, SpriteEffects.None, IsActive ? 0.8612f : 0.7612f);
+            }
+            if (Inventory.equipmentSlots[1].EquippedItem != null)//Body Armor
+            {
+                spriteBatch.Draw(Inventory.equipmentSlots[1].EquippedItem.Texture, Position + new Vector2(0, 22), null, Color.White, 0f, Vector2.Zero, 1f, eff, IsActive ? 0.8519f : 0.7519f);
+            }
+            if (Inventory.equipmentSlots[4].EquippedItem != null)//Head Armor
+            {
+                Vector2 headOrigin = new Vector2(Inventory.equipmentSlots[4].EquippedItem.Texture.Width / 2, Inventory.equipmentSlots[4].EquippedItem.Texture.Height);
+                int headOffset;
+                switch (Inventory.equipmentSlots[4].EquippedItem.ID)
+                {
+                    case 6:
+                        headOffset = 2;
+                        break;
+
+                    default:
+                        headOffset = 0;
+                        break;
+                }
+                spriteBatch.Draw(Inventory.equipmentSlots[4].EquippedItem.Texture, Position + new Vector2(PlayerHeadTexture.Width / 2 - headOffset * Direction, PlayerHeadTexture.Height), null, Color.White, IsActive ? headRot : 0f, headOrigin, 1f, eff, IsActive ? 0.8611f : 0.7611f);
             }
         }
         private bool isSwinging;
-        private float swingTime;
+        private float useTimer;
 
         private void OneHandedSwing(GameTime gameTime)
         {
@@ -182,24 +208,24 @@ namespace BaseBuilderRPG.Content
                     if (!isSwinging)
                     {
                         isSwinging = true;
-                        swingTime = 0;
+                        useTimer = 0;
                         rotationAngle = start;
                     }
                 }
 
                 if (isSwinging)
                 {
-                    swingTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    useTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                    if (swingTime >= Inventory.equipmentSlots[0].EquippedItem.UseTime)
+                    if (useTimer >= Inventory.equipmentSlots[0].EquippedItem.UseTime)
                     {
                         isSwinging = false;
-                        swingTime = 0;
+                        useTimer = 0;
                         rotationAngle = end;
                     }
                     else
                     {
-                        float progress = swingTime / Inventory.equipmentSlots[0].EquippedItem.UseTime;
+                        float progress = useTimer / Inventory.equipmentSlots[0].EquippedItem.UseTime;
                         rotationAngle = MathHelper.Lerp(start, end, progress);
                     }
                 }

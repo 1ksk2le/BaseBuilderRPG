@@ -65,6 +65,14 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
+            foreach (Projectile proj in projectiles)
+            {
+                if (proj.Owner == null)
+                {
+                    projectilesToRemove.Add(proj);
+                }
+            }
+
             foreach (Projectile projectile in projectilesToRemove)
             {
                 projectiles.Remove(projectile);

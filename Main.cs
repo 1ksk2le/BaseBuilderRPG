@@ -23,7 +23,9 @@ namespace BaseBuilderRPG
 
         public static Effect OutlineShader;
 
-        public static Vector2 basePosInventory = new Vector2(0, 0);
+        public static Vector2 inventoryPos;
+        public static int inventorySlotSize;
+        public static int inventorySlotStartPos = 148;
 
         public static Projectile_Manager projManager;
         public static Player_Manager playerManager;
@@ -42,8 +44,8 @@ namespace BaseBuilderRPG
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            graphics.PreferredBackBufferWidth = 1680;
-            graphics.PreferredBackBufferHeight = 1050;
+            graphics.PreferredBackBufferWidth = 1500;
+            graphics.PreferredBackBufferHeight = 800;
             graphics.ApplyChanges();
         }
 
@@ -74,6 +76,9 @@ namespace BaseBuilderRPG
             texAccessorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Accessory_Slot_Background");
             texMainSlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Main_Slot_Background");
 
+            inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - Main.texInventory.Width - 4, graphics.PreferredBackBufferHeight - Main.texInventory.Height - 4);
+            inventorySlotSize = 38;
+
             base.Initialize();
         }
 
@@ -93,8 +98,9 @@ namespace BaseBuilderRPG
 
         protected override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            inventoryPos = new Vector2(10, 10);
 
+            base.Update(gameTime);
         }
 
 
@@ -116,27 +122,27 @@ namespace BaseBuilderRPG
             Vector2 position;
             switch (i)
             {
-                case 0:
-                    position = new Vector2(242, 114);
+                case 0: //weapon
+                    position = inventoryPos + new Vector2(28, 52);
                     break;
 
-                case 1:
-                    position = new Vector2(302, 114);
+                case 1: //body armor
+                    position = inventoryPos + new Vector2(74, 52); //+46
                     break;
 
-                case 2:
-                    position = new Vector2(362, 114);
+                case 2: //off hand
+                    position = inventoryPos + new Vector2(120, 52);
                     break;
 
-                case 3:
-                    position = new Vector2(302, 174);
+                case 3://boots
+                    position = inventoryPos + new Vector2(74, 98);
                     break;
 
-                case 4:
-                    position = new Vector2(302, 54);
+                case 4: //head armor
+                    position = inventoryPos + new Vector2(74, 6);
                     break;
 
-                case 5:
+                case 5: //accessory
                     position = new Vector2(302, 52);
                     break;
 

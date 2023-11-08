@@ -237,10 +237,6 @@ namespace BaseBuilderRPG.Content
 
         private void TooltipsBasedOnID()
         {
-            if (ID == 5)
-            {
-                ToolTips.Add("'A strange gift from the Art Loving Officer...'");
-            }
         }
     }
 }

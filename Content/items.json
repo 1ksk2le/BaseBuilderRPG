@@ -51,5 +51,21 @@
     "Shoot": -1,
     "ShootSpeed": 0,
     "TexturePath": "Textures/Weapons/Wooden_Sword"
+  },
+  {
+    "ID": 5,
+    "Name": "Leather Armor",
+    "Type": "Body Armor",
+    "Rarity": 0,
+    "StackLimit": 1,
+    "TexturePath": "Textures/Player/Armors/tex_Leather_Armor"
+  },
+  {
+    "ID": 6,
+    "Name": "Leather Cap",
+    "Type": "Head Armor",
+    "Rarity": 0,
+    "StackLimit": 1,
+    "TexturePath": "Textures/Player/Armors/tex_Leather_Cap"
   }
 ]
