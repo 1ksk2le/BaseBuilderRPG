@@ -61,10 +61,7 @@ namespace BaseBuilderRPG.Content
 
                         if (item.StackLimit > 1)
                         {
-                            Main.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / 1f, 1.0f / 1f));
-                            Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(255 / 255f, 255 / 255f, 255 / 255f, 255 / 255f));
-
-                            spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 28, y + 28), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.98f);
+                            spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 20, y + 24), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.982f);
                         }
                     }
                 }
@@ -330,7 +327,7 @@ namespace BaseBuilderRPG.Content
 
         public bool IsSlotHovered(int slotX, int slotY)
         {
-            Rectangle slotRect = new Rectangle(slotX, slotY, 44, 44);
+            Rectangle slotRect = new Rectangle(slotX, slotY, Main.inventorySlotSize, Main.inventorySlotSize);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
 
@@ -346,7 +343,7 @@ namespace BaseBuilderRPG.Content
             }
             else
             {
-                Rectangle slotRect = new Rectangle(x, y, 52, 52);
+                Rectangle slotRect = new Rectangle(x, y, 44, 44);
                 if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
                 {
                     return true;

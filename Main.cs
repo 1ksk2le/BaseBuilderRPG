@@ -98,8 +98,10 @@ namespace BaseBuilderRPG
 
         protected override void Update(GameTime gameTime)
         {
-            inventoryPos = new Vector2(10, 10);
-
+            if (Mouse.GetState().RightButton == ButtonState.Pressed)
+            {
+                inventoryPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            }
             base.Update(gameTime);
         }
 
