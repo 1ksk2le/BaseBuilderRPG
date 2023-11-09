@@ -11,6 +11,7 @@ namespace BaseBuilderRPG.Content
     {
         SpriteBatch spriteBatch;
         public List<Player> players;
+        public List<Player> playersToRemove;
         private List<Item> items;
         private List<Item> groundItems;
         private List<Item> itemsToRemove;
@@ -37,6 +38,7 @@ namespace BaseBuilderRPG.Content
             _textureEyes = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Eyes");
 
             players = new List<Player>();
+            playersToRemove = new List<Player>();
             items = _items;
             groundItems = _groundItems;
             itemsToRemove = _itemsToRemove;
@@ -59,7 +61,19 @@ namespace BaseBuilderRPG.Content
         {
             foreach (Player player in players)
             {
-                player.Update(gameTime);
+                if (player.Health > 0)
+                {
+                    player.Update(gameTime);
+                }
+                else
+                {
+                    playersToRemove.Add(player);
+                }
+            }
+
+            foreach (Player player in playersToRemove)
+            {
+                players.Remove(player);
             }
 
             Item originalItem = items.Find(item => item.ID == 5);
@@ -75,7 +89,7 @@ namespace BaseBuilderRPG.Content
 
             Random rand = new Random();
             PlayerSpawnItem(Keys.X, true, rand.Next(0, Main.amountOfItems));
-            PlayerInventoryInteractions();
+            PlayerInventoryInteractions(Keys.I);
             PlayerSortInventory(Keys.Z);
             ClearItems(itemsToRemove, true, true, true, Keys.C);
 
@@ -108,7 +122,7 @@ namespace BaseBuilderRPG.Content
                 }
 
                 textPosition.X = player.Position.X + _texture.Width / 2 - textSize.X / 2;
-                spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition, player.IsActive ? Color.Yellow : nameColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.92f);
+                spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition, player.IsActive ? Color.Yellow : nameColor, 0, Vector2.Zero, 1f, SpriteEffects.None, player.IsActive ? 0.8616f : 0.7616f);
             }
             spriteBatch.End();
 
@@ -132,9 +146,12 @@ namespace BaseBuilderRPG.Content
                     maxTextWidth = Math.Max(maxTextWidth, textSize.X);
                 }
 
+                // Calculate the initial position of the tooltip
+                int initialX = Mouse.GetState().X + 18;
+                int initialY = Mouse.GetState().Y;
+
                 for (int i = 0; i < hoveredItem.ToolTips.Count; i++)
                 {
-                    int xOffSet = 18;
                     Color toolTipColor, bgColor;
                     switch (i)
                     {
@@ -162,18 +179,25 @@ namespace BaseBuilderRPG.Content
                     Vector2 textSize = Main.TestFont.MeasureString(hoveredItem.ToolTips[i]);
                     Vector2 backgroundSize = new Vector2(maxTextWidth, textSize.Y);
 
-                    int tooltipY = (int)Mouse.GetState().Y + i * ((int)textSize.Y);
+                    int tooltipX = initialX;
+                    int tooltipY = initialY + i * ((int)textSize.Y);
 
-                    spriteBatch.DrawRectangle(new Rectangle((int)Mouse.GetState().X + xOffSet - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoveredItem.RarityColor);
-                    spriteBatch.DrawRectangle(new Rectangle((int)Mouse.GetState().X + xOffSet - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor);
+                    if (tooltipX + (int)backgroundSize.X + 8 > GraphicsDevice.Viewport.Width)
+                    {
+                        tooltipX = Mouse.GetState().X - (int)backgroundSize.X - 18;
+                    }
+
+                    // Draw the tooltip background
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoveredItem.RarityColor, 0.922f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor, 0.922f);
 
                     if (i == 0 || i == 1)
                     {
-                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
                     }
                     else
                     {
-                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2((int)Mouse.GetState().X + xOffSet, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2(tooltipX, tooltipY + 5), toolTipColor);
                     }
                 }
             }
@@ -183,6 +207,7 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.Draw(mouseItem.Texture, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.White);
             }
         }
+
 
         private void PlayerShoot(GameTime gameTime)
         {
@@ -283,13 +308,13 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void PlayerInventoryInteractions()
+        private void PlayerInventoryInteractions(Keys key)
         {
             bool isMouseOverItem = false;
 
             foreach (Player player in players)
             {
-                if (player.IsActive)
+                if (player.IsActive && player.InventoryVisible)
                 {
                     for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
                     {
@@ -340,7 +365,7 @@ namespace BaseBuilderRPG.Content
             {
                 foreach (Player player in players)
                 {
-                    if (player.IsActive)
+                    if (player.IsActive && player.InventoryVisible)
                     {
                         for (int y = 0; y < player.Inventory.Height; y++)
                         {
@@ -406,35 +431,56 @@ namespace BaseBuilderRPG.Content
                             mouseItem = null;
                         }
 
-                        for (int y = 0; y < player.Inventory.Height; y++)
+                        if (player.InventoryVisible)
                         {
-                            for (int x = 0; x < player.Inventory.Width; x++)
+                            for (int y = 0; y < player.Inventory.Height; y++)
                             {
-                                int slotSize = Main.inventorySlotSize;
-                                int slotX = (int)Main.inventoryPos.X + x * slotSize;
-                                int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
-                                if (player.Inventory.IsSlotHovered(slotX, slotY))
+                                for (int x = 0; x < player.Inventory.Width; x++)
                                 {
-                                    hoveredItem = player.Inventory.GetItem(x, y);
-                                    if (hoveredItem != null)
+                                    int slotSize = Main.inventorySlotSize;
+                                    int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                                    int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
+                                    if (player.Inventory.IsSlotHovered(slotX, slotY))
                                     {
-                                        player.Inventory.EquipItem(hoveredItem, groundItems, x, y);
+                                        hoveredItem = player.Inventory.GetItem(x, y);
+                                        if (hoveredItem != null)
+                                        {
+                                            player.Inventory.EquipItem(hoveredItem, groundItems, x, y);
+                                        }
+                                    }
+                                }
+                            }
+
+                            for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
+                            {
+                                Vector2 position = Main.EquipmentSlotPositions(i);
+                                if (player.Inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                                {
+                                    if (!player.Inventory.IsFull() && player.Inventory.equipmentSlots[i].EquippedItem != null)
+                                    {
+                                        player.Inventory.AddItem(player.Inventory.equipmentSlots[i].EquippedItem, groundItems);
+                                        player.Inventory.equipmentSlots[i].EquippedItem = null;
                                     }
                                 }
                             }
                         }
+                    }
+                }
+            }
 
-                        for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
+            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            {
+                foreach (Player player in players)
+                {
+                    if (player.IsActive)
+                    {
+                        if (player.InventoryVisible)
                         {
-                            Vector2 position = Main.EquipmentSlotPositions(i);
-                            if (player.Inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
-                            {
-                                if (!player.Inventory.IsFull() && player.Inventory.equipmentSlots[i].EquippedItem != null)
-                                {
-                                    player.Inventory.AddItem(player.Inventory.equipmentSlots[i].EquippedItem, groundItems);
-                                    player.Inventory.equipmentSlots[i].EquippedItem = null;
-                                }
-                            }
+                            player.InventoryVisible = false;
+                        }
+                        else
+                        {
+                            player.InventoryVisible = true;
                         }
                     }
                 }

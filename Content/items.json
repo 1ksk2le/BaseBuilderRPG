@@ -46,11 +46,11 @@
     "DamageType": "melee",
     "WeaponType": "One Handed Sword",
     "Rarity": 0,
-    "Damage": 5,
-    "UseTime": 1,
+    "Damage": 7,
+    "UseTime": 1.2,
     "Shoot": -1,
     "ShootSpeed": 0,
-    "TexturePath": "Textures/Weapons/Wooden_Sword"
+    "TexturePath": "Textures/Weapons/Wooden_Baton"
   },
   {
     "ID": 5,
@@ -67,5 +67,57 @@
     "Rarity": 0,
     "StackLimit": 1,
     "TexturePath": "Textures/Player/Armors/tex_Leather_Cap"
+  },
+  {
+    "ID": 7,
+    "Name": "Wooden Sword",
+    "Type": "Weapon",
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 0,
+    "Damage": 5,
+    "UseTime": 1,
+    "Shoot": -1,
+    "ShootSpeed": 0,
+    "TexturePath": "Textures/Weapons/Wooden_Sword"
+  },
+  {
+    "ID": 8,
+    "Name": "Stone Sword",
+    "Type": "Weapon",
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 0,
+    "Damage": 6,
+    "UseTime": 1,
+    "Shoot": -1,
+    "ShootSpeed": 0,
+    "TexturePath": "Textures/Weapons/Stone_Sword"
+  },
+  {
+    "ID": 9,
+    "Name": "Brass Sword",
+    "Type": "Weapon",
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 1,
+    "Damage": 7,
+    "UseTime": 0.95,
+    "Shoot": -1,
+    "ShootSpeed": 0,
+    "TexturePath": "Textures/Weapons/Brass_Sword"
+  },
+  {
+    "ID": 10,
+    "Name": "Steel Sword",
+    "Type": "Weapon",
+    "DamageType": "melee",
+    "WeaponType": "One Handed Sword",
+    "Rarity": 1,
+    "Damage": 8,
+    "UseTime": 0.95,
+    "Shoot": -1,
+    "ShootSpeed": 0,
+    "TexturePath": "Textures/Weapons/Steel_Sword"
   }
 ]

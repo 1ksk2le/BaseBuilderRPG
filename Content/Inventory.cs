@@ -61,7 +61,7 @@ namespace BaseBuilderRPG.Content
 
                         if (item.StackLimit > 1)
                         {
-                            spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 20, y + 24), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.982f);
+                            spriteBatch.DrawString(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 19, y + 22), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.982f);
                         }
                     }
                 }

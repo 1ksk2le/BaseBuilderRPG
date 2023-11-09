@@ -20,8 +20,9 @@ namespace BaseBuilderRPG.Content
         public Texture2D PlayerTexture;
         public Texture2D PlayerHeadTexture;
         public Texture2D PlayerEyeTexture;
-        private Vector2 Velocity;
+        public Vector2 Velocity;
         public int Direction = 1;
+        public bool InventoryVisible;
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, bool isActive, string name, int healthMax, float skinColor, Vector2 position)
         {
             PlayerTexture = texture;
@@ -38,6 +39,7 @@ namespace BaseBuilderRPG.Content
             FinalSkinColor = GetSkinColor(SkinColor);
 
             Inventory = new Inventory(5, 6);
+            InventoryVisible = true;
         }
 
         private float rotationAngle;
@@ -81,6 +83,11 @@ namespace BaseBuilderRPG.Content
                 Velocity = movement * Speed;
 
                 Position += Velocity;
+
+                if (keyboardState.IsKeyDown(Keys.K))
+                {
+                    Health--;
+                }
             }
             else
             {
@@ -130,7 +137,7 @@ namespace BaseBuilderRPG.Content
 
             PostDraw(spriteBatch, gameTime, rotation);
 
-            if (IsActive)
+            if (IsActive && InventoryVisible)
             {
                 Inventory.Draw(spriteBatch, this);
             }
@@ -148,8 +155,8 @@ namespace BaseBuilderRPG.Content
                     float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                     SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
-                    Vector2 weaponPosition = Position + new Vector2((Direction == 1) ? 22 : 2, (Direction == 1) ? PlayerTexture.Height / 2 + 5 : PlayerTexture.Height / 2 + 4);
-                    Vector2 weaponOrigin = (Direction == 1) ? new Vector2(0, PlayerTexture.Height / 1.5f) : new Vector2(0, 0);
+                    Vector2 weaponPosition = Position + new Vector2(PlayerTexture.Width / 2 + equippedWeapon.Texture.Height / 5 * Direction, PlayerTexture.Height / 2);
+                    Vector2 weaponOrigin = (Direction == 1) ? new Vector2(0, equippedWeapon.Texture.Height) : new Vector2(0, 0);
 
                     if (isSwinging)
                     {
@@ -162,8 +169,24 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
-        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot)
+        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot) //0.8616f : 0.7616f MAX
         {
+            if (Health < HealthMax)
+            {
+                float healthBarWidth = (PlayerTexture.Width) * ((float)Health / (float)HealthMax);
+                int offSetY = 6;
+
+                Rectangle healthBarRectangleBackground = new Rectangle((int)(Position.X - 2), (int)Position.Y + PlayerTexture.Height + offSetY - 1, (int)(PlayerTexture.Width) + 4, 5);
+                Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(Position.X), (int)Position.Y + PlayerTexture.Height + offSetY, (int)(PlayerTexture.Width), 3);
+                Rectangle healthBarRectangle = new Rectangle((int)(Position.X), (int)Position.Y + PlayerTexture.Height + offSetY, (int)healthBarWidth, 3);
+
+                Color healthBarColor = Color.Lime;
+                spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, IsActive ? 0.8613f : 0.7613f);
+                spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, IsActive ? 0.8614f : 0.7614f);
+                spriteBatch.DrawRectangle(healthBarRectangle, healthBarColor, IsActive ? 0.8615f : 0.7615f);
+            }
+
+
             SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
