@@ -34,7 +34,30 @@ namespace BaseBuilderRPG.Content
         {
             int slotSize = Main.inventorySlotSize;
 
+            Rectangle sourceRect = new Rectangle(0, 0, Main.texInventoryExtras.Width, Main.texInventoryExtras.Height / 2);
+            Rectangle sourceRect2 = new Rectangle(0, Main.texInventoryExtras.Height / 2, Main.texInventoryExtras.Width, Main.texInventoryExtras.Height / 2);
+            spriteBatch.Draw(Main.texInventoryExtras, Main.inventoryPos + new Vector2(0, -22), sourceRect, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9502f);
+            spriteBatch.Draw(Main.texInventoryExtras, Main.inventoryPos + new Vector2(0, 374), sourceRect2, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9501f);
             spriteBatch.Draw(Main.texInventory, Main.inventoryPos, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.95f);
+
+            Rectangle sortSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
+            if (sortSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            {
+                string text = "Sort Inventory";
+                Vector2 textSize = Main.TestFont.MeasureString(text);
+                spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
+                spriteBatch.DrawString(Main.TestFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+            }
+
+            Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
+            if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            {
+                string text = "Close Inventory";
+                Vector2 textSize = Main.TestFont.MeasureString(text);
+                spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
+                spriteBatch.DrawString(Main.TestFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+            }
+
             for (int width = 0; width < player.Inventory.Width; width++)
             {
                 for (int height = 0; height < player.Inventory.Height; height++)

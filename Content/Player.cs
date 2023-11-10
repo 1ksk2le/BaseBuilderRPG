@@ -22,6 +22,7 @@ namespace BaseBuilderRPG.Content
         public Texture2D PlayerEyeTexture;
         public Vector2 Velocity;
         public int Direction = 1;
+        public float DamageTimer;
         public bool InventoryVisible;
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, bool isActive, string name, int healthMax, float skinColor, Vector2 position)
         {
@@ -40,12 +41,18 @@ namespace BaseBuilderRPG.Content
 
             Inventory = new Inventory(5, 6);
             InventoryVisible = true;
+            DamageTimer = 0;
         }
 
         private float rotationAngle;
         public void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
+
+            if (DamageTimer <= 5f)
+            {
+                DamageTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
 
             Movement(Vector2.Zero, keyboardState);
             OneHandedSwing(gameTime);
@@ -83,11 +90,6 @@ namespace BaseBuilderRPG.Content
                 Velocity = movement * Speed;
 
                 Position += Velocity;
-
-                if (keyboardState.IsKeyDown(Keys.K))
-                {
-                    Health--;
-                }
             }
             else
             {
@@ -180,10 +182,12 @@ namespace BaseBuilderRPG.Content
                 Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(Position.X), (int)Position.Y + PlayerTexture.Height + offSetY, (int)(PlayerTexture.Width), 3);
                 Rectangle healthBarRectangle = new Rectangle((int)(Position.X), (int)Position.Y + PlayerTexture.Height + offSetY, (int)healthBarWidth, 3);
 
-                Color healthBarColor = Color.Lime;
-                spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, IsActive ? 0.8613f : 0.7613f);
-                spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, IsActive ? 0.8614f : 0.7614f);
-                spriteBatch.DrawRectangle(healthBarRectangle, healthBarColor, IsActive ? 0.8615f : 0.7615f);
+
+                float alpha = 1 - (DamageTimer / 5f);
+
+                spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black * alpha, IsActive ? 0.8613f : 0.7613f);
+                spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red * alpha, IsActive ? 0.8614f : 0.7614f);
+                spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime * alpha, IsActive ? 0.8615f : 0.7615f);
             }
 
 

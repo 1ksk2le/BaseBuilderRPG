@@ -15,6 +15,7 @@ namespace BaseBuilderRPG
         private KeyboardState pKey;
 
         public static Texture2D texInventory;
+        public static Texture2D texInventoryExtras;
         public static Texture2D texInventorySlotBackground;
         public static Texture2D texAccessorySlotBackground;
         public static Texture2D texMainSlotBackground;
@@ -27,6 +28,7 @@ namespace BaseBuilderRPG
         public static int inventorySlotSize;
         public static int inventorySlotStartPos = 148;
 
+        public static Display_Text_Manager disTextManager;
         public static Projectile_Manager projManager;
         public static Player_Manager playerManager;
 
@@ -53,7 +55,17 @@ namespace BaseBuilderRPG
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            OutlineShader = Content.Load<Effect>("Shaders/Outline");
+            TestFont = Content.Load<SpriteFont>("Font_Test");
+
+            texInventory = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory");
+            texInventoryExtras = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Extras");
+            texInventorySlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Slot_Background");
+            texMainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
+
             projManager = new Projectile_Manager(this, spriteBatch);
+
+            disTextManager = new Display_Text_Manager(TestFont);
 
             itemManager = new Item_Manager(this, spriteBatch);
             items = itemManager.items;
@@ -62,19 +74,12 @@ namespace BaseBuilderRPG
             itemDictionary = itemManager.itemDictionary;
 
 
-            playerManager = new Player_Manager(this, spriteBatch, items, groundItems, itemsToRemove, itemDictionary, itemManager, pKey);
+            playerManager = new Player_Manager(this, spriteBatch, items, groundItems, itemsToRemove, itemDictionary, itemManager, disTextManager, pKey);
             players = playerManager.players;
 
             Components.Add(projManager);
             Components.Add(itemManager);
             Components.Add(playerManager);
-
-            OutlineShader = Content.Load<Effect>("Shaders/Outline");
-            TestFont = Content.Load<SpriteFont>("Font_Test");
-            texInventory = Content.Load<Texture2D>("Textures/tex_UI_Inventory");
-            texInventorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Inventory_Slot_Background");
-            texAccessorySlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Accessory_Slot_Background");
-            texMainSlotBackground = Content.Load<Texture2D>("Textures/tex_UI_Main_Slot_Background");
 
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - Main.texInventory.Width - 4, graphics.PreferredBackBufferHeight - Main.texInventory.Height - 4);
             inventorySlotSize = 38;
@@ -98,10 +103,17 @@ namespace BaseBuilderRPG
 
         protected override void Update(GameTime gameTime)
         {
-            if (Mouse.GetState().RightButton == ButtonState.Pressed)
+            Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
+            if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
-                inventoryPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    inventoryPos = new Vector2(Mouse.GetState().X - 95, Mouse.GetState().Y + 12);
+                }
             }
+
+            disTextManager.Update(gameTime);
+
             base.Update(gameTime);
         }
 
@@ -111,12 +123,17 @@ namespace BaseBuilderRPG
         {
             GraphicsDevice.Clear(Color.Gray);
 
-            spriteBatch.Begin();
-            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-
-            spriteBatch.End();
-
             base.Draw(gameTime);
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(Main.TestFont, "Controls: ", new Vector2(10, 20), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "E = Control player", new Vector2(10, 40), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "X = Spawn item", new Vector2(10, 60), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "C = Clear items", new Vector2(10, 80), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "I = Open / Close inventory", new Vector2(10, 100), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            disTextManager.Draw(spriteBatch);
+            spriteBatch.End();
         }
 
         public static Vector2 EquipmentSlotPositions(int i)

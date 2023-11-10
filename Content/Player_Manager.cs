@@ -17,6 +17,7 @@ namespace BaseBuilderRPG.Content
         private List<Item> itemsToRemove;
         private Dictionary<int, Item> itemDictionary;
         private Item_Manager itemManager;
+        private Display_Text_Manager textManager;
         private Texture2D _texture;
         private Texture2D _textureHead;
         private Texture2D _textureEyes;
@@ -28,7 +29,8 @@ namespace BaseBuilderRPG.Content
         private MouseState pMouse;
         private KeyboardState pKey;
 
-        public Player_Manager(Game game, SpriteBatch spriteBatch, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int, Item> _itemDictionary, Item_Manager _itemManager, KeyboardState _keyboardState)
+        public Player_Manager(Game game, SpriteBatch spriteBatch, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
+            Item> _itemDictionary, Item_Manager _itemManager, Display_Text_Manager _textManager, KeyboardState _keyboardState)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -44,9 +46,10 @@ namespace BaseBuilderRPG.Content
             itemsToRemove = _itemsToRemove;
             itemDictionary = _itemDictionary;
             itemManager = _itemManager;
+            textManager = _textManager;
             pKey = _keyboardState;
 
-            players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 140, 0.9f, new Vector2(10, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 999999, 0.9f, new Vector2(10, 500)));
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Milliath", 100, 1f, new Vector2(30, 500)));
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));
@@ -64,10 +67,22 @@ namespace BaseBuilderRPG.Content
                 if (player.Health > 0)
                 {
                     player.Update(gameTime);
+                    if (player.IsActive)
+                    {
+                        if (Keyboard.GetState().IsKeyDown(Keys.K) && !pKey.IsKeyDown(Keys.K))
+                        {
+                            Random rand2 = new Random();
+                            int damage = rand2.Next(1, 20) * -1;
+                            player.Health += damage;
+                            player.DamageTimer = 0f;
+                            textManager.AddFloatingText(damage.ToString(), player.Position - new Vector2(-player.PlayerTexture.Width / 2, 20), Color.Red, 2f);
+
+                        }
+                    }
                 }
                 else
                 {
-                    playersToRemove.Add(player);
+                    // playersToRemove.Add(player);
                 }
             }
 
@@ -234,6 +249,7 @@ namespace BaseBuilderRPG.Content
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
+
                 Player activePlayer = players.FirstOrDefault(p => p.IsActive);
 
                 if (activePlayer != null)
@@ -255,6 +271,7 @@ namespace BaseBuilderRPG.Content
                 if (closestPlayer != null)
                 {
                     closestPlayer.IsActive = true;
+                    closestPlayer.DamageTimer = 0f;
                 }
             }
         }
@@ -314,6 +331,23 @@ namespace BaseBuilderRPG.Content
 
             foreach (Player player in players)
             {
+                Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
+                if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y) && Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+                {
+                    player.InventoryVisible = false;
+                }
+                if (player.IsActive && Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+                {
+                    if (player.InventoryVisible)
+                    {
+                        player.InventoryVisible = false;
+                    }
+                    else
+                    {
+                        player.InventoryVisible = true;
+                    }
+                }
+
                 if (player.IsActive && player.InventoryVisible)
                 {
                     for (int i = 0; i < player.Inventory.equipmentSlots.Count; i++)
@@ -467,35 +501,21 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
-
-            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
-            {
-                foreach (Player player in players)
-                {
-                    if (player.IsActive)
-                    {
-                        if (player.InventoryVisible)
-                        {
-                            player.InventoryVisible = false;
-                        }
-                        else
-                        {
-                            player.InventoryVisible = true;
-                        }
-                    }
-                }
-            }
         }
 
         private void PlayerSortInventory(Keys key)
         {
-            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            Rectangle slotRect = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
+            if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
                 foreach (Player player in players)
                 {
                     if (player.IsActive)
                     {
-                        player.Inventory.SortItems();
+                        if (Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+                        {
+                            player.Inventory.SortItems();
+                        }
                     }
                 }
             }
