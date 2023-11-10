@@ -101,21 +101,46 @@ namespace BaseBuilderRPG
             }
         }
 
+        private bool isDragging = false;
+        private Vector2 previousMousePosition;
+
         protected override void Update(GameTime gameTime)
         {
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
+
             if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
-                    inventoryPos = new Vector2(Mouse.GetState().X - 95, Mouse.GetState().Y + 12);
+                    if (!isDragging)
+                    {
+                        isDragging = true;
+                        previousMousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                    }
+
+                    float deltaX = Mouse.GetState().X - previousMousePosition.X;
+                    float deltaY = Mouse.GetState().Y - previousMousePosition.Y;
+
+                    inventoryPos.X += deltaX;
+                    inventoryPos.Y += deltaY;
+
+                    previousMousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                 }
+                else
+                {
+                    isDragging = false;
+                }
+            }
+            else
+            {
+                isDragging = false;
             }
 
             disTextManager.Update(gameTime);
 
             base.Update(gameTime);
         }
+
 
 
 
@@ -131,9 +156,14 @@ namespace BaseBuilderRPG
             spriteBatch.DrawString(Main.TestFont, "X = Spawn item", new Vector2(10, 60), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "C = Clear items", new Vector2(10, 80), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "I = Open / Close inventory", new Vector2(10, 100), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "K = Damage player", new Vector2(10, 120), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             disTextManager.Draw(spriteBatch);
             spriteBatch.End();
+
+
+
+
         }
 
         public static Vector2 EquipmentSlotPositions(int i)

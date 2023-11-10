@@ -16,9 +16,9 @@ namespace BaseBuilderRPG.Content
             this._font = font;
         }
 
-        public void AddFloatingText(string text, Vector2 position, Color color, float duration)
+        public void AddFloatingText(string text1, string text2, Vector2 position, Color color1, Color color2, float duration, float scale)
         {
-            Display_Text floatingText = new Display_Text(text, position, color, duration);
+            Display_Text floatingText = new Display_Text(text1, text2, position, color1, color2, duration, scale);
             _texts.Add(floatingText);
         }
 
@@ -27,7 +27,7 @@ namespace BaseBuilderRPG.Content
             for (int i = _texts.Count - 1; i >= 0; i--)
             {
                 _texts[i].Update(gameTime);
-                if (_texts[i]._isAlive)
+                if (!_texts[i]._isAlive)
                 {
                     _texts.RemoveAt(i);
                 }

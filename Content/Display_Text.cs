@@ -1,25 +1,32 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace BaseBuilderRPG.Content
 {
     public class Display_Text
     {
-        private string _text;
+        private string _text1;
+        private string _text2;
         private Vector2 _pos;
-        private Color _color;
+        private Color _color1;
+        private Color _color2;
         private float _lifeTime;
         private float _timer;
-        public bool _isAlive => _timer >= _lifeTime;
+        private float _scale;
 
+        public bool _isAlive => _timer <= _lifeTime;
 
-        public Display_Text(string text, Vector2 pos, Color color, float lifeTime)
+        public Display_Text(string text1, string text2, Vector2 pos, Color color1, Color color2, float lifeTime, float scale)
         {
-            _text = text;
+            _text1 = text1;
+            _text2 = text2;
             _pos = pos;
-            _color = color;
+            _color1 = color1;
+            _color2 = color2;
             _lifeTime = lifeTime;
             _timer = 0f;
+            _scale = scale;
         }
 
         public void Update(GameTime gameTime)
@@ -33,14 +40,42 @@ namespace BaseBuilderRPG.Content
 
         public void Draw(SpriteBatch spriteBatch, SpriteFont font)
         {
-            if (font != null)
+            if (font != null && _timer <= _lifeTime)
             {
-                float alpha = 1 - (_timer / _lifeTime);
-                Vector2 origin = font.MeasureString(_text) / 2;
+                // Concatenate both texts to get the accurate width
+                string fullText = _text1 + _text2;
 
-                spriteBatch.DrawString(font, _text, _pos, _color * alpha, 0f, origin, 1.1f, SpriteEffects.None, 0f);
+                // Measure the width of the full text
+                Vector2 fullTextSize = font.MeasureString(fullText) * _scale;
+
+                // Calculate the position of _text2 based on the width of the full text
+                Vector2 text2Position = _pos + new Vector2(fullTextSize.X / 2, 0);
+
+                // Draw both texts
+                DrawStringWithOutline(spriteBatch, font, _text1, _pos, _color1, _timer, _lifeTime);
+                DrawStringWithOutline(spriteBatch, font, _text2, text2Position, _color2, _timer, _lifeTime);
+            }
+        }
+
+
+
+        private void DrawStringWithOutline(SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color, float timer, float lifeTime)
+        {
+            float outlineThickness = 1.5f;
+
+            for (float i = 0; i < 360; i += 45)
+            {
+                float angle = MathHelper.ToRadians(i);
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * outlineThickness;
+
+                Color outlineColor = Color.FromNonPremultiplied(0, 0, 0, (int)(color.A * (1 - timer / lifeTime)));
+
+                spriteBatch.DrawString(font, text, position + offset, outlineColor, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
             }
 
+            Color mainTextColor = new Color(color.R, color.G, color.B, (int)(color.A * (1 - timer / lifeTime)));
+
+            spriteBatch.DrawString(font, text, position, mainTextColor, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
         }
     }
 }

@@ -173,7 +173,7 @@ namespace BaseBuilderRPG.Content
         }
         public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot) //0.8616f : 0.7616f MAX
         {
-            if (Health < HealthMax)
+            if (Health <= HealthMax)
             {
                 float healthBarWidth = (PlayerTexture.Width) * ((float)Health / (float)HealthMax);
                 int offSetY = 6;

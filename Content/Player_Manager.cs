@@ -72,10 +72,11 @@ namespace BaseBuilderRPG.Content
                         if (Keyboard.GetState().IsKeyDown(Keys.K) && !pKey.IsKeyDown(Keys.K))
                         {
                             Random rand2 = new Random();
-                            int damage = rand2.Next(1, 20) * -1;
+                            int damage = rand2.Next(-20, 20) + 1;
                             player.Health += damage;
                             player.DamageTimer = 0f;
-                            textManager.AddFloatingText(damage.ToString(), player.Position - new Vector2(-player.PlayerTexture.Width / 2, 20), Color.Red, 2f);
+                            Color textColor = (damage > 0) ? Color.Lime : Color.Red;
+                            textManager.AddFloatingText(damage.ToString(), "", player.Position - new Vector2(-player.PlayerTexture.Width / 2, 20), textColor, Color.Transparent, 2f, 1f);
 
                         }
                     }
@@ -100,7 +101,7 @@ namespace BaseBuilderRPG.Content
 
             PlayerShoot(gameTime);
             PlayerSelect(players, Keys.E);
-            PlayerPıckItem(players, groundItems, Keys.F);
+            PlayerPickItem(players, groundItems, Keys.F);
 
             Random rand = new Random();
             PlayerSpawnItem(Keys.X, true, rand.Next(0, Main.amountOfItems));
@@ -276,7 +277,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void PlayerPıckItem(List<Player> playerList, List<Item> itemsOnGround, Keys key)
+        private void PlayerPickItem(List<Player> playerList, List<Item> itemsOnGround, Keys key)
         {
             foreach (Item item in itemsOnGround.ToList())
             {
@@ -284,14 +285,21 @@ namespace BaseBuilderRPG.Content
                 {
                     if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
                     {
-                        if (item.PlayerClose(player, 40f) && player.IsActive)
+                        if (item.PlayerClose(player, 40f) && player.IsActive && !player.Inventory.IsFull())
                         {
+                            string text = "Picked: " + item.PrefixName + " " + item.Name + " " + item.SuffixName;
+                            Vector2 textSize = Main.TestFont.MeasureString(text);
+
+                            Vector2 textPos = player.Position + new Vector2(-textSize.X / 5f, -20);
                             player.Inventory.PickItem(item, itemsOnGround);
+
+                            textManager.AddFloatingText("Picked: ", (item.PrefixName + " " + item.Name + " " + item.SuffixName), textPos, Color.White, item.RarityColor, 2f, 0.9f);
                         }
                     }
                 }
             }
         }
+
 
         private void PlayerSpawnItem(Keys key, bool addInventory, int itemID)
         {
