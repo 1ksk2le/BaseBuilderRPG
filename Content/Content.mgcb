@@ -26,6 +26,30 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Outline.fx
 
+#begin Textures/NPC/Slime.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/NPC/Slime.png
+
+#begin Textures/NPC/Test_NPC.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/NPC/Test_NPC.png
+
 #begin Textures/Player/Armors/tex_Leather_Armor.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -2,6 +2,8 @@
   {
     "ID": 0,
     "AI": 0,
+    "Width": 8,
+    "Height": 8,
     "Name": "Test Arrow",
     "LifeTime": 2,
     "TexturePath": "Textures/tex_Wooden_Arrow"
@@ -9,6 +11,8 @@
   {
     "ID": 1,
     "AI": 1,
+    "Width": 8,
+    "Height": 8,
     "Name": "Wooden Arrow",
     "LifeTime": 2,
     "TexturePath": "Textures/tex_Wooden_Arrow"

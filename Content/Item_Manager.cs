@@ -136,7 +136,6 @@ namespace BaseBuilderRPG.Content
                         itemName = "[" + item.PrefixName + " " + item.Name + " " + item.SuffixName + "]";
                     }
 
-                    //spriteBatch.DrawString(Game1.TestFont, itemName, new Vector2(Position.X - Game1.TestFont.MeasureString(itemName).X / 2f + Texture.Width / 2, Position.Y + Texture.Height + 4), RarityColor);
                     spriteBatch.End();
                 }
             }

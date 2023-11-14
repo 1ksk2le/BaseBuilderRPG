@@ -11,7 +11,7 @@ namespace BaseBuilderRPG.Content
         public Inventory BackPack { get; private set; }
         public Vector2 Position { get; set; }
         public int Health { get; set; }
-        public int HealthMax { get; set; }
+        public int MaxHealth { get; set; }
         public float SkinColor { get; set; }
         public bool IsActive { get; set; }
         public string Name { get; set; }
@@ -22,7 +22,6 @@ namespace BaseBuilderRPG.Content
         public Texture2D PlayerEyeTexture;
         public Vector2 Velocity;
         public int Direction = 1;
-        public float DamageTimer;
         public bool InventoryVisible;
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, bool isActive, string name, int healthMax, float skinColor, Vector2 position)
         {
@@ -33,26 +32,20 @@ namespace BaseBuilderRPG.Content
             Health = 100;
             IsActive = isActive;
             Name = name;
-            HealthMax = healthMax;
+            MaxHealth = healthMax;
             SkinColor = skinColor;
-            Health = HealthMax;
+            Health = MaxHealth;
 
             FinalSkinColor = GetSkinColor(SkinColor);
 
             Inventory = new Inventory(5, 6);
             InventoryVisible = true;
-            DamageTimer = 0;
         }
 
         private float rotationAngle;
         public void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
-
-            if (DamageTimer <= 5f)
-            {
-                DamageTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
 
             Movement(Vector2.Zero, keyboardState);
             OneHandedSwing(gameTime);
@@ -106,9 +99,27 @@ namespace BaseBuilderRPG.Content
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             PreDraw(spriteBatch);
 
+            string textToDisplay = Name;
+            Vector2 textSize = Main.TestFont.MeasureString(textToDisplay);
+            Vector2 textPosition = Position + new Vector2(0, -14);
+            Color nameColor;
+            Rectangle slotRect = new((int)Position.X, (int)Position.Y, PlayerTexture.Width, PlayerTexture.Height);
+            if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            {
+                nameColor = Color.Lime;
+            }
+            else
+            {
+                nameColor = Color.White;
+            }
+
+            textPosition.X = Position.X + PlayerTexture.Width / 2 - textSize.X / 2;
+
+            spriteBatch.DrawStringWithOutline(Main.TestFont, textToDisplay, textPosition, Color.Black, IsActive ? Color.Yellow : nameColor, 1f, IsActive ? 0.8616f : 0.7616f);
+
+            SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             MouseState mouseState = Mouse.GetState();
             Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y);
             Vector2 directionToMouse = mousePosition - Position;
@@ -173,9 +184,9 @@ namespace BaseBuilderRPG.Content
         }
         public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot) //0.8616f : 0.7616f MAX
         {
-            if (Health <= HealthMax)
+            if (Health <= MaxHealth)
             {
-                float healthBarWidth = (PlayerTexture.Width) * ((float)Health / (float)HealthMax);
+                float healthBarWidth = (PlayerTexture.Width) * ((float)Health / (float)MaxHealth);
                 int offSetY = 6;
 
                 Rectangle healthBarRectangleBackground = new Rectangle((int)(Position.X - 2), (int)Position.Y + PlayerTexture.Height + offSetY - 1, (int)(PlayerTexture.Width) + 4, 5);
@@ -183,11 +194,12 @@ namespace BaseBuilderRPG.Content
                 Rectangle healthBarRectangle = new Rectangle((int)(Position.X), (int)Position.Y + PlayerTexture.Height + offSetY, (int)healthBarWidth, 3);
 
 
-                float alpha = 1 - (DamageTimer / 5f);
-
-                spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black * alpha, IsActive ? 0.8613f : 0.7613f);
-                spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red * alpha, IsActive ? 0.8614f : 0.7614f);
-                spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime * alpha, IsActive ? 0.8615f : 0.7615f);
+                if (Health < MaxHealth)
+                {
+                    spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, IsActive ? 0.8613f : 0.7613f);
+                    spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, IsActive ? 0.8614f : 0.7614f);
+                    spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, IsActive ? 0.8615f : 0.7615f);
+                }
             }
 
 

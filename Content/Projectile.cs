@@ -11,6 +11,9 @@ namespace BaseBuilderRPG.Content
         public Texture2D Texture { get; set; }
 
         public int ID { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Penetrate { get; set; }
         public int AI { get; set; }
         public int Damage { get; set; }
         public float LifeTime { get; set; }
@@ -27,7 +30,7 @@ namespace BaseBuilderRPG.Content
         public float Rotation;
         public Player Owner { get; set; }
 
-        public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
+        public Projectile(Texture2D texture, string texturePath, string name, int id, int ai, int damage, int penetrate, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, int width, int height, bool isAlive)
         {
             CurrentLifeTime = 0f;
             Texture = texture;
@@ -45,6 +48,9 @@ namespace BaseBuilderRPG.Content
             Target = new Vector2(mouseState.X, mouseState.Y);
             SpawnPosition = Position;
             IsAlive = isAlive;
+            Width = width;
+            Height = height;
+            Penetrate = penetrate;
             SetDefaults();
         }
 
@@ -63,6 +69,11 @@ namespace BaseBuilderRPG.Content
                 CurrentLifeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
+            if (Penetrate < 0)
+            {
+                IsAlive = false;
+            }
+
             if (AI == 0 || AI == 1)
             {
                 Vector2 direction = Target - SpawnPosition;
@@ -75,10 +86,11 @@ namespace BaseBuilderRPG.Content
 
         public void Kill()
         {
-            if (AI == 0)
-            {
-                Projectile_Manager.NewProjectile(id: 1, damage: 10, lifeTime: 2, knockBack: 3, speed: 10, position: Position, owner: Owner, isAlive: true);
-            }
+            /* if (AI == 0)
+             {
+                 Main.projManager.NewProjectile(id: 1, damage: 10, lifeTime: 2, knockBack: 3, speed: 10, position: Position, owner: Owner, isAlive: true);
+                 Main.projManager.NewProjectile(id: 1, damage: 10, lifeTime: 2, knockBack: 3, speed: 20, position: Position * 2, owner: Owner, isAlive: true);
+             }*/
         }
 
         public void RemoveProjectile(List<Projectile> projectiles)

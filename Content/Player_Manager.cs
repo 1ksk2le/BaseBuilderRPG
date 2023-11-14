@@ -53,6 +53,8 @@ namespace BaseBuilderRPG.Content
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Milliath", 100, 1f, new Vector2(30, 500)));
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));
+
+            players[0].Inventory.equipmentSlots[0].EquippedItem = items[3];
         }
 
         public void Load()
@@ -72,11 +74,10 @@ namespace BaseBuilderRPG.Content
                         if (Keyboard.GetState().IsKeyDown(Keys.K) && !pKey.IsKeyDown(Keys.K))
                         {
                             Random rand2 = new Random();
-                            int damage = rand2.Next(-20, 20) + 1;
+                            int damage = rand2.Next(-10, -1) + 1;
                             player.Health += damage;
-                            player.DamageTimer = 0f;
                             Color textColor = (damage > 0) ? Color.Lime : Color.Red;
-                            textManager.AddFloatingText(damage.ToString(), "", player.Position - new Vector2(-player.PlayerTexture.Width / 2, 20), textColor, Color.Transparent, 2f, 1f);
+                            textManager.AddFloatingText(damage.ToString(), "", player.Position - new Vector2(-player.PlayerTexture.Width / 2, 0), textColor, Color.Transparent, 2f, 1.1f);
 
                         }
                     }
@@ -115,35 +116,16 @@ namespace BaseBuilderRPG.Content
             base.Update(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime) //8617f max
         {
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
-
                 player.Draw(spriteBatch, gameTime);
-
-                string textToDisplay = "[" + player.Name + "]";
-                Vector2 textSize = Main.TestFont.MeasureString(textToDisplay);
-                Vector2 textPosition = player.Position + new Vector2(0, -14);
-                Color nameColor;
-                Rectangle slotRect = new((int)player.Position.X, (int)player.Position.Y, _texture.Width, _texture.Height);
-                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
-                {
-                    nameColor = Color.Lime;
-                }
-                else
-                {
-                    nameColor = Color.Black;
-                }
-
-                textPosition.X = player.Position.X + _texture.Width / 2 - textSize.X / 2;
-                spriteBatch.DrawString(Main.TestFont, textToDisplay, textPosition, player.IsActive ? Color.Yellow : nameColor, 0, Vector2.Zero, 1f, SpriteEffects.None, player.IsActive ? 0.8616f : 0.7616f);
             }
             spriteBatch.End();
 
             spriteBatch.Begin();
-
             spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + useTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             DrawInventory(gameTime);
             spriteBatch.End();
@@ -239,7 +221,8 @@ namespace BaseBuilderRPG.Content
 
                     if (Mouse.GetState().LeftButton == ButtonState.Pressed && useTimer <= 0)
                     {
-                        Projectile_Manager.NewProjectile(equippedWeapon.Shoot, equippedWeapon.Damage, 2, 2f, equippedWeapon.ShootSpeed, player.Position, player, true);
+                        Main.projManager.NewProjectile(equippedWeapon.Shoot, equippedWeapon.Damage, 2, 2f, equippedWeapon.ShootSpeed, player.Position + new Vector2(player.PlayerTexture.Width / 2,
+                            (player.PlayerTexture.Height) / 2), player, true);
                         useTimer = equippedWeapon.UseTime;
                     }
                 }
@@ -272,7 +255,6 @@ namespace BaseBuilderRPG.Content
                 if (closestPlayer != null)
                 {
                     closestPlayer.IsActive = true;
-                    closestPlayer.DamageTimer = 0f;
                 }
             }
         }
@@ -352,6 +334,7 @@ namespace BaseBuilderRPG.Content
                     }
                     else
                     {
+                        Main.inventoryPos = new Vector2(Mouse.GetState().X - Main.texInventory.Width / 2, Mouse.GetState().Y);
                         player.InventoryVisible = true;
                     }
                 }

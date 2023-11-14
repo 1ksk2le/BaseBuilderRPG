@@ -21,7 +21,7 @@ namespace BaseBuilderRPG.Content
         {
             _text1 = text1;
             _text2 = text2;
-            _pos = pos;
+            _pos = pos + new Vector2(0, -10);
             _color1 = color1;
             _color2 = color2;
             _lifeTime = lifeTime;

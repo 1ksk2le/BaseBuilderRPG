@@ -29,6 +29,7 @@ namespace BaseBuilderRPG
         public static int inventorySlotStartPos = 148;
 
         public static Display_Text_Manager disTextManager;
+        public static NPC_Manager npcManager;
         public static Projectile_Manager projManager;
         public static Player_Manager playerManager;
 
@@ -38,6 +39,8 @@ namespace BaseBuilderRPG
         public List<Item> itemsToRemove;
         public List<Item> groundItems;
         public List<Player> players;
+        public List<Projectile> projectiles;
+        public List<NPC> npcs;
 
         public static int amountOfItems;
         public Main()
@@ -64,6 +67,7 @@ namespace BaseBuilderRPG
             texMainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
 
             projManager = new Projectile_Manager(this, spriteBatch);
+            projectiles = projManager.projectiles;
 
             disTextManager = new Display_Text_Manager(TestFont);
 
@@ -77,12 +81,19 @@ namespace BaseBuilderRPG
             playerManager = new Player_Manager(this, spriteBatch, items, groundItems, itemsToRemove, itemDictionary, itemManager, disTextManager, pKey);
             players = playerManager.players;
 
-            Components.Add(projManager);
+            npcManager = new NPC_Manager(this, spriteBatch, itemManager, disTextManager, items, groundItems, itemDictionary, players, projectiles);
+            npcs = npcManager.npcs;
+
             Components.Add(itemManager);
+            Components.Add(npcManager);
+            Components.Add(projManager);
             Components.Add(playerManager);
 
-            inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - Main.texInventory.Width - 4, graphics.PreferredBackBufferHeight - Main.texInventory.Height - 4);
+
+            inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 200);
             inventorySlotSize = 38;
+
+            npcManager.NewNPC(0, new Vector2(750, 400));
 
             base.Initialize();
         }
@@ -93,6 +104,7 @@ namespace BaseBuilderRPG
             projManager.Load();
             itemManager.Load();
             playerManager.Load();
+            npcManager.Load();
 
             Random rand = new Random();
             foreach (Item item in items)
@@ -112,6 +124,7 @@ namespace BaseBuilderRPG
             {
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
+
                     if (!isDragging)
                     {
                         isDragging = true;
@@ -138,6 +151,13 @@ namespace BaseBuilderRPG
 
             disTextManager.Update(gameTime);
 
+            if (Keyboard.GetState().IsKeyDown(Keys.G) && !pKey.IsKeyDown(Keys.G))
+            {
+                npcManager.NewNPC(1, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+            }
+
+
+            pKey = Keyboard.GetState();
             base.Update(gameTime);
         }
 
@@ -157,13 +177,11 @@ namespace BaseBuilderRPG
             spriteBatch.DrawString(Main.TestFont, "C = Clear items", new Vector2(10, 80), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "I = Open / Close inventory", new Vector2(10, 100), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "K = Damage player", new Vector2(10, 120), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "F = Pick item up from ground", new Vector2(10, 140), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "G = Spawn a slime", new Vector2(10, 160), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             disTextManager.Draw(spriteBatch);
             spriteBatch.End();
-
-
-
-
         }
 
         public static Vector2 EquipmentSlotPositions(int i)

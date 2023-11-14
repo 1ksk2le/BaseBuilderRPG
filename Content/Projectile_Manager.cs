@@ -10,7 +10,7 @@ namespace BaseBuilderRPG.Content
     {
         SpriteBatch spriteBatch;
         private static Dictionary<int, Projectile> projectileDictionary;
-        private static List<Projectile> projectiles;
+        public List<Projectile> projectiles;
         private List<Projectile> projectilesToRemove;
 
         public Projectile_Manager(Game game, SpriteBatch spriteBatch)
@@ -38,11 +38,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public static void NewProjectile(int id, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
+        public void NewProjectile(int id, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
         {
             if (projectileDictionary.TryGetValue(id, out var p))
             {
-                projectiles.Add(new Projectile(p.Texture, p.TexturePath, p.Name, id, p.AI, damage, lifeTime, knockBack, speed, position, owner, isAlive));
+                projectiles.Add(new Projectile(p.Texture, p.TexturePath, p.Name, id, p.AI, damage, p.Penetrate, lifeTime, knockBack, speed, position, owner, p.Width, p.Height, isAlive));
             }
         }
 
@@ -105,7 +105,7 @@ namespace BaseBuilderRPG.Content
                         }
                     }
 
-                    spriteBatch.Draw(p.Texture, p.Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
+                    //spriteBatch.Draw(p.Texture, p.Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
                     spriteBatch.Draw(p.Texture, p.Position, null, Color.White, p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale, SpriteEffects.None, 0);
                 }
 

@@ -1,0 +1,22 @@
+[
+  {
+    "ID": 0,
+    "AI": 0,
+    "Name": "Test Enemy",
+    "Damage": 5,
+    "MaxHealth": 5000,
+    "KnockBack": 5,
+    "NumFrames": 1,
+    "TexturePath": "Textures/NPC/Test_NPC"
+  },
+  {
+    "ID": 1,
+    "AI": 1,
+    "Name": "Slime",
+    "Damage": 5,
+    "MaxHealth": 50,
+    "KnockBack": 5,
+    "NumFrames": 6,
+    "TexturePath": "Textures/NPC/Slime"
+  }
+]

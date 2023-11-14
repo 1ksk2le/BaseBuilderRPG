@@ -34,7 +34,7 @@
     "WeaponType": "Bow",
     "Rarity": 10,
     "Damage": 12,
-    "UseTime": 2,
+    "UseTime": 0.3,
     "Shoot": 0,
     "ShootSpeed": 4.5,
     "TexturePath": "Textures/tex_Test_Bow"
