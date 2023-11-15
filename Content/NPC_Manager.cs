@@ -70,12 +70,10 @@ namespace BaseBuilderRPG.Content
             {
                 if (npc.IsAlive)
                 {
-                    ProcessAI(npc, gameTime);
-                    npc.Update(gameTime);
+                    npc.Update(gameTime, players, projectiles, disTextManager, itemManager);
                 }
                 else
                 {
-                    npc.Kill();
                     npcsToRemove.Add(npc);
                 }
             }
@@ -88,60 +86,7 @@ namespace BaseBuilderRPG.Content
             base.Update(gameTime);
         }
 
-        private void ProcessAI(NPC npc, GameTime gameTime)
-        {
-            Player closestPlayer = null;
-            float closestDistance = float.MaxValue;
 
-            foreach (Player player in players)
-            {
-                float distance = Vector2.DistanceSquared(player.Position, npc.Position);
-
-                // Check if this player is closer than the current closest player
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestPlayer = player;
-                }
-            }
-
-            if (closestPlayer != null)
-            {
-                npc.Target = closestPlayer.Position;
-
-                npc.ProcessAI(gameTime);
-            }
-
-            HitByProjectile(npc);
-        }
-
-
-        private void HitByProjectile(NPC npc)
-        {
-            Rectangle npcRectangle = new Rectangle((int)npc.Position.X, (int)npc.Position.Y, npc.Texture.Width, npc.Texture.Height / npc.NumFrames);
-
-            foreach (Projectile proj in projectiles)
-            {
-                if (proj.IsAlive && proj.Damage > 0)
-                {
-                    Rectangle projRectangle = new Rectangle((int)proj.Position.X, (int)proj.Position.Y, proj.Width, proj.Height);
-                    if (projRectangle.Intersects(npcRectangle) && !npc.IsImmune)
-                    {
-                        proj.Penetrate--;
-                        GetDamaged(npc, disTextManager, proj.Damage);
-                    }
-                }
-            }
-        }
-
-
-
-        private void GetDamaged(NPC npc, Display_Text_Manager texMan, int damage)
-        {
-            npc.Health -= damage;
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(npc.Position.X + npc.Width / 2, npc.Position.Y), Color.Red, Color.Transparent, 2f, 1.1f);
-            npc.ImmunityTime = npc.MaxImmunityTime;
-        }
 
         public override void Draw(GameTime gameTime)
         {
@@ -166,9 +111,9 @@ namespace BaseBuilderRPG.Content
                         var pos = Position + new Vector2(0, Height + 6);
                         float healthBarWidth = Width * ((float)Health / (float)MaxHealth);
 
-                        Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(Width) + 4, 5);
-                        Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(pos.X), (int)pos.Y, (int)(Width), 3);
-                        Rectangle healthBarRectangle = new Rectangle((int)(pos.X), (int)pos.Y, (int)healthBarWidth, 3);
+                        Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(Width) + 4, 4);
+                        Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(pos.X), (int)pos.Y, (int)(Width), 2);
+                        Rectangle healthBarRectangle = new Rectangle((int)(pos.X), (int)pos.Y, (int)healthBarWidth, 2);
 
                         spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, 0.691f);
                         spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, 0.692f);
@@ -177,12 +122,6 @@ namespace BaseBuilderRPG.Content
 
                     Vector2 textSize = Main.TestFont.MeasureString(Name);
                     spriteBatch.DrawStringWithOutline(Main.TestFont, Name, new Vector2(Position.X + Width / 2 - textSize.X / 2, Position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
-
-                    Rectangle npcSourceRectangle = new Rectangle(0, 0, npc.Width, npc.Texture.Height / npc.NumFrames);
-                    if (npc.AI == 0)
-                    {
-                        spriteBatch.Draw(npc.Texture, npc.Position, null, Color.White, npc.Rotation, Vector2.Zero, 1f, SpriteEffects.None, 0.69f);
-                    }
                 }
             }
             spriteBatch.End();

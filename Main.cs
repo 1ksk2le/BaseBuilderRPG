@@ -155,6 +155,14 @@ namespace BaseBuilderRPG
             {
                 npcManager.NewNPC(1, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
             }
+            if (Keyboard.GetState().IsKeyDown(Keys.V) && !pKey.IsKeyDown(Keys.V))
+            {
+                foreach (NPC npc in npcs)
+                {
+                    npc.Health = -1;
+                    npc.Kill(itemManager);
+                }
+            }
 
 
             pKey = Keyboard.GetState();
@@ -179,6 +187,7 @@ namespace BaseBuilderRPG
             spriteBatch.DrawString(Main.TestFont, "K = Damage player", new Vector2(10, 120), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "F = Pick item up from ground", new Vector2(10, 140), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "G = Spawn a slime", new Vector2(10, 160), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "V = Kill npcs", new Vector2(10, 180), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             disTextManager.Draw(spriteBatch);
             spriteBatch.End();

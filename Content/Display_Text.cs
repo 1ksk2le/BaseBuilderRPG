@@ -42,16 +42,12 @@ namespace BaseBuilderRPG.Content
         {
             if (font != null && _timer <= _lifeTime)
             {
-                // Concatenate both texts to get the accurate width
                 string fullText = _text1 + _text2;
 
-                // Measure the width of the full text
                 Vector2 fullTextSize = font.MeasureString(fullText) * _scale;
 
-                // Calculate the position of _text2 based on the width of the full text
                 Vector2 text2Position = _pos + new Vector2(fullTextSize.X / 2, 0);
 
-                // Draw both texts
                 DrawStringWithOutline(spriteBatch, font, _text1, _pos, _color1, _timer, _lifeTime);
                 DrawStringWithOutline(spriteBatch, font, _text2, text2Position, _color2, _timer, _lifeTime);
             }

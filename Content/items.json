@@ -7,7 +7,7 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 10,
     "Damage": 10,
-    "UseTime": 1,
+    "UseTime": 0.3,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
