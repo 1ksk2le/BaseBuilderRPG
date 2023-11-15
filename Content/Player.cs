@@ -23,8 +23,9 @@ namespace BaseBuilderRPG.Content
         public Vector2 Velocity;
         public int Direction = 1;
         public float ImmunityTime, MaxImmunityTime, UseTimer;
-        public bool InventoryVisible, IsImmune, IsSwinging;
+        public bool InventoryVisible, IsImmune, IsSwinging, CanHit;
         public Item EquippedWeapon;
+        public Vector2 Target;
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, bool isActive, string name, int healthMax, float skinColor, Vector2 position)
         {
             PlayerTexture = texture;
@@ -39,17 +40,23 @@ namespace BaseBuilderRPG.Content
             Health = MaxHealth;
             MaxImmunityTime = 0.4f;
             ImmunityTime = 0f;
+            Target = Vector2.Zero;
 
             FinalSkinColor = GetSkinColor(SkinColor);
 
             Inventory = new Inventory(5, 6);
             InventoryVisible = true;
+            CanHit = true;
         }
 
-        private float rotationAngle;
+        public float TotalDamageDealt = 0f;
+        public float TotalElapsedTime = 0f;
+        public float RotationAngle;
         public void Update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
+
+            TotalElapsedTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (ImmunityTime >= 0f)
             {
@@ -70,8 +77,35 @@ namespace BaseBuilderRPG.Content
             OneHandedSwing(gameTime);
         }
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        private Rectangle CalculateRotatedRectangle(Vector2 position, int width, int height, float rotation)
         {
+            Matrix transform = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0);
+
+            Vector2 leftTop = Vector2.Transform(new Vector2(-width / 2, -height / 2), transform);
+            Vector2 rightTop = Vector2.Transform(new Vector2(width / 2, -height / 2), transform);
+            Vector2 leftBottom = Vector2.Transform(new Vector2(-width / 2, height / 2), transform);
+            Vector2 rightBottom = Vector2.Transform(new Vector2(width / 2, height / 2), transform);
+
+            Vector2 min = Vector2.Min(Vector2.Min(leftTop, rightTop), Vector2.Min(leftBottom, rightBottom));
+            Vector2 max = Vector2.Max(Vector2.Max(leftTop, rightTop), Vector2.Max(leftBottom, rightBottom));
+
+            return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (Main.DrawDebugRectangles)
+            {
+                if (EquippedWeapon != null)
+                {
+                    Vector2 Pos = (Direction == 1) ? new Vector2(PlayerTexture.Width + EquippedWeapon.Texture.Height * 0.2f, PlayerTexture.Height / 2f)
+                                                    : new Vector2(-EquippedWeapon.Texture.Height * 0.2f, PlayerTexture.Height / 2f);
+                    Rectangle playerWeaponRectangle = CalculateRotatedRectangle(Position + Pos, EquippedWeapon.Texture.Width, EquippedWeapon.Texture.Height, RotationAngle);
+                    spriteBatch.Draw(Main.DebugTexture, playerWeaponRectangle, null, Color.Green, 0f, Vector2.Zero, SpriteEffects.None, 0.011f);
+                }
+                spriteBatch.Draw(Main.DebugTexture, new Rectangle((int)Position.X, (int)Position.Y, (int)(PlayerTexture.Width), (int)(PlayerTexture.Height)), null, Color.Lime, 0f, Vector2.Zero, SpriteEffects.None, 0.012f);
+            }
+
             PreDraw(spriteBatch);
 
             string textToDisplay = Name;
@@ -105,6 +139,8 @@ namespace BaseBuilderRPG.Content
 
             if (IsActive)
             {
+                //spriteBatch.DrawStringWithOutline(Main.TestFont, "DPS: " + (TotalDamageDealt / TotalElapsedTime).ToString("F2"), Position + new Vector2(0, 50), Color.Black, Color.White, 1f, IsActive ? 0.8617f : 0.7617f);
+
                 Vector2 headOrigin = new Vector2(PlayerHeadTexture.Width / 2, PlayerHeadTexture.Height);
                 Vector2 eyesOrigin = new Vector2(PlayerEyeTexture.Width / 2, (PlayerEyeTexture.Height) / 2);
 
@@ -121,7 +157,7 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.Draw(PlayerEyeTexture, Position + new Vector2(-2 * Direction, 0), sourceRect, Color.Lerp(Color.White, Color.DarkRed, ImmunityTime), 0f, Vector2.Zero, 1f, eff, 0.753f);
             }
 
-            PostDraw(spriteBatch, gameTime, rotation);
+            PostDraw(spriteBatch, rotation);
 
             if (IsActive && InventoryVisible)
             {
@@ -136,16 +172,17 @@ namespace BaseBuilderRPG.Content
             {
                 if (EquippedWeapon.WeaponType == "One Handed Sword")
                 {
-                    float start = (Direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                     float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                     SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
-                    Vector2 weaponPosition = Position + new Vector2(PlayerTexture.Width / 2 + EquippedWeapon.Texture.Height / 5 * Direction, PlayerTexture.Height / 2);
+                    Vector2 Pos = (Direction == 1) ? new Vector2(PlayerTexture.Width, PlayerTexture.Height / 2)
+                                                    : new Vector2(0, PlayerTexture.Height / 2);
+                    Vector2 weaponPosition = Position + Pos;
                     Vector2 weaponOrigin = (Direction == 1) ? new Vector2(0, EquippedWeapon.Texture.Height) : new Vector2(0, 0);
 
                     if (IsSwinging)
                     {
-                        spriteBatch.Draw(EquippedWeapon.Texture, weaponPosition, null, Color.White, rotationAngle, weaponOrigin, 0.8f, eff, IsActive ? 0.841f : 0.741f);
+                        spriteBatch.Draw(EquippedWeapon.Texture, weaponPosition, null, Color.White, RotationAngle, weaponOrigin, 0.8f, eff, IsActive ? 0.841f : 0.741f);
                     }
                     else
                     {
@@ -154,7 +191,7 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
-        public void PostDraw(SpriteBatch spriteBatch, GameTime gameTime, float headRot) //0.8616f : 0.7616f MAX
+        public void PostDraw(SpriteBatch spriteBatch, float headRot) //0.8616f : 0.7616f MAX
         {
             if (Health <= MaxHealth)
             {
@@ -178,11 +215,11 @@ namespace BaseBuilderRPG.Content
             SpriteEffects eff = (Direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             if (Inventory.equipmentSlots[2].EquippedItem != null) //Offhand
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(Direction == 1 ? 0 : 22, PlayerTexture.Height / 1.2f), null, Color.White, 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, SpriteEffects.None, IsActive ? 0.8612f : 0.7612f);
+                spriteBatch.Draw(Inventory.equipmentSlots[2].EquippedItem.Texture, Position + new Vector2(Direction == 1 ? 0 : 22, PlayerTexture.Height / 1.2f), null, Color.Lerp(Color.White, Color.DarkRed, ImmunityTime), 0f, new Vector2(PlayerTexture.Width / 2, PlayerTexture.Height / 2), 0.8f, SpriteEffects.None, IsActive ? 0.8612f : 0.7612f);
             }
             if (Inventory.equipmentSlots[1].EquippedItem != null)//Body Armor
             {
-                spriteBatch.Draw(Inventory.equipmentSlots[1].EquippedItem.Texture, Position + new Vector2(0, 22), null, Color.White, 0f, Vector2.Zero, 1f, eff, IsActive ? 0.8519f : 0.7519f);
+                spriteBatch.Draw(Inventory.equipmentSlots[1].EquippedItem.Texture, Position + new Vector2(0, 22), null, Color.Lerp(Color.White, Color.DarkRed, ImmunityTime), 0f, Vector2.Zero, 1f, eff, IsActive ? 0.8519f : 0.7519f);
             }
             if (Inventory.equipmentSlots[4].EquippedItem != null)//Head Armor
             {
@@ -198,51 +235,66 @@ namespace BaseBuilderRPG.Content
                         headOffset = 0;
                         break;
                 }
-                spriteBatch.Draw(Inventory.equipmentSlots[4].EquippedItem.Texture, Position + new Vector2(PlayerHeadTexture.Width / 2 - headOffset * Direction, PlayerHeadTexture.Height), null, Color.White, IsActive ? headRot : 0f, headOrigin, 1f, eff, IsActive ? 0.8611f : 0.7611f);
+                spriteBatch.Draw(Inventory.equipmentSlots[4].EquippedItem.Texture, Position + new Vector2(PlayerHeadTexture.Width / 2 - headOffset * Direction, PlayerHeadTexture.Height), null, Color.Lerp(Color.White, Color.DarkRed, ImmunityTime), IsActive ? headRot : 0f, headOrigin, 1f, eff, IsActive ? 0.8611f : 0.7611f);
             }
         }
 
-
+        public bool AIAttackCheck = false;
         private void OneHandedSwing(GameTime gameTime)
         {
-            var equippedWeapon = Inventory.equipmentSlots[0].EquippedItem;
-            if (equippedWeapon != null && equippedWeapon.WeaponType == "One Handed Sword")
+            if (EquippedWeapon != null && EquippedWeapon.WeaponType == "One Handed Sword")
             {
                 float start = (Direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                 float end = (Direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
 
+                bool aiCheck = false;
 
-
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed && IsActive)
+                if (IsActive)
                 {
-                    if (!IsSwinging)
+                    if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                     {
-                        IsSwinging = true;
-                        UseTimer = 0;
-                        rotationAngle = start;
+                        if (!IsSwinging)
+                        {
+                            IsSwinging = true;
+                            UseTimer = 0;
+                            RotationAngle = start;
+                            CanHit = true;
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (IsSwinging && !AIAttackCheck)
+                    {
+                        CanHit = true;
+                        AIAttackCheck = true;
                     }
                 }
+
 
                 if (IsSwinging)
                 {
                     UseTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                    if (UseTimer >= Inventory.equipmentSlots[0].EquippedItem.UseTime)
+                    if (UseTimer >= EquippedWeapon.UseTime)
                     {
                         IsSwinging = false;
                         UseTimer = 0;
-                        rotationAngle = end;
+                        RotationAngle = end;
+                        AIAttackCheck = false;
                     }
                     else
                     {
-                        float progress = UseTimer / Inventory.equipmentSlots[0].EquippedItem.UseTime;
-                        rotationAngle = MathHelper.Lerp(start, end, progress);
+                        float progress = UseTimer / EquippedWeapon.UseTime;
+                        RotationAngle = MathHelper.Lerp(start, end, progress);
                     }
                 }
             }
         }
 
-        private void Movement(Vector2 movement, KeyboardState keyboardState, float Speed = 2f)
+
+        private void Movement(Vector2 movement, KeyboardState keyboardState, float Speed = 1.5f)
         {
             MouseState mouseState = Mouse.GetState();
 

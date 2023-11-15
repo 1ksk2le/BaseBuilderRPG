@@ -13,17 +13,12 @@ namespace BaseBuilderRPG.Content
 
         public List<NPC> npcs;
         private List<NPC> npcsToRemove;
-        private List<Item> items;
-        private List<Item> groundItems;
         private List<Player> players;
         private List<Projectile> projectiles;
-        private Dictionary<int, Item> itemDictionary;
-
         private Item_Manager itemManager;
         private Display_Text_Manager disTextManager;
 
-        public NPC_Manager(Game game, SpriteBatch spriteBatch, Item_Manager _itemManager, Display_Text_Manager _disTextManager, List<Item> _items, List<Item> _groundItems,
-            Dictionary<int, Item> _itemDictionary, List<Player> _players, List<Projectile> projectiles)
+        public NPC_Manager(Game game, SpriteBatch spriteBatch, Item_Manager _itemManager, Display_Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -39,10 +34,7 @@ namespace BaseBuilderRPG.Content
                 npcDictionary.Add(npc.ID, npc);
             }
 
-            items = _items;
-            groundItems = _groundItems;
             players = _players;
-            itemDictionary = _itemDictionary;
             itemManager = _itemManager;
             disTextManager = _disTextManager;
             this.projectiles = projectiles;
@@ -99,11 +91,9 @@ namespace BaseBuilderRPG.Content
                     npc.Draw(spriteBatch);
                     var Health = npc.Health;
                     var MaxHealth = npc.MaxHealth;
-                    var Target = npc.Target;
                     var Position = npc.Position;
                     var Height = npc.Height;
                     var Width = npc.Width;
-                    var NumFrames = npc.NumFrames;
                     var Name = npc.Name;
 
                     if (Health < MaxHealth)

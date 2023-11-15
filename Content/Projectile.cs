@@ -51,11 +51,6 @@ namespace BaseBuilderRPG.Content
             Width = width;
             Height = height;
             Penetrate = penetrate;
-            SetDefaults();
-        }
-
-        private void SetDefaults()
-        {
         }
 
         public void Update(GameTime gameTime)

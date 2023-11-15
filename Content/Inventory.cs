@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+
 namespace BaseBuilderRPG.Content
 {
     public class Inventory
@@ -83,9 +84,8 @@ namespace BaseBuilderRPG.Content
 
                         if (item.StackLimit > 1)
                         {
-                            spriteBatch.DrawStringWithOutline(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 26, y + 22), Color.Black, Color.White, 1f, 0.9820f);
+                            spriteBatch.DrawStringWithOutline(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 20, y + 24), Color.Black, Color.White, 1f, 0.9820f);
                         }
-
                     }
                 }
             }
@@ -119,7 +119,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void EquipItem(Item item, List<Item> itemsToRemove, int x, int y)
+        public void EquipItem(Item item, int x, int y)
         {
             foreach (var slot in equipmentSlots)
             {

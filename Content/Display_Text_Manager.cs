@@ -9,7 +9,6 @@ namespace BaseBuilderRPG.Content
         private List<Display_Text> _texts;
         private SpriteFont _font;
 
-
         public Display_Text_Manager(SpriteFont font)
         {
             this._texts = new List<Display_Text>();

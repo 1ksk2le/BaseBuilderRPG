@@ -111,12 +111,12 @@ namespace BaseBuilderRPG.Content
 
             if (closestPlayer != null)
             {
-                Target = closestPlayer.Position;
+                Target = closestPlayer.Position + new Vector2(0, closestPlayer.PlayerTexture.Height / 2);
             }
 
-            HitByProjectile(projectiles, disTexManager);
-            HitByPlayer(players, disTexManager);
-            HitPlayer(players, disTexManager);
+            HitByProjectile(gameTime, projectiles, disTexManager);
+            HitByPlayer(gameTime, players, disTexManager);
+            HitPlayer(gameTime, players, disTexManager);
 
             var tick = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -149,13 +149,17 @@ namespace BaseBuilderRPG.Content
             }
 
         }
-        public void Kill(Item_Manager itemManager)
-        {
-            itemManager.DropItem(1, 0, 0, 1, Position);
-        }
+
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            if (Main.DrawDebugRectangles)
+            {
+                Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
+                spriteBatch.Draw(Main.DebugTexture, npcRectangle, null, Color.Red, 0f, Vector2.Zero, SpriteEffects.None, 0.01f);
+            }
+
+
             Color npcColor = Color.Lerp(Color.White, Color.DarkRed, HitEffectTimer);
             if (AI == 0)
             {
@@ -175,15 +179,12 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void GetDamaged(Display_Text_Manager texMan, int damage)
-        {
-            Health -= damage;
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(Position.X + Width / 2, Position.Y), Color.Red, Color.Transparent, 2f, 1.1f);
-            HitEffectTimer = 0.5f;
-            ImmunityTime = MaxImmunityTime;
-        }
+        private const float KnockbackDuration = 0.3f;
 
-        private void HitByProjectile(List<Projectile> projectiles, Display_Text_Manager disTextManager)
+        private float KnockbackTimer = 0f;
+        private Vector2 KnockBackStartPos;
+        private Vector2 KnockBackEndPos;
+        private void HitByProjectile(GameTime gameTime, List<Projectile> projectiles, Display_Text_Manager disTextManager)
         {
             Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
 
@@ -194,42 +195,125 @@ namespace BaseBuilderRPG.Content
                     Rectangle projRectangle = new Rectangle((int)proj.Position.X, (int)proj.Position.Y, proj.Width, proj.Height);
                     if (projRectangle.Intersects(npcRectangle) && !IsImmune)
                     {
-                        proj.Penetrate--;
-                        GetDamaged(disTextManager, proj.Damage);
+                        if (KnockbackTimer <= 0)
+                        {
+                            KnockbackTimer = KnockbackDuration;
+
+                            Vector2 hitDirection = Position - proj.Position;
+                            hitDirection.Normalize();
+
+                            KnockBackStartPos = Position;
+                            KnockBackEndPos = Position + hitDirection * proj.KnockBack;
+
+                            proj.Penetrate--;
+
+                            proj.Owner.TotalDamageDealt += proj.Damage;
+                            GetDamaged(disTextManager, proj.Damage);
+                        }
                     }
+                }
+
+                if (KnockbackTimer > 0)
+                {
+                    ApplyKnockBack(gameTime);
                 }
             }
         }
 
-        private void HitByPlayer(List<Player> players, Display_Text_Manager disTextManager)
+        private void HitByPlayer(GameTime gameTime, List<Player> players, Display_Text_Manager disTextManager)
         {
             Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
 
             foreach (Player player in players)
             {
-
-                if (player.IsSwinging && player.UseTimer + 0.1f >= player.EquippedWeapon.UseTime && player.EquippedWeapon != null)
+                if (player.EquippedWeapon != null && player.EquippedWeapon.DamageType == "melee")
                 {
-                    Rectangle playerRectangle = new Rectangle((int)(player.Position.X + player.Direction * player.EquippedWeapon.Texture.Height / 1.25f), (int)player.Position.Y, player.PlayerTexture.Width, player.PlayerTexture.Height);
-                    if (playerRectangle.Intersects(npcRectangle) && !IsImmune && player.EquippedWeapon.DamageType == "melee")
+                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2)
+                                                    : new Vector2(-player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2);
+                    Rectangle playerWeaponRectangle = CalcRectangleForWeapons(player.Position + Pos, (int)(player.EquippedWeapon.Texture.Width * 0.8f), (int)(player.EquippedWeapon.Texture.Height), player.RotationAngle);
+
+                    if (playerWeaponRectangle.Intersects(npcRectangle) && !IsImmune && player.IsSwinging && player.CanHit)
                     {
-                        GetDamaged(disTextManager, player.EquippedWeapon.Damage);
+                        if (KnockbackTimer <= 0)
+                        {
+                            KnockbackTimer = KnockbackDuration;
+
+                            Vector2 hitDirection = Position - player.Position;
+                            hitDirection.Normalize();
+
+                            KnockBackStartPos = Position;
+                            KnockBackEndPos = Position + hitDirection * player.EquippedWeapon.KnockBack;
+
+                            player.TotalDamageDealt += player.EquippedWeapon.Damage;
+                            player.CanHit = false;
+                            GetDamaged(disTextManager, player.EquippedWeapon.Damage);
+                        }
                     }
                 }
             }
+
+            if (KnockbackTimer > 0)
+            {
+                ApplyKnockBack(gameTime);
+            }
         }
 
-        private void HitPlayer(List<Player> players, Display_Text_Manager disTextManager)
+
+        private void HitPlayer(GameTime gameTime, List<Player> players, Display_Text_Manager disTextManager)
         {
             foreach (Player player in players)
             {
                 Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
                 Rectangle playerRectangle = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.PlayerTexture.Width, player.PlayerTexture.Height);
-                if (npcRectangle.Intersects(playerRectangle) && !player.IsImmune)
+                if (npcRectangle.Intersects(playerRectangle) && !player.IsImmune && Damage > 0)
                 {
                     player.GetDamaged(disTextManager, Damage);
                 }
             }
+        }
+
+        private void ApplyKnockBack(GameTime gameTime)
+        {
+            float progress = 1f - (KnockbackTimer / KnockbackDuration);
+            Position = Vector2.Lerp(KnockBackStartPos, KnockBackEndPos, progress);
+
+            KnockbackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (KnockbackTimer <= 0)
+            {
+                Position = KnockBackEndPos;
+            }
+        }
+
+        private void GetDamaged(Display_Text_Manager texMan, int damage)
+        {
+            Health -= damage;
+
+            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(Position.X + Width / 2, Position.Y), Color.Red, Color.Transparent, 2f, 1.1f);
+
+            HitEffectTimer = 0.5f;
+            ImmunityTime = MaxImmunityTime;
+        }
+
+        public void Kill(Item_Manager itemManager)
+        {
+            Health = -1;
+            //itemManager.DropItem(1, 0, 0, 1, Position);
+        }
+
+        private Rectangle CalcRectangleForWeapons(Vector2 position, int width, int height, float rotation)
+        {
+            Matrix transform = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0);
+
+            Vector2 leftTop = Vector2.Transform(new Vector2(-width / 2, -height / 2), transform);
+            Vector2 rightTop = Vector2.Transform(new Vector2(width / 2, -height / 2), transform);
+            Vector2 leftBottom = Vector2.Transform(new Vector2(-width / 2, height / 2), transform);
+            Vector2 rightBottom = Vector2.Transform(new Vector2(width / 2, height / 2), transform);
+
+            Vector2 min = Vector2.Min(Vector2.Min(leftTop, rightTop), Vector2.Min(leftBottom, rightBottom));
+            Vector2 max = Vector2.Max(Vector2.Max(leftTop, rightTop), Vector2.Max(leftBottom, rightBottom));
+
+            return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
         }
     }
 }

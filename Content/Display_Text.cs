@@ -53,8 +53,6 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-
-
         private void DrawStringWithOutline(SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color, float timer, float lifeTime)
         {
             float outlineThickness = 1.5f;

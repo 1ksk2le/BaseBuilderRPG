@@ -10,6 +10,7 @@ namespace BaseBuilderRPG.Content
     public class Player_Manager : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
+        public List<NPC> npcs;
         public List<Player> players;
         public List<Player> playersToRemove;
         private List<Item> items;
@@ -29,7 +30,7 @@ namespace BaseBuilderRPG.Content
         private MouseState pMouse;
         private KeyboardState pKey;
 
-        public Player_Manager(Game game, SpriteBatch spriteBatch, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
+        public Player_Manager(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
             Item> _itemDictionary, Item_Manager _itemManager, Display_Text_Manager _textManager, KeyboardState _keyboardState)
             : base(game)
         {
@@ -41,6 +42,7 @@ namespace BaseBuilderRPG.Content
 
             players = new List<Player>();
             playersToRemove = new List<Player>();
+            npcs = _npcs;
             items = _items;
             groundItems = _groundItems;
             itemsToRemove = _itemsToRemove;
@@ -50,16 +52,88 @@ namespace BaseBuilderRPG.Content
             pKey = _keyboardState;
 
             players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 999999, 0.9f, new Vector2(10, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Milliath", 100, 1f, new Vector2(30, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Dummy", 99999, 1f, new Vector2(500, 500)));
+            /* players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
+             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));*/
 
-            players[0].Inventory.equipmentSlots[0].EquippedItem = items[3];
+            players[0].Inventory.equipmentSlots[0].EquippedItem = items[10];
+            players[1].Inventory.equipmentSlots[0].EquippedItem = items[10];
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                players[0].Inventory.AddItem(items[i], groundItems);
+            }
         }
 
         public void Load()
         {
 
+        }
+
+        private void AI(Player player, List<NPC> npcs)
+        {
+            if (player.EquippedWeapon != null && player.EquippedWeapon.DamageType == "melee")
+            {
+                NPC closestNPC = null;
+                float closestDistance = float.MaxValue;
+
+                foreach (NPC npc in npcs)
+                {
+                    float distance = Vector2.DistanceSquared(player.Position, npc.Position);
+
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestNPC = npc;
+                    }
+                }
+
+                if (closestNPC != null)
+                {
+                    player.Target = closestNPC.Position + new Vector2(closestNPC.Width / 2, closestNPC.Height / 2);
+
+                    if (player.Position.X > player.Target.X)
+                    {
+                        player.Direction = -1;
+                    }
+                    else
+                    {
+                        player.Direction = 1;
+                    }
+
+                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2)
+                                                    : new Vector2(-player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2);
+                    Rectangle playerWeaponRectangle = CalculateRotatedRectangle(player.Position + Pos, (int)(player.EquippedWeapon.Texture.Width * 0.8f), (int)(player.EquippedWeapon.Texture.Height), player.RotationAngle);
+                    Rectangle targetRectangle = new Rectangle((int)closestNPC.Position.X, (int)closestNPC.Position.Y, (int)(closestNPC.Width), (int)(closestNPC.Height));
+
+                    //if (Vector2.Distance(player.Position, player.Target) >= player.EquippedWeapon.Texture.Height * 0.8f)
+                    if (!playerWeaponRectangle.Intersects(targetRectangle))
+                    {
+                        Vector2 direction = player.Target - player.Position;
+                        direction.Normalize();
+                        player.Position += direction * 1.5f;
+                    }
+                    else
+                    {
+                        player.IsSwinging = true;
+                    }
+                }
+            }
+        }
+
+        private Rectangle CalculateRotatedRectangle(Vector2 position, int width, int height, float rotation)
+        {
+            Matrix transform = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0);
+
+            Vector2 leftTop = Vector2.Transform(new Vector2(-width / 2, -height / 2), transform);
+            Vector2 rightTop = Vector2.Transform(new Vector2(width / 2, -height / 2), transform);
+            Vector2 leftBottom = Vector2.Transform(new Vector2(-width / 2, height / 2), transform);
+            Vector2 rightBottom = Vector2.Transform(new Vector2(width / 2, height / 2), transform);
+
+            Vector2 min = Vector2.Min(Vector2.Min(leftTop, rightTop), Vector2.Min(leftBottom, rightBottom));
+            Vector2 max = Vector2.Max(Vector2.Max(leftTop, rightTop), Vector2.Max(leftBottom, rightBottom));
+
+            return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
         }
 
         public override void Update(GameTime gameTime)
@@ -81,23 +155,20 @@ namespace BaseBuilderRPG.Content
 
                         }
                     }
+                    else
+                    {
+                        AI(player, npcs);
+                    }
                 }
                 else
                 {
-                    // playersToRemove.Add(player);
+                    playersToRemove.Add(player);
                 }
             }
 
             foreach (Player player in playersToRemove)
             {
                 players.Remove(player);
-            }
-
-            Item originalItem = items.Find(item => item.ID == 5);
-            if (originalItem != null)
-            {
-                Item itemToAdd = originalItem.Clone(2, -1, -1, 1, false);
-                players[0].Inventory.equipmentSlots[0].EquippedItem = itemToAdd;
             }
 
             PlayerShoot(gameTime);
@@ -121,7 +192,7 @@ namespace BaseBuilderRPG.Content
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
             foreach (Player player in players)
             {
-                player.Draw(spriteBatch, gameTime);
+                player.Draw(spriteBatch);
             }
             spriteBatch.End();
 
@@ -211,8 +282,7 @@ namespace BaseBuilderRPG.Content
         {
             foreach (Player player in players)
             {
-                var equippedWeapon = player.Inventory.equipmentSlots[0].EquippedItem;
-                if (equippedWeapon != null && equippedWeapon.Shoot > -1 && player.IsActive)
+                if (player.EquippedWeapon != null && player.EquippedWeapon.Shoot > -1 && player.IsActive)
                 {
                     if (useTimer > 0)
                     {
@@ -221,9 +291,9 @@ namespace BaseBuilderRPG.Content
 
                     if (Mouse.GetState().LeftButton == ButtonState.Pressed && useTimer <= 0)
                     {
-                        Main.projManager.NewProjectile(equippedWeapon.Shoot, equippedWeapon.Damage, 2, 2f, equippedWeapon.ShootSpeed, player.Position + new Vector2(player.PlayerTexture.Width / 2,
+                        Main.projManager.NewProjectile(player.EquippedWeapon.Shoot, player.EquippedWeapon.Damage, 2, player.EquippedWeapon.KnockBack, player.EquippedWeapon.ShootSpeed, player.Position + new Vector2(player.PlayerTexture.Width / 2,
                             (player.PlayerTexture.Height) / 2), player, true);
-                        useTimer = equippedWeapon.UseTime;
+                        useTimer = player.EquippedWeapon.UseTime;
                     }
                 }
             }
@@ -470,7 +540,7 @@ namespace BaseBuilderRPG.Content
                                         hoveredItem = player.Inventory.GetItem(x, y);
                                         if (hoveredItem != null)
                                         {
-                                            player.Inventory.EquipItem(hoveredItem, groundItems, x, y);
+                                            player.Inventory.EquipItem(hoveredItem, x, y);
                                         }
                                     }
                                 }

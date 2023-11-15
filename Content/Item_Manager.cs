@@ -9,7 +9,7 @@ namespace BaseBuilderRPG.Content
 {
     public class Item_Manager : DrawableGameComponent
     {
-        SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;
         public Dictionary<int, Item> itemDictionary;
         public List<Item> items;
         public List<Item> itemsToRemove;
@@ -32,7 +32,6 @@ namespace BaseBuilderRPG.Content
             {
                 itemDictionary.Add(item.ID, item);
             }
-
         }
 
         public void Load()
@@ -45,7 +44,7 @@ namespace BaseBuilderRPG.Content
 
         public Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
-            return new Item(itemData.Texture, itemData.TexturePath, itemData.ID, itemData.Name, itemData.Type, itemData.DamageType, itemData.WeaponType, position, itemData.ShootSpeed, itemData.Shoot, itemData.Rarity, prefixID, suffixID, itemData.Damage, itemData.UseTime, itemData.StackLimit, dropAmount, onGround);
+            return new Item(itemData.Texture, itemData.TexturePath, itemData.ID, itemData.Name, itemData.Type, itemData.DamageType, itemData.WeaponType, position, itemData.ShootSpeed, itemData.Shoot, itemData.Rarity, prefixID, suffixID, itemData.Damage, itemData.KnockBack, itemData.UseTime, itemData.StackLimit, dropAmount, onGround);
         }
 
         public void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
@@ -76,8 +75,6 @@ namespace BaseBuilderRPG.Content
             }
             base.Update(gameTime);
         }
-
-
 
         public override void Draw(GameTime gameTime)
         {
@@ -142,6 +139,5 @@ namespace BaseBuilderRPG.Content
 
             base.Draw(gameTime);
         }
-
     }
 }

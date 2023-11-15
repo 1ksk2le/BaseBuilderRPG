@@ -8,6 +8,7 @@
     "Rarity": 10,
     "Damage": 10,
     "UseTime": 0.3,
+    "KnockBack": 10,
     "TexturePath": "Textures/tex_Test_Sword"
   },
   {
@@ -35,6 +36,7 @@
     "Rarity": 10,
     "Damage": 12,
     "UseTime": 0.3,
+    "KnockBack": 5,
     "Shoot": 0,
     "ShootSpeed": 4.5,
     "TexturePath": "Textures/tex_Test_Bow"
@@ -46,10 +48,9 @@
     "DamageType": "melee",
     "WeaponType": "One Handed Sword",
     "Rarity": 0,
-    "Damage": 7,
-    "UseTime": 1.2,
-    "Shoot": -1,
-    "ShootSpeed": 0,
+    "Damage": 14,
+    "UseTime": 1,
+    "KnockBack": 16,
     "TexturePath": "Textures/Weapons/Wooden_Baton"
   },
   {
@@ -76,9 +77,8 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 0,
     "Damage": 5,
-    "UseTime": 1,
-    "Shoot": -1,
-    "ShootSpeed": 0,
+    "UseTime": 0.7,
+    "KnockBack": 10,
     "TexturePath": "Textures/Weapons/Wooden_Sword"
   },
   {
@@ -89,9 +89,8 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 0,
     "Damage": 6,
-    "UseTime": 1,
-    "Shoot": -1,
-    "ShootSpeed": 0,
+    "UseTime": 0.7,
+    "KnockBack": 11,
     "TexturePath": "Textures/Weapons/Stone_Sword"
   },
   {
@@ -102,9 +101,8 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 1,
     "Damage": 7,
-    "UseTime": 0.95,
-    "Shoot": -1,
-    "ShootSpeed": 0,
+    "UseTime": 0.6,
+    "KnockBack": 11,
     "TexturePath": "Textures/Weapons/Brass_Sword"
   },
   {
@@ -115,9 +113,8 @@
     "WeaponType": "One Handed Sword",
     "Rarity": 1,
     "Damage": 8,
-    "UseTime": 0.95,
-    "Shoot": -1,
-    "ShootSpeed": 0,
+    "UseTime": 0.6,
+    "KnockBack": 12,
     "TexturePath": "Textures/Weapons/Steel_Sword"
   }
 ]

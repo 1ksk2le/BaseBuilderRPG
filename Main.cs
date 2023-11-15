@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG
@@ -11,7 +10,6 @@ namespace BaseBuilderRPG
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private MouseState pMouse;
         private KeyboardState pKey;
 
         public static Texture2D texInventory;
@@ -19,6 +17,7 @@ namespace BaseBuilderRPG
         public static Texture2D texInventorySlotBackground;
         public static Texture2D texAccessorySlotBackground;
         public static Texture2D texMainSlotBackground;
+        public static Texture2D DebugTexture;
 
         public static SpriteFont TestFont;
 
@@ -43,6 +42,7 @@ namespace BaseBuilderRPG
         public List<NPC> npcs;
 
         public static int amountOfItems;
+        public static bool DrawDebugRectangles;
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -61,11 +61,6 @@ namespace BaseBuilderRPG
             OutlineShader = Content.Load<Effect>("Shaders/Outline");
             TestFont = Content.Load<SpriteFont>("Font_Test");
 
-            texInventory = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory");
-            texInventoryExtras = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Extras");
-            texInventorySlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Slot_Background");
-            texMainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
-
             projManager = new Projectile_Manager(this, spriteBatch);
             projectiles = projManager.projectiles;
 
@@ -78,11 +73,12 @@ namespace BaseBuilderRPG
             itemDictionary = itemManager.itemDictionary;
 
 
-            playerManager = new Player_Manager(this, spriteBatch, items, groundItems, itemsToRemove, itemDictionary, itemManager, disTextManager, pKey);
+            playerManager = new Player_Manager(this, spriteBatch, npcs, items, groundItems, itemsToRemove, itemDictionary, itemManager, disTextManager, pKey);
             players = playerManager.players;
 
-            npcManager = new NPC_Manager(this, spriteBatch, itemManager, disTextManager, items, groundItems, itemDictionary, players, projectiles);
+            npcManager = new NPC_Manager(this, spriteBatch, itemManager, disTextManager, players, projectiles);
             npcs = npcManager.npcs;
+            playerManager.npcs = npcManager.npcs;
 
             Components.Add(itemManager);
             Components.Add(npcManager);
@@ -90,23 +86,31 @@ namespace BaseBuilderRPG
             Components.Add(playerManager);
 
 
-            inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 200);
+            inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;
 
-            npcManager.NewNPC(0, new Vector2(750, 400));
+            npcManager.NewNPC(0, new Vector2(200, 500));
 
+            DrawDebugRectangles = false;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            texInventory = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory");
+            texInventoryExtras = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Extras");
+            texInventorySlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Slot_Background");
+            texMainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
+
+            DebugTexture = new Texture2D(GraphicsDevice, 1, 1);
+            DebugTexture.SetData(new Color[] { Color.White });
+
             base.LoadContent();
             projManager.Load();
             itemManager.Load();
             playerManager.Load();
             npcManager.Load();
 
-            Random rand = new Random();
             foreach (Item item in items)
             {
                 itemManager.DropItem(item.ID, -1, -1, 1, new Vector2(500 + item.ID * 50, 300));
@@ -163,6 +167,17 @@ namespace BaseBuilderRPG
                     npc.Kill(itemManager);
                 }
             }
+            if (Keyboard.GetState().IsKeyDown(Keys.L) && !pKey.IsKeyDown(Keys.L))
+            {
+                if (DrawDebugRectangles)
+                {
+                    DrawDebugRectangles = false;
+                }
+                else
+                {
+                    DrawDebugRectangles = true;
+                }
+            }
 
 
             pKey = Keyboard.GetState();
@@ -188,6 +203,7 @@ namespace BaseBuilderRPG
             spriteBatch.DrawString(Main.TestFont, "F = Pick item up from ground", new Vector2(10, 140), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "G = Spawn a slime", new Vector2(10, 160), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "V = Kill npcs", new Vector2(10, 180), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.TestFont, "L = Draw debug rectangles", new Vector2(10, 200), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.DrawString(Main.TestFont, "AMOUNT OF ITEMS ADDED: " + amountOfItems.ToString(), new Vector2(10, 320), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             disTextManager.Draw(spriteBatch);
             spriteBatch.End();
