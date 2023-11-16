@@ -1,22 +1,24 @@
 [
   {
-    "ID": 0,
-    "AI": 0,
-    "Name": "Test Enemy",
-    "Damage": 0,
-    "MaxHealth": 5000,
-    "KnockBack": 20,
-    "NumFrames": 1,
-    "TexturePath": "Textures/NPC/Test_NPC"
+    "id": 0,
+    "ai": 0,
+    "name": "Test Enemy",
+    "damage": 0,
+    "maxHealth": 5000,
+    "knockBack": 20,
+    "knockBackRes": 100,
+    "numFrames": 1,
+    "texturePath": "Textures/NPC/Test_NPC"
   },
   {
-    "ID": 1,
-    "AI": 1,
-    "Name": "Slime",
-    "Damage": 5,
-    "MaxHealth": 20,
-    "KnockBack": 20,
-    "NumFrames": 6,
-    "TexturePath": "Textures/NPC/Slime"
+    "id": 1,
+    "ai": 1,
+    "name": "Slime",
+    "damage": 0,
+    "maxHealth": 15,
+    "knockBack": 20,
+    "knockBackRes": 10,
+    "numFrames": 6,
+    "texturePath": "Textures/NPC/Slime"
   }
 ]

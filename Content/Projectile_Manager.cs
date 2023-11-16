@@ -26,7 +26,7 @@ namespace BaseBuilderRPG.Content
             projectiles = JsonConvert.DeserializeObject<List<Projectile>>(projectilesJson);
             foreach (var projectile in projectiles)
             {
-                projectileDictionary.Add(projectile.ID, projectile);
+                projectileDictionary.Add(projectile.id, projectile);
             }
         }
 
@@ -34,15 +34,15 @@ namespace BaseBuilderRPG.Content
         {
             foreach (var projectile in projectiles)
             {
-                projectile.Texture = Game.Content.Load<Texture2D>(projectile.TexturePath);
+                projectile.texture = Game.Content.Load<Texture2D>(projectile.texturePath);
             }
         }
 
-        public void NewProjectile(int id, int damage, float lifeTime, float knockBack, float speed, Vector2 position, Player owner, bool isAlive)
+        public void NewProjectile(int id, Vector2 position, int damage, float speed, Player owner, bool isAlive)
         {
             if (projectileDictionary.TryGetValue(id, out var p))
             {
-                projectiles.Add(new Projectile(p.Texture, p.TexturePath, p.Name, id, p.AI, damage, p.Penetrate, lifeTime, knockBack, speed, position, owner, p.Width, p.Height, isAlive));
+                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, p.name, damage, p.penetrate, p.lifeTime, p.knockBack, speed, owner, isAlive));
             }
         }
 
@@ -53,13 +53,12 @@ namespace BaseBuilderRPG.Content
                 if (projectiles.Count > 0)
                 {
                     Projectile projectile = projectiles[i];
-                    if (projectile.IsAlive)
+                    if (projectile.isAlive)
                     {
-                        projectile.Update(gameTime);
+                        projectile.Update(gameTime, this);
                     }
                     else
                     {
-                        projectile.Kill();
                         projectilesToRemove.Add(projectile);
                     }
                 }
@@ -67,7 +66,7 @@ namespace BaseBuilderRPG.Content
 
             foreach (Projectile proj in projectiles)
             {
-                if (proj.Owner == null)
+                if (proj.owner == null)
                 {
                     projectilesToRemove.Add(proj);
                 }
@@ -86,29 +85,10 @@ namespace BaseBuilderRPG.Content
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(Main.TestFont, "PROJECTILE MANAGER PROJ COUNT: " + projectiles.Count.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.testFont, "PROJECTILE MANAGER PROJ COUNT: " + projectiles.Count.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             foreach (Projectile p in projectiles)
             {
-                if (p.Texture != null && p.IsAlive)
-                {
-                    float scale = 1.0f;
-
-                    if (p.AI == 0)
-                    {
-                        if (p.CurrentLifeTime < p.LifeTime / 2)
-                        {
-                            scale = MathHelper.Lerp(0.3f, 1f, p.CurrentLifeTime / (p.LifeTime / 2));
-                        }
-                        else
-                        {
-                            scale = MathHelper.Lerp(1f, 0.3f, (p.CurrentLifeTime - p.LifeTime / 2) / (p.LifeTime / 2));
-                        }
-                    }
-
-                    //spriteBatch.Draw(p.Texture, p.Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
-                    spriteBatch.Draw(p.Texture, p.Position, null, Color.White, p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale, SpriteEffects.None, 0);
-                }
-
+                p.Draw(spriteBatch);
             }
             spriteBatch.End();
             base.Draw(gameTime);

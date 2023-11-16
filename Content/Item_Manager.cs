@@ -30,7 +30,7 @@ namespace BaseBuilderRPG.Content
             Main.amountOfItems = items.Count;
             foreach (var item in items)
             {
-                itemDictionary.Add(item.ID, item);
+                itemDictionary.Add(item.id, item);
             }
         }
 
@@ -38,13 +38,13 @@ namespace BaseBuilderRPG.Content
         {
             foreach (var item in items)
             {
-                item.Texture = Game.Content.Load<Texture2D>(item.TexturePath);
+                item.texture = Game.Content.Load<Texture2D>(item.texturePath);
             }
         }
 
         public Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
-            return new Item(itemData.Texture, itemData.TexturePath, itemData.ID, itemData.Name, itemData.Type, itemData.DamageType, itemData.WeaponType, position, itemData.ShootSpeed, itemData.Shoot, itemData.Rarity, prefixID, suffixID, itemData.Damage, itemData.KnockBack, itemData.UseTime, itemData.StackLimit, dropAmount, onGround);
+            return new Item(itemData.texture, itemData.texturePath, itemData.id, itemData.name, itemData.type, itemData.damageType, itemData.weaponType, position, itemData.shootSpeed, itemData.shootID, itemData.rarity, prefixID, suffixID, itemData.damage, itemData.knockBack, itemData.useTime, itemData.stackLimit, dropAmount, onGround);
         }
 
         public void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
@@ -63,7 +63,7 @@ namespace BaseBuilderRPG.Content
             }
             foreach (Item item in items)
             {
-                if (!item.OnGround)
+                if (!item.onGround)
                 {
                     itemsToRemove.Add(item);
                 }
@@ -79,19 +79,19 @@ namespace BaseBuilderRPG.Content
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(Main.TestFont, "ITEM MANAGER ITEM COUNT: " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            spriteBatch.DrawString(Main.TestFont, "ITEM MANAGER GROUND ITEMS COUNT: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.testFont, "ITEM MANAGER ITEM COUNT: " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.testFont, "ITEM MANAGER GROUND ITEMS COUNT: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             spriteBatch.End();
 
             foreach (Item item in groundItems)
             {
-                if (item.Texture != null && item.OnGround)
+                if (item.texture != null && item.onGround)
                 {
-                    var RarityColor = item.RarityColor;
+                    var RarityColor = item.rarityColor;
                     float levitationSpeed = 3f;
                     float levitationAmplitude = 0.5f;
 
-                    float levitationOffset = (float)Math.Sin(item.LevitationTimer * levitationSpeed) * levitationAmplitude;
+                    float levitationOffset = (float)Math.Sin(item.levTimer * levitationSpeed) * levitationAmplitude;
 
                     float itemScale = 1.0f + 0.25f * levitationOffset;
 
@@ -101,36 +101,36 @@ namespace BaseBuilderRPG.Content
 
                     spriteBatch.Begin();
 
-                    Vector2 shadowPosition = item.Position + new Vector2(item.Texture.Width / 2, item.Texture.Height / 2);
+                    Vector2 shadowPosition = item.position + new Vector2(item.texture.Width / 2, item.texture.Height / 2);
                     shadowPosition.Y += shadowOffsetY + levitationOffset;
-                    spriteBatch.Draw(item.Texture, shadowPosition, null, shadowColor, 0, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), itemScale * shadowScaleFactor, SpriteEffects.None, 0);
+                    spriteBatch.Draw(item.texture, shadowPosition, null, shadowColor, 0, new Vector2(item.texture.Width / 2, item.texture.Height / 2), itemScale * shadowScaleFactor, SpriteEffects.None, 0);
 
                     spriteBatch.End();
 
-                    Main.OutlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / item.Texture.Width, 1.0f / item.Texture.Height));
-                    Main.OutlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
+                    Main.outlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / item.texture.Width, 1.0f / item.texture.Height));
+                    Main.outlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
 
-                    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.OutlineShader, null);
-                    spriteBatch.Draw(item.Texture, item.Position + new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), null, Color.White, 0, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), itemScale, SpriteEffects.None, 0);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.outlineShader, null);
+                    spriteBatch.Draw(item.texture, item.position + new Vector2(item.texture.Width / 2, item.texture.Height / 2), null, Color.White, 0, new Vector2(item.texture.Width / 2, item.texture.Height / 2), itemScale, SpriteEffects.None, 0);
 
                     spriteBatch.End();
 
                     spriteBatch.Begin();
                     string itemName;
-                    if (item.Type != "Weapon")
+                    if (item.type != "Weapon")
                     {
-                        if (item.StackLimit == 1)
+                        if (item.stackLimit == 1)
                         {
-                            itemName = "[" + item.Name + "]";
+                            itemName = "[" + item.name + "]";
                         }
                         else
                         {
-                            itemName = "[" + item.Name + " x" + item.StackSize + "]";
+                            itemName = "[" + item.name + " x" + item.stackSize + "]";
                         }
                     }
                     else
                     {
-                        itemName = "[" + item.PrefixName + " " + item.Name + " " + item.SuffixName + "]";
+                        itemName = "[" + item.prefixName + " " + item.name + " " + item.suffixName + "]";
                     }
 
                     spriteBatch.End();

@@ -7,111 +7,116 @@ namespace BaseBuilderRPG.Content
 {
     public class NPC
     {
-        public Texture2D Texture { get; set; }
+        public Texture2D texture { get; set; }
+        public int id { get; set; }
+        public int ai { get; set; }
+        public int damage { get; set; }
+        public int numFrames { get; set; }
+        public float maxHealth { get; set; }
+        public float knockBack { get; set; }
+        public float knockBackRes { get; set; }
+        public string texturePath { get; set; }
+        public string name { get; set; }
+        public bool isAlive { get; set; }
+        public Vector2 position { get; set; }
+        public Vector2 velocity { get; set; }
 
-        public int ID { get; set; }
-        public int AI { get; set; }
-        public int Damage { get; set; }
-        public int NumFrames { get; set; }
-        public float MaxHealth { get; set; }
-        public float KnockBack { get; set; }
-        public string TexturePath { get; set; }
-        public string Name { get; set; }
-        public bool IsAlive { get; set; }
+        public Vector2 target;
+        public float rotation, animationSpeed, immunityTime, health, immunityTimeMax, aiX, aiY, aiZ;
+        public int width, height;
+        public bool isImmune;
 
-        public Vector2 Position { get; set; }
-        public Vector2 Velocity { get; set; }
-
-        public Vector2 Target;
-        public float Rotation, AnimationSpeed, ImmunityTime, Health, MaxImmunityTime, AI_One, AI_Two, AI_Three;
-        public int Width, Height;
-        public bool IsImmune;
-
-        private float AnimationTimer, HitEffectTimer;
-        private int CurrentFrame;
-        public NPC(Texture2D texture, string texturePath, string name, int id, int ai, int damage, float maxHealth, float knockBack, Vector2 position, int numFrames, bool isAlive)
+        private int currentFrame;
+        private const float kbDuration = 0.25f;
+        private float kbTimer = 0f;
+        private float animationTimer, hitEffectTimer, hitEffectTimerMax;
+        private Vector2 kbStartPos, kbEndPos;
+        public NPC(Texture2D texture, string texturePath, int id, int ai, Vector2 position, string name, int damage, float maxHealth, float knockBack, float knockBackRes, int numFrames, bool isAlive)
         {
-            Texture = texture;
-            TexturePath = texturePath;
-            ID = id;
-            AI = ai;
-            Name = name;
-            Damage = damage;
-            MaxHealth = maxHealth;
-            KnockBack = knockBack;
-            Position = position;
-            IsAlive = isAlive;
-            Health = MaxHealth;
-            NumFrames = numFrames;
-            AnimationSpeed = 0.1f;
-            MaxImmunityTime = 0.1f;
-            ImmunityTime = 0f;
-            HitEffectTimer = 0f;
-            IsImmune = true;
-            AI_One = 0f;
-            AI_Two = 0f;
-            AI_Three = 0f;
+            this.texture = texture;
+            this.texturePath = texturePath;
+            this.id = id;
+            this.ai = ai;
+            this.name = name;
+            this.damage = damage;
+            this.maxHealth = maxHealth;
+            this.knockBack = knockBack;
+            this.knockBackRes = knockBackRes;
+            this.isAlive = isAlive;
+            this.numFrames = numFrames;
+            this.position = position;
+
+            health = this.maxHealth;
+            animationSpeed = 0.1f;
+            immunityTimeMax = 0.1f;
+            immunityTime = 0f;
+            hitEffectTimerMax = 1f;
+            hitEffectTimer = 0f;
+            isImmune = true;
+            aiX = 0f;
+            aiY = 0f;
+            aiZ = 0f;
         }
 
         public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Display_Text_Manager disTextManager, Item_Manager itemManager)
         {
-            if (Health > 0)
+            if (health > 0)
             {
-                Width = Texture.Width;
-                Height = Texture.Height / NumFrames;
-                if (ImmunityTime >= 0f)
+                width = texture.Width;
+                height = texture.Height / numFrames;
+                if (immunityTime >= 0f)
                 {
-                    IsImmune = true;
-                    ImmunityTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    isImmune = true;
+                    immunityTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 }
                 else
                 {
-                    IsImmune = false;
+                    isImmune = false;
                 }
 
-                if (HitEffectTimer >= 0f)
+                if (hitEffectTimer >= 0f)
                 {
-                    HitEffectTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    hitEffectTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
                 }
 
-                AnimationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                if (AnimationTimer >= AnimationSpeed)
+                if (animationTimer >= animationSpeed)
                 {
-                    CurrentFrame = (CurrentFrame + 1) % NumFrames;
+                    currentFrame = (currentFrame + 1) % numFrames;
 
-                    AnimationTimer = 0f;
+                    animationTimer = 0f;
                 }
                 ProcessAI(gameTime, players, projectiles, disTextManager);
-                IsAlive = true;
+                isAlive = true;
             }
             else
             {
                 Kill(itemManager);
-                IsAlive = false;
+                isAlive = false;
             }
         }
 
         public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Display_Text_Manager disTexManager)
         {
-            Player closestPlayer = null;
-            float closestDistance = float.MaxValue;
+            Player targetPlayer = null;
+            float distanceLimit = 400f;
 
             foreach (Player player in players)
             {
-                float distance = Vector2.DistanceSquared(player.Position, Position);
+                float distance = Vector2.DistanceSquared(player.Position, position);
 
-                if (distance < closestDistance)
+                if (distance < distanceLimit && player.Name != "East")
                 {
-                    closestDistance = distance;
-                    closestPlayer = player;
+                    distanceLimit = distance;
+                    targetPlayer = player;
                 }
             }
 
-            if (closestPlayer != null)
+            if (targetPlayer != null)
             {
-                Target = closestPlayer.Position + new Vector2(0, closestPlayer.PlayerTexture.Height / 2);
+                target = targetPlayer.Position + new Vector2(0, targetPlayer.PlayerTexture.Height / 2);
             }
 
             HitByProjectile(gameTime, projectiles, disTexManager);
@@ -120,34 +125,36 @@ namespace BaseBuilderRPG.Content
 
             var tick = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (AI == 1)
+            if (target != Vector2.Zero)
             {
-                AI_One += tick;
-
-                Vector2 direction = Target - Position;
-                direction.Normalize();
-
-                if (AI_One > 3f)
+                if (ai == 1)
                 {
-                    AI_Two += tick;
-                    if (AI_Two > 1f)
+                    aiX += tick;
+
+                    Vector2 direction = target - position;
+                    direction.Normalize();
+
+                    if (aiX > 3f)
                     {
-                        AI_Three += tick;
-                        Position += direction * 1.5f;
-                        if (AI_Two > 2f)
+                        aiY += tick;
+                        if (aiY > 1f)
                         {
-                            AI_One = 0f;
-                            AI_Two = 0f;
-                            AI_Three = 0f;
+                            aiZ += tick;
+                            position += direction * 1.5f;
+                            if (aiY > 2f)
+                            {
+                                aiX = 0f;
+                                aiY = 0f;
+                                aiZ = 0f;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    Position += direction * 0.35f;
+                    else
+                    {
+                        position += direction * 0.35f;
+                    }
                 }
             }
-
         }
 
 
@@ -155,65 +162,61 @@ namespace BaseBuilderRPG.Content
         {
             if (Main.DrawDebugRectangles)
             {
-                Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
-                spriteBatch.Draw(Main.DebugTexture, npcRectangle, null, Color.Red, 0f, Vector2.Zero, SpriteEffects.None, 0.01f);
+                Rectangle npcRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height / numFrames);
+                spriteBatch.DrawRectangleWithBorder(npcRectangle, Color.Transparent, Color.Coral, 1f, 0.01f);
+
             }
 
 
-            Color npcColor = Color.Lerp(Color.White, Color.DarkRed, HitEffectTimer);
-            if (AI == 0)
+            Color npcColor = Color.Lerp(Color.White, Color.Red, hitEffectTimer);
+            if (ai == 0)
             {
-                spriteBatch.Draw(Texture, Position, null, npcColor, Rotation, Vector2.Zero, 1f, SpriteEffects.None, 0.69f);
+                spriteBatch.Draw(texture, position, null, npcColor, rotation, Vector2.Zero, 1f, SpriteEffects.None, 0.69f);
             }
-            if (AI == 1)
+            if (ai == 1)
             {
                 float levitationSpeed = 3.5f;
                 float levitationAmplitude = 0.75f;
 
-                float levitationOffset = (float)Math.Sin(AI_Three * levitationSpeed) * levitationAmplitude;
+                float levitationOffset = (float)Math.Sin(aiZ * levitationSpeed) * levitationAmplitude;
 
                 float scale = 1.0f + 0.4f * levitationOffset;
 
-                Rectangle sourceRect = new Rectangle(0, CurrentFrame * Height, Width, Height);
-                spriteBatch.Draw(Texture, Position, sourceRect, npcColor, Rotation, Vector2.Zero, scale, SpriteEffects.None, 0.69f);
+                Rectangle sourceRect = new Rectangle(0, currentFrame * height, width, height);
+                spriteBatch.Draw(texture, position + new Vector2(width / 2, height / 2), sourceRect, npcColor, rotation, new Vector2(width / 2, height / 2), scale, SpriteEffects.None, 0.69f);
             }
         }
 
-        private const float KnockbackDuration = 0.3f;
-
-        private float KnockbackTimer = 0f;
-        private Vector2 KnockBackStartPos;
-        private Vector2 KnockBackEndPos;
         private void HitByProjectile(GameTime gameTime, List<Projectile> projectiles, Display_Text_Manager disTextManager)
         {
-            Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
+            Rectangle npcRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height / numFrames);
 
             foreach (Projectile proj in projectiles)
             {
-                if (proj.IsAlive && proj.Damage > 0)
+                if (proj.isAlive && proj.damage > 0)
                 {
-                    Rectangle projRectangle = new Rectangle((int)proj.Position.X, (int)proj.Position.Y, proj.Width, proj.Height);
-                    if (projRectangle.Intersects(npcRectangle) && !IsImmune)
+                    Rectangle projRectangle = new Rectangle((int)proj.position.X, (int)proj.position.Y, proj.width, proj.height);
+                    if (projRectangle.Intersects(npcRectangle) && !isImmune)
                     {
-                        if (KnockbackTimer <= 0)
+                        if (kbTimer <= 0)
                         {
-                            KnockbackTimer = KnockbackDuration;
+                            kbTimer = kbDuration;
 
-                            Vector2 hitDirection = Position - proj.Position;
+                            Vector2 hitDirection = position - proj.position;
                             hitDirection.Normalize();
 
-                            KnockBackStartPos = Position;
-                            KnockBackEndPos = Position + hitDirection * proj.KnockBack;
+                            kbStartPos = position;
+                            kbEndPos = position + hitDirection * (proj.knockBack * (1f - knockBackRes / 100));
 
-                            proj.Penetrate--;
+                            proj.penetrate--;
 
-                            proj.Owner.TotalDamageDealt += proj.Damage;
-                            GetDamaged(disTextManager, proj.Damage);
+                            proj.owner.TotalDamageDealt += proj.damage;
+                            GetDamaged(disTextManager, proj.damage);
                         }
                     }
                 }
 
-                if (KnockbackTimer > 0)
+                if (kbTimer > 0)
                 {
                     ApplyKnockBack(gameTime);
                 }
@@ -222,37 +225,37 @@ namespace BaseBuilderRPG.Content
 
         private void HitByPlayer(GameTime gameTime, List<Player> players, Display_Text_Manager disTextManager)
         {
-            Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
+            Rectangle npcRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height / numFrames);
 
             foreach (Player player in players)
             {
-                if (player.EquippedWeapon != null && player.EquippedWeapon.DamageType == "melee")
+                if (player.EquippedWeapon != null && player.EquippedWeapon.damageType == "melee")
                 {
-                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2)
-                                                    : new Vector2(-player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2);
-                    Rectangle playerWeaponRectangle = CalcRectangleForWeapons(player.Position + Pos, (int)(player.EquippedWeapon.Texture.Width * 0.8f), (int)(player.EquippedWeapon.Texture.Height), player.RotationAngle);
+                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.texture.Height * 0.2f, player.PlayerTexture.Height / 2)
+                                                    : new Vector2(-player.EquippedWeapon.texture.Height * 0.2f, player.PlayerTexture.Height / 2);
+                    Rectangle playerWeaponRectangle = CalcRectangleForWeapons(player.Position + Pos, (int)(player.EquippedWeapon.texture.Width), (int)(player.EquippedWeapon.texture.Height * 0.9f), player.RotationAngle);
 
-                    if (playerWeaponRectangle.Intersects(npcRectangle) && !IsImmune && player.IsSwinging && player.CanHit)
+                    if (playerWeaponRectangle.Intersects(npcRectangle) && !isImmune && player.IsSwinging && player.CanHit)
                     {
-                        if (KnockbackTimer <= 0)
+                        if (kbTimer <= 0)
                         {
-                            KnockbackTimer = KnockbackDuration;
+                            kbTimer = kbDuration;
 
-                            Vector2 hitDirection = Position - player.Position;
+                            Vector2 hitDirection = position - player.Position;
                             hitDirection.Normalize();
 
-                            KnockBackStartPos = Position;
-                            KnockBackEndPos = Position + hitDirection * player.EquippedWeapon.KnockBack;
+                            kbStartPos = position;
+                            kbEndPos = position + hitDirection * (player.EquippedWeapon.knockBack * (1f - knockBackRes / 100));
 
-                            player.TotalDamageDealt += player.EquippedWeapon.Damage;
+                            player.TotalDamageDealt += player.EquippedWeapon.damage;
                             player.CanHit = false;
-                            GetDamaged(disTextManager, player.EquippedWeapon.Damage);
+                            GetDamaged(disTextManager, player.EquippedWeapon.damage);
                         }
                     }
                 }
             }
 
-            if (KnockbackTimer > 0)
+            if (kbTimer > 0)
             {
                 ApplyKnockBack(gameTime);
             }
@@ -263,41 +266,44 @@ namespace BaseBuilderRPG.Content
         {
             foreach (Player player in players)
             {
-                Rectangle npcRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height / NumFrames);
-                Rectangle playerRectangle = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.PlayerTexture.Width, player.PlayerTexture.Height);
-                if (npcRectangle.Intersects(playerRectangle) && !player.IsImmune && Damage > 0)
+                if (player.Name != "East")
                 {
-                    player.GetDamaged(disTextManager, Damage);
+                    Rectangle npcRectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height / numFrames);
+                    Rectangle playerRectangle = new Rectangle((int)player.Position.X, (int)player.Position.Y, player.PlayerTexture.Width, player.PlayerTexture.Height);
+                    if (npcRectangle.Intersects(playerRectangle) && !player.IsImmune && damage > 0)
+                    {
+                        player.GetDamaged(disTextManager, damage);
+                    }
                 }
             }
         }
 
         private void ApplyKnockBack(GameTime gameTime)
         {
-            float progress = 1f - (KnockbackTimer / KnockbackDuration);
-            Position = Vector2.Lerp(KnockBackStartPos, KnockBackEndPos, progress);
+            float progress = 1f - (kbTimer / kbDuration);
+            position = Vector2.Lerp(kbStartPos, kbEndPos, progress);
 
-            KnockbackTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            kbTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (KnockbackTimer <= 0)
+            if (kbTimer <= 0)
             {
-                Position = KnockBackEndPos;
+                position = kbEndPos;
             }
         }
 
         private void GetDamaged(Display_Text_Manager texMan, int damage)
         {
-            Health -= damage;
+            health -= damage;
 
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(Position.X + Width / 2, Position.Y), Color.Red, Color.Transparent, 2f, 1.1f);
+            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + width / 2, position.Y), Color.Red, Color.Transparent, 2f, 1.1f);
 
-            HitEffectTimer = 0.5f;
-            ImmunityTime = MaxImmunityTime;
+            hitEffectTimer = hitEffectTimerMax;
+            immunityTime = immunityTimeMax;
         }
 
         public void Kill(Item_Manager itemManager)
         {
-            Health = -1;
+            health = -1;
             //itemManager.DropItem(1, 0, 0, 1, Position);
         }
 

@@ -44,18 +44,18 @@ namespace BaseBuilderRPG.Content
             if (sortSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
                 string text = "Sort Inventory";
-                Vector2 textSize = Main.TestFont.MeasureString(text);
+                Vector2 textSize = Main.testFont.MeasureString(text);
                 spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.TestFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawString(Main.testFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
             }
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
             if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
                 string text = "Close Inventory";
-                Vector2 textSize = Main.TestFont.MeasureString(text);
+                Vector2 textSize = Main.testFont.MeasureString(text);
                 spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.TestFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawString(Main.testFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
             }
 
             for (int width = 0; width < player.Inventory.Width; width++)
@@ -68,23 +68,23 @@ namespace BaseBuilderRPG.Content
                     Item item = player.Inventory.GetItem(width, height);
                     if (item != null)
                     {
-                        spriteBatch.Draw(Main.texInventorySlotBackground, new Vector2(x, y), null, new Color((int)item.RarityColor.R, item.RarityColor.G, item.RarityColor.B, 255), 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        spriteBatch.Draw(Main.texInventorySlotBackground, new Vector2(x, y), null, new Color((int)item.rarityColor.R, item.rarityColor.G, item.rarityColor.B, 255), 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
 
                         float scale = 1f;
                         int insideSlotSize = 38;
-                        if (item.Texture.Width > insideSlotSize || item.Texture.Height > insideSlotSize)
+                        if (item.texture.Width > insideSlotSize || item.texture.Height > insideSlotSize)
                         {
-                            scale = Math.Min((float)insideSlotSize / item.Texture.Width, (float)slotSize / item.Texture.Height);
+                            scale = Math.Min((float)insideSlotSize / item.texture.Width, (float)slotSize / item.texture.Height);
                         }
 
                         Vector2 itemPosition = new Vector2(x + insideSlotSize / 2, y + insideSlotSize / 2);
 
-                        spriteBatch.Draw(item.Texture, itemPosition + new Vector2(0, 4), null, new Color(0, 0, 0, 150), 0f, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), scale * 1.05f, SpriteEffects.None, 0.97f);
-                        spriteBatch.Draw(item.Texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(item.Texture.Width / 2, item.Texture.Height / 2), scale, SpriteEffects.None, 0.98f);
+                        spriteBatch.Draw(item.texture, itemPosition + new Vector2(0, 4), null, new Color(0, 0, 0, 150), 0f, new Vector2(item.texture.Width / 2, item.texture.Height / 2), scale * 1.05f, SpriteEffects.None, 0.97f);
+                        spriteBatch.Draw(item.texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(item.texture.Width / 2, item.texture.Height / 2), scale, SpriteEffects.None, 0.98f);
 
-                        if (item.StackLimit > 1)
+                        if (item.stackLimit > 1)
                         {
-                            spriteBatch.DrawStringWithOutline(Main.TestFont, item.StackSize.ToString(), new Vector2(x + 20, y + 24), Color.Black, Color.White, 1f, 0.9820f);
+                            spriteBatch.DrawStringWithOutline(Main.testFont, item.stackSize.ToString(), new Vector2(x + 20, y + 24), Color.Black, Color.White, 1f, 0.9820f);
                         }
                     }
                 }
@@ -95,7 +95,7 @@ namespace BaseBuilderRPG.Content
                 if (equipmentSlots[i].EquippedItem != null)
                 {
                     Vector2 position = Main.EquipmentSlotPositions(i);
-                    if (equipmentSlots[i].EquippedItem.Type == "Accessory")
+                    if (equipmentSlots[i].EquippedItem.type == "Accessory")
                     {
                         // Handle accessory-specific logic if needed
                     }
@@ -103,17 +103,17 @@ namespace BaseBuilderRPG.Content
                     {
                         int equipmentSlotSize = 44;
                         float scale = 1f;
-                        if (equipmentSlots[i].EquippedItem.Texture.Width > equipmentSlotSize || equipmentSlots[i].EquippedItem.Texture.Height > equipmentSlotSize)
+                        if (equipmentSlots[i].EquippedItem.texture.Width > equipmentSlotSize || equipmentSlots[i].EquippedItem.texture.Height > equipmentSlotSize)
                         {
-                            scale = Math.Min((float)equipmentSlotSize / equipmentSlots[i].EquippedItem.Texture.Width, (float)equipmentSlotSize / equipmentSlots[i].EquippedItem.Texture.Height);
+                            scale = Math.Min((float)equipmentSlotSize / equipmentSlots[i].EquippedItem.texture.Width, (float)equipmentSlotSize / equipmentSlots[i].EquippedItem.texture.Height);
                         }
 
                         Vector2 itemPosition = new(position.X + equipmentSlotSize / 2, position.Y + equipmentSlotSize / 2);
 
-                        spriteBatch.Draw(Main.texMainSlotBackground, position, null, equipmentSlots[i].EquippedItem.RarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        spriteBatch.Draw(Main.texMainSlotBackground, position, null, equipmentSlots[i].EquippedItem.rarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
 
-                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, itemPosition + new Vector2(0, 4), null, new Color(0, 0, 0, 150), 0f, new Vector2(equipmentSlots[i].EquippedItem.Texture.Width / 2, equipmentSlots[i].EquippedItem.Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0.97f);
-                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.Texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].EquippedItem.Texture.Width / 2, equipmentSlots[i].EquippedItem.Texture.Height / 2), scale, SpriteEffects.None, 0.98f);
+                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.texture, itemPosition + new Vector2(0, 4), null, new Color(0, 0, 0, 150), 0f, new Vector2(equipmentSlots[i].EquippedItem.texture.Width / 2, equipmentSlots[i].EquippedItem.texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0.97f);
+                        spriteBatch.Draw(equipmentSlots[i].EquippedItem.texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].EquippedItem.texture.Width / 2, equipmentSlots[i].EquippedItem.texture.Height / 2), scale, SpriteEffects.None, 0.98f);
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace BaseBuilderRPG.Content
         {
             foreach (var slot in equipmentSlots)
             {
-                if (slot.SlotType == item.Type)
+                if (slot.SlotType == item.type)
                 {
                     if (slot.EquippedItem == null)
                     {
@@ -148,20 +148,20 @@ namespace BaseBuilderRPG.Content
                 for (int x = 0; x < Width; x++)
                 {
                     Item existingStack = items[x, y];
-                    if (existingStack != null && existingStack.ID == item.ID && existingStack.StackSize < existingStack.StackLimit)
+                    if (existingStack != null && existingStack.id == item.id && existingStack.stackSize < existingStack.stackLimit)
                     {
-                        int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
+                        int spaceAvailable = existingStack.stackLimit - existingStack.stackSize;
 
-                        if (spaceAvailable >= item.StackSize)
+                        if (spaceAvailable >= item.stackSize)
                         {
-                            existingStack.StackSize += item.StackSize;
-                            item.StackSize = 0;
+                            existingStack.stackSize += item.stackSize;
+                            item.stackSize = 0;
                             return;
                         }
                         else
                         {
-                            existingStack.StackSize = existingStack.StackLimit;
-                            item.StackSize -= spaceAvailable;
+                            existingStack.stackSize = existingStack.stackLimit;
+                            item.stackSize -= spaceAvailable;
                         }
                     }
                 }
@@ -179,7 +179,7 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-            if (item.StackSize > 0)
+            if (item.stackSize > 0)
             {
                 droppedItems.Add(item);
             }
@@ -192,16 +192,16 @@ namespace BaseBuilderRPG.Content
                 for (int x = 0; x < Width; x++)
                 {
                     Item existingStack = items[x, y];
-                    if (existingStack != null && existingStack.ID == item.ID && existingStack.StackSize < existingStack.StackLimit)
+                    if (existingStack != null && existingStack.id == item.id && existingStack.stackSize < existingStack.stackLimit)
                     {
-                        int spaceAvailable = existingStack.StackLimit - existingStack.StackSize;
+                        int spaceAvailable = existingStack.stackLimit - existingStack.stackSize;
 
-                        if (spaceAvailable >= item.StackSize)
+                        if (spaceAvailable >= item.stackSize)
                         {
-                            existingStack.StackSize += item.StackSize;
-                            item.StackSize = 0;
+                            existingStack.stackSize += item.stackSize;
+                            item.stackSize = 0;
 
-                            if (item.OnGround)
+                            if (item.onGround)
                             {
                                 droppedItems.Remove(item);
                             }
@@ -210,8 +210,8 @@ namespace BaseBuilderRPG.Content
                         }
                         else
                         {
-                            existingStack.StackSize = existingStack.StackLimit;
-                            item.StackSize -= spaceAvailable;
+                            existingStack.stackSize = existingStack.stackLimit;
+                            item.stackSize -= spaceAvailable;
                         }
                     }
                 }
@@ -225,7 +225,7 @@ namespace BaseBuilderRPG.Content
                     {
                         items[x, y] = item;
 
-                        if (item.OnGround)
+                        if (item.onGround)
                         {
                             droppedItems.Remove(item);
                         }
@@ -311,20 +311,20 @@ namespace BaseBuilderRPG.Content
 
             itemList.Sort((item1, item2) =>
             {
-                if (item1.Type == "Weapon" && item2.Type != "Weapon")
+                if (item1.type == "Weapon" && item2.type != "Weapon")
                 {
                     return -1;
                 }
-                else if (item1.Type != "Weapon" && item2.Type == "Weapon")
+                else if (item1.type != "Weapon" && item2.type == "Weapon")
                 {
                     return 1;
                 }
                 else
                 {
-                    int rarityComparison = item2.Rarity.CompareTo(item1.Rarity);
+                    int rarityComparison = item2.rarity.CompareTo(item1.rarity);
                     if (rarityComparison == 0)
                     {
-                        return item2.StackSize.CompareTo(item1.StackSize);
+                        return item2.stackSize.CompareTo(item1.stackSize);
                     }
                     return rarityComparison;
                 }

@@ -31,7 +31,7 @@ namespace BaseBuilderRPG.Content
             npcs = JsonConvert.DeserializeObject<List<NPC>>(npcsJson);
             foreach (var npc in npcs)
             {
-                npcDictionary.Add(npc.ID, npc);
+                npcDictionary.Add(npc.id, npc);
             }
 
             players = _players;
@@ -44,7 +44,7 @@ namespace BaseBuilderRPG.Content
         {
             foreach (var npc in npcs)
             {
-                npc.Texture = Game.Content.Load<Texture2D>(npc.TexturePath);
+                npc.texture = Game.Content.Load<Texture2D>(npc.texturePath);
             }
         }
 
@@ -52,7 +52,7 @@ namespace BaseBuilderRPG.Content
         {
             if (npcDictionary.TryGetValue(id, out var npc))
             {
-                npcs.Add(new NPC(npc.Texture, npc.TexturePath, npc.Name, id, npc.AI, npc.Damage, npc.MaxHealth, npc.KnockBack, position, npc.NumFrames, true));
+                npcs.Add(new NPC(npc.texture, npc.texturePath, id, npc.ai, position, npc.name, npc.damage, npc.maxHealth, npc.knockBack, npc.knockBackRes, npc.numFrames, true));
             }
         }
 
@@ -60,7 +60,7 @@ namespace BaseBuilderRPG.Content
         {
             foreach (NPC npc in npcs)
             {
-                if (npc.IsAlive)
+                if (npc.isAlive)
                 {
                     npc.Update(gameTime, players, projectiles, disTextManager, itemManager);
                 }
@@ -83,26 +83,19 @@ namespace BaseBuilderRPG.Content
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
-            spriteBatch.DrawString(Main.TestFont, "NPC MANAGER NPC COUNT: " + npcs.Count.ToString(), new Vector2(10, 400), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.testFont, "NPC MANAGER NPC COUNT: " + npcs.Count.ToString(), new Vector2(10, 400), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             foreach (NPC npc in npcs)
             {
-                if (npc.Texture != null && npc.IsAlive)
+                if (npc.texture != null && npc.isAlive)
                 {
                     npc.Draw(spriteBatch);
-                    var Health = npc.Health;
-                    var MaxHealth = npc.MaxHealth;
-                    var Position = npc.Position;
-                    var Height = npc.Height;
-                    var Width = npc.Width;
-                    var Name = npc.Name;
-
-                    if (Health < MaxHealth)
+                    if (npc.health < npc.maxHealth)
                     {
-                        var pos = Position + new Vector2(0, Height + 6);
-                        float healthBarWidth = Width * ((float)Health / (float)MaxHealth);
+                        var pos = npc.position + new Vector2(0, npc.height + 6);
+                        float healthBarWidth = npc.width * ((float)npc.health / (float)npc.maxHealth);
 
-                        Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(Width) + 4, 4);
-                        Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(pos.X), (int)pos.Y, (int)(Width), 2);
+                        Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(npc.width) + 4, 4);
+                        Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(pos.X), (int)pos.Y, (int)(npc.width), 2);
                         Rectangle healthBarRectangle = new Rectangle((int)(pos.X), (int)pos.Y, (int)healthBarWidth, 2);
 
                         spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, 0.691f);
@@ -110,8 +103,8 @@ namespace BaseBuilderRPG.Content
                         spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, 0.693f);
                     }
 
-                    Vector2 textSize = Main.TestFont.MeasureString(Name);
-                    spriteBatch.DrawStringWithOutline(Main.TestFont, Name, new Vector2(Position.X + Width / 2 - textSize.X / 2, Position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
+                    Vector2 textSize = Main.testFont.MeasureString(npc.name);
+                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.position.X + npc.width / 2 - textSize.X / 2, npc.position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
                 }
             }
             spriteBatch.End();

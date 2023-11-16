@@ -18,6 +18,7 @@ namespace BaseBuilderRPG.Content
         private List<Item> itemsToRemove;
         private Dictionary<int, Item> itemDictionary;
         private Item_Manager itemManager;
+        private Projectile_Manager projManager;
         private Display_Text_Manager textManager;
         private Texture2D _texture;
         private Texture2D _textureHead;
@@ -31,7 +32,7 @@ namespace BaseBuilderRPG.Content
         private KeyboardState pKey;
 
         public Player_Manager(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
-            Item> _itemDictionary, Item_Manager _itemManager, Display_Text_Manager _textManager, KeyboardState _keyboardState)
+            Item> _itemDictionary, Item_Manager _itemManager, Projectile_Manager _projManager, Display_Text_Manager _textManager, KeyboardState _keyboardState)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -49,15 +50,14 @@ namespace BaseBuilderRPG.Content
             itemDictionary = _itemDictionary;
             itemManager = _itemManager;
             textManager = _textManager;
+            projManager = _projManager;
             pKey = _keyboardState;
 
             players.Add(new Player(_texture, _textureHead, _textureEyes, true, "East", 999999, 0.9f, new Vector2(10, 500)));
-            players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Dummy", 99999, 1f, new Vector2(500, 500)));
-            /* players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Silver", 100, 0.7f, new Vector2(50, 500)));
-             players.Add(new Player(_texture, _textureHead, _textureEyes, false, "2Pac", 100, 0f, new Vector2(70, 500)));*/
+            //players.Add(new Player(_texture, _textureHead, _textureEyes, false, "Dummy", 99999, 1f, new Vector2(500, 500)));
 
             players[0].Inventory.equipmentSlots[0].EquippedItem = items[10];
-            players[1].Inventory.equipmentSlots[0].EquippedItem = items[10];
+            // players[1].Inventory.equipmentSlots[0].EquippedItem = items[10];
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -72,14 +72,14 @@ namespace BaseBuilderRPG.Content
 
         private void AI(Player player, List<NPC> npcs)
         {
-            if (player.EquippedWeapon != null && player.EquippedWeapon.DamageType == "melee")
+            if (player.EquippedWeapon != null && player.EquippedWeapon.damageType == "melee")
             {
                 NPC closestNPC = null;
                 float closestDistance = float.MaxValue;
 
                 foreach (NPC npc in npcs)
                 {
-                    float distance = Vector2.DistanceSquared(player.Position, npc.Position);
+                    float distance = Vector2.DistanceSquared(player.Position, npc.position);
 
                     if (distance < closestDistance)
                     {
@@ -90,7 +90,7 @@ namespace BaseBuilderRPG.Content
 
                 if (closestNPC != null)
                 {
-                    player.Target = closestNPC.Position + new Vector2(closestNPC.Width / 2, closestNPC.Height / 2);
+                    player.Target = closestNPC.position + new Vector2(closestNPC.width / 2, closestNPC.height / 2);
 
                     if (player.Position.X > player.Target.X)
                     {
@@ -101,10 +101,10 @@ namespace BaseBuilderRPG.Content
                         player.Direction = 1;
                     }
 
-                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2)
-                                                    : new Vector2(-player.EquippedWeapon.Texture.Height * 0.2f, player.PlayerTexture.Height / 2);
-                    Rectangle playerWeaponRectangle = CalculateRotatedRectangle(player.Position + Pos, (int)(player.EquippedWeapon.Texture.Width * 0.8f), (int)(player.EquippedWeapon.Texture.Height), player.RotationAngle);
-                    Rectangle targetRectangle = new Rectangle((int)closestNPC.Position.X, (int)closestNPC.Position.Y, (int)(closestNPC.Width), (int)(closestNPC.Height));
+                    Vector2 Pos = (player.Direction == 1) ? new Vector2(player.PlayerTexture.Width + player.EquippedWeapon.texture.Height * 0.2f, player.PlayerTexture.Height / 2)
+                                                    : new Vector2(-player.EquippedWeapon.texture.Height * 0.2f, player.PlayerTexture.Height / 2);
+                    Rectangle playerWeaponRectangle = CalculateRotatedRectangle(player.Position + Pos, (int)(player.EquippedWeapon.texture.Width * 1.75f), (int)(player.EquippedWeapon.texture.Height * 1.75f), player.RotationAngle);
+                    Rectangle targetRectangle = new Rectangle((int)closestNPC.position.X, (int)closestNPC.position.Y, (int)(closestNPC.width), (int)(closestNPC.height));
 
                     //if (Vector2.Distance(player.Position, player.Target) >= player.EquippedWeapon.Texture.Height * 0.8f)
                     if (!playerWeaponRectangle.Intersects(targetRectangle))
@@ -197,7 +197,7 @@ namespace BaseBuilderRPG.Content
             spriteBatch.End();
 
             spriteBatch.Begin();
-            spriteBatch.DrawString(Main.TestFont, "SHOOT TIMER: " + useTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(Main.testFont, "SHOOT TIMER: " + useTimer.ToString(), new Vector2(10, 380), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
             DrawInventory(gameTime);
             spriteBatch.End();
 
@@ -209,9 +209,9 @@ namespace BaseBuilderRPG.Content
             if (hoveredItem != null && mouseItem == null)
             {
                 float maxTextWidth = 0;
-                foreach (string tooltip in hoveredItem.ToolTips)
+                foreach (string tooltip in hoveredItem.toolTips)
                 {
-                    Vector2 textSize = Main.TestFont.MeasureString(tooltip);
+                    Vector2 textSize = Main.testFont.MeasureString(tooltip);
                     maxTextWidth = Math.Max(maxTextWidth, textSize.X);
                 }
 
@@ -219,14 +219,14 @@ namespace BaseBuilderRPG.Content
                 int initialX = Mouse.GetState().X + 18;
                 int initialY = Mouse.GetState().Y;
 
-                for (int i = 0; i < hoveredItem.ToolTips.Count; i++)
+                for (int i = 0; i < hoveredItem.toolTips.Count; i++)
                 {
                     Color toolTipColor, bgColor;
                     switch (i)
                     {
                         case 0:
                             toolTipColor = Color.Black;
-                            bgColor = hoveredItem.RarityColor;
+                            bgColor = hoveredItem.rarityColor;
                             break;
 
                         case 1:
@@ -240,12 +240,12 @@ namespace BaseBuilderRPG.Content
                             break;
                     }
 
-                    if (hoveredItem.ToolTips[i].StartsWith("'"))
+                    if (hoveredItem.toolTips[i].StartsWith("'"))
                     {
                         toolTipColor = Color.Aquamarine;
                     }
 
-                    Vector2 textSize = Main.TestFont.MeasureString(hoveredItem.ToolTips[i]);
+                    Vector2 textSize = Main.testFont.MeasureString(hoveredItem.toolTips[i]);
                     Vector2 backgroundSize = new Vector2(maxTextWidth, textSize.Y);
 
                     int tooltipX = initialX;
@@ -257,23 +257,23 @@ namespace BaseBuilderRPG.Content
                     }
 
                     // Draw the tooltip background
-                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoveredItem.RarityColor, 0.922f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoveredItem.rarityColor, 0.922f);
                     spriteBatch.DrawRectangle(new Rectangle(tooltipX - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor, 0.922f);
 
                     if (i == 0 || i == 1)
                     {
-                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.testFont, hoveredItem.toolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), toolTipColor);
                     }
                     else
                     {
-                        spriteBatch.DrawString(Main.TestFont, hoveredItem.ToolTips[i], new Vector2(tooltipX, tooltipY + 5), toolTipColor);
+                        spriteBatch.DrawString(Main.testFont, hoveredItem.toolTips[i], new Vector2(tooltipX, tooltipY + 5), toolTipColor);
                     }
                 }
             }
 
             if (mouseItem != null)
             {
-                spriteBatch.Draw(mouseItem.Texture, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.White);
+                spriteBatch.Draw(mouseItem.texture, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.White);
             }
         }
 
@@ -282,7 +282,7 @@ namespace BaseBuilderRPG.Content
         {
             foreach (Player player in players)
             {
-                if (player.EquippedWeapon != null && player.EquippedWeapon.Shoot > -1 && player.IsActive)
+                if (player.EquippedWeapon != null && player.EquippedWeapon.shootID > -1 && player.IsActive)
                 {
                     if (useTimer > 0)
                     {
@@ -291,9 +291,8 @@ namespace BaseBuilderRPG.Content
 
                     if (Mouse.GetState().LeftButton == ButtonState.Pressed && useTimer <= 0)
                     {
-                        Main.projManager.NewProjectile(player.EquippedWeapon.Shoot, player.EquippedWeapon.Damage, 2, player.EquippedWeapon.KnockBack, player.EquippedWeapon.ShootSpeed, player.Position + new Vector2(player.PlayerTexture.Width / 2,
-                            (player.PlayerTexture.Height) / 2), player, true);
-                        useTimer = player.EquippedWeapon.UseTime;
+                        projManager.NewProjectile(player.EquippedWeapon.shootID, player.Position + new Vector2(player.PlayerTexture.Width / 2, (player.PlayerTexture.Height) / 2), player.EquippedWeapon.damage, player.EquippedWeapon.shootSpeed, player, true);
+                        useTimer = player.EquippedWeapon.useTime;
                     }
                 }
             }
@@ -339,13 +338,13 @@ namespace BaseBuilderRPG.Content
                     {
                         if (item.PlayerClose(player, 40f) && player.IsActive && !player.Inventory.IsFull())
                         {
-                            string text = "Picked: " + item.PrefixName + " " + item.Name + " " + item.SuffixName;
-                            Vector2 textSize = Main.TestFont.MeasureString(text);
+                            string text = "Picked: " + item.prefixName + " " + item.name + " " + item.suffixName;
+                            Vector2 textSize = Main.testFont.MeasureString(text);
 
                             Vector2 textPos = player.Position + new Vector2(-textSize.X / 5f, -20);
                             player.Inventory.PickItem(item, itemsOnGround);
 
-                            textManager.AddFloatingText("Picked: ", (item.PrefixName + " " + item.Name + " " + item.SuffixName), textPos, Color.White, item.RarityColor, 2f, 0.9f);
+                            textManager.AddFloatingText("Picked: ", (item.prefixName + " " + item.name + " " + item.suffixName), textPos, Color.White, item.rarityColor, 2f, 0.9f);
                         }
                     }
                 }
@@ -499,7 +498,7 @@ namespace BaseBuilderRPG.Content
                                 }
                                 else
                                 {
-                                    if (mouseItem.Type == equipSlot.SlotType)
+                                    if (mouseItem.type == equipSlot.SlotType)
                                     {
                                         Item temp = mouseItem;
                                         mouseItem = player.Inventory.GetEquippedItem(i);
@@ -520,8 +519,8 @@ namespace BaseBuilderRPG.Content
                     {
                         if (mouseItem != null)
                         {
-                            mouseItem.Position = player.Position;
-                            mouseItem.OnGround = true;
+                            mouseItem.position = player.Position;
+                            mouseItem.onGround = true;
                             groundItems.Add(mouseItem);
                             mouseItem = null;
                         }

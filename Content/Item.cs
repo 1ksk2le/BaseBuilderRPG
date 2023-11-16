@@ -7,118 +7,117 @@ namespace BaseBuilderRPG.Content
 {
     public class Item
     {
-        public Texture2D Texture { get; set; }
+        public Texture2D texture { get; set; }
+        public int id { get; set; }
+        public int prefixID { get; set; }
+        public int suffixID { get; set; }
+        public int damage { get; set; }
+        public int rarity { get; set; }
+        public int stackLimit { get; set; }
+        public int stackSize { get; set; }
+        public int shootID { get; set; }
+        public float useTime { get; set; }
+        public float shootSpeed { get; set; }
+        public float knockBack { get; set; }
+        public string texturePath { get; set; }
+        public string name { get; set; }
+        public string suffixName { get; set; }
+        public string prefixName { get; set; }
+        public string type { get; set; }
+        public string damageType { get; set; }
+        public string weaponType { get; set; }
+        public Color rarityColor { get; set; }
+        public Vector2 position { get; set; }
+        public bool onGround { get; set; }
+        public bool canBeUsed { get; set; }
+        public List<string> toolTips { get; set; }
 
-        public int ID { get; set; }
-        public int PrefixID { get; set; }
-        public int SuffixID { get; set; }
-        public int Damage { get; set; }
-        public int Rarity { get; set; }
-        public int StackLimit { get; set; }
-        public int StackSize { get; set; }
-        public int Shoot { get; set; }
-        public float UseTime { get; set; }
-        public float ShootSpeed { get; set; }
-        public float KnockBack { get; set; }
-        public string TexturePath { get; set; }
-        public string Name { get; set; }
-        public string SuffixName { get; set; }
-        public string PrefixName { get; set; }
-        public string Type { get; set; }
-        public string DamageType { get; set; }
-        public string WeaponType { get; set; }
-        public Color RarityColor { get; set; }
-        public Vector2 Position { get; set; }
-        public bool OnGround { get; set; }
-        public bool CanBeUsed { get; set; }
-        public List<string> ToolTips { get; set; }
-
-        public float LevitationTimer = 0.0f;
+        public float levTimer = 0.0f;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
-            Texture = texture;
-            TexturePath = texturePath;
-            ID = id;
-            Name = name;
-            Type = type;
-            Rarity = rarity;
-            PrefixID = prefixID;
-            SuffixID = suffixID;
-            UseTime = useTime;
-            KnockBack = knockBack;
-            Damage = damage;
-            DamageType = damageType;
-            WeaponType = weaponType;
-            Position = position;
-            OnGround = onGround;
+            this.texture = texture;
+            this.texturePath = texturePath;
+            this.id = id;
+            this.name = name;
+            this.type = type;
+            this.rarity = rarity;
+            this.prefixID = prefixID;
+            this.suffixID = suffixID;
+            this.useTime = useTime;
+            this.knockBack = knockBack;
+            this.damage = damage;
+            this.damageType = damageType;
+            this.weaponType = weaponType;
+            this.position = position;
+            this.onGround = onGround;
 
-            if (Type != "Weapon")
+            if (this.type != "Weapon")
             {
-                DamageType = "";
-                Shoot = -1;
-                Damage = -1;
-                PrefixID = -1;
-                SuffixID = -1;
-                UseTime = -1;
-                KnockBack = -1;
-                Damage = -1;
-                StackLimit = stackLimit;
-                StackSize = StackLimit == 1 ? 1 : dropAmount;
+                this.damageType = "";
+                this.shootID = -1;
+                this.damage = -1;
+                this.prefixID = -1;
+                this.suffixID = -1;
+                this.useTime = -1;
+                this.knockBack = -1;
+                this.damage = -1;
+                this.stackLimit = stackLimit;
+                stackSize = this.stackLimit == 1 ? 1 : dropAmount;
             }
             else
             {
-                StackLimit = 1;
-                StackSize = 1;
-                if (DamageType != "ranged")
+                this.stackLimit = 1;
+                stackSize = 1;
+                if (this.damageType != "ranged")
                 {
-                    Shoot = -1;
-                    ShootSpeed = 0f;
+                    this.shootID = -1;
+                    this.shootSpeed = 0f;
                 }
                 else
                 {
-                    Shoot = shoot;
-                    ShootSpeed = shootSpeed;
+                    this.shootID = shoot;
+                    this.shootSpeed = shootSpeed;
                 }
             }
             SetDefaults();
 
-            ToolTips = new List<string>();
+            toolTips = new List<string>();
 
-            ToolTips.Add(PrefixName + " " + Name + " " + SuffixName);
+            toolTips.Add(prefixName + " " + this.name + " " + suffixName);
 
-            if (Damage > 0)
+            if (this.damage > 0)
             {
-                ToolTips.Add("[" + Type + " - " + WeaponType + "]");
-                ToolTips.Add(Damage.ToString() + " " + DamageType + " damage");
+                toolTips.Add("[" + this.type + " - " + this.weaponType + "]");
+                toolTips.Add(this.damage.ToString() + " " + this.damageType + " damage");
             }
             else
             {
-                ToolTips.Add("[" + Type + "]");
+                toolTips.Add("[" + this.type + "]");
             }
-            if (UseTime > 0)
+            if (this.useTime > 0)
             {
-                ToolTips.Add((UseTime * 10).ToString() + " use time");
+                toolTips.Add((this.useTime * 10).ToString() + " use time");
             }
-            if (KnockBack > -1)
+            if (this.knockBack > -1)
             {
-                ToolTips.Add(KnockBack.ToString() + " knockback");
+                toolTips.Add(this.knockBack.ToString() + " knockback");
             }
-            if (Shoot > -1)
+            if (this.shootID > -1)
             {
-                ToolTips.Add(ShootSpeed.ToString() + " velocity");
+                toolTips.Add(this.shootSpeed.ToString() + " velocity");
             }
             TooltipsBasedOnID();
         }
 
         public void Update(GameTime gameTime)
         {
-            LevitationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            levTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         public bool PlayerClose(Player player, float pickRange)
         {
-            float distance = Vector2.Distance(Position, player.Position);
+            float distance = Vector2.Distance(position, player.Position);
             if (distance <= pickRange)
             {
                 return true;
@@ -131,7 +130,7 @@ namespace BaseBuilderRPG.Content
 
         public bool InteractsWithMouse()
         {
-            Rectangle slotRect = new((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
+            Rectangle slotRect = new((int)position.X, (int)position.Y, texture.Width, texture.Height);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
         }
 
@@ -140,103 +139,88 @@ namespace BaseBuilderRPG.Content
             itemList.Remove(this);
         }
 
-        /* public Item Clone(bool onGround)
-         {
-             return new Item(Texture, TexturePath, ID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, KnockBack, UseTime, StackLimit, StackSize, onGround);
-         }
-
-         public Item Clone(int itemID, int prefixID, int suffixID, int dropAmount, bool onGround)
-         {
-             return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, prefixID, suffixID, Damage, UseTime, StackLimit, dropAmount, OnGround);
-         }
-
-         public Item Clone(int itemID, int dropAmount, bool onGround)
-         {
-             return new Item(Texture, TexturePath, itemID, Name, Type, DamageType, WeaponType, Position, ShootSpeed, Rarity, Shoot, PrefixID, SuffixID, Damage, UseTime, StackLimit, dropAmount, onGround);
-         }*/
-
         public void SetDefaults()
         {
-            switch (Rarity)
+            switch (rarity)
             {
                 case 0:
-                    RarityColor = Color.LightGray;
+                    rarityColor = Color.LightGray;
                     break;
 
                 case 1:
-                    RarityColor = Color.White;
+                    rarityColor = Color.White;
                     break;
 
                 case 2:
-                    RarityColor = new Color(30, 255, 0);
+                    rarityColor = new Color(30, 255, 0);
                     break;
 
                 case 3:
-                    RarityColor = new Color(0, 112, 221);
+                    rarityColor = new Color(0, 112, 221);
                     break;
 
                 case 4:
-                    RarityColor = new Color(163, 53, 238);
+                    rarityColor = new Color(163, 53, 238);
                     break;
 
                 case 5:
-                    RarityColor = Color.Gold;
+                    rarityColor = Color.Gold;
                     break;
 
                 case 6:
-                    RarityColor = new Color(255, 128, 0);
+                    rarityColor = new Color(255, 128, 0);
                     break;
 
                 case 7:
-                    RarityColor = Color.Aqua;
+                    rarityColor = Color.Aqua;
                     break;
 
                 default:
-                    RarityColor = Color.Red;
+                    rarityColor = Color.Red;
                     break;
             }
-            switch (PrefixID)
+            switch (prefixID)
             {
                 case 0:
-                    PrefixName = "Broken";
+                    prefixName = "Broken";
                     break;
 
                 case 1:
-                    PrefixName = "Reinforced";
+                    prefixName = "Reinforced";
                     break;
 
                 case 2:
-                    PrefixName = "Magical";
+                    prefixName = "Magical";
                     break;
 
                 case 3:
-                    PrefixName = "Unwieldy";
+                    prefixName = "Unwieldy";
                     break;
 
                 default:
-                    PrefixName = "";
+                    prefixName = "";
                     break;
             }
-            switch (SuffixID)
+            switch (suffixID)
             {
                 case 0:
-                    SuffixName = "of Flames";
+                    suffixName = "of Flames";
                     break;
 
                 case 1:
-                    SuffixName = "of Death";
+                    suffixName = "of Death";
                     break;
 
                 case 2:
-                    SuffixName = "of Arthur";
+                    suffixName = "of Arthur";
                     break;
 
                 case 3:
-                    SuffixName = "of King";
+                    suffixName = "of King";
                     break;
 
                 default:
-                    SuffixName = "";
+                    suffixName = "";
                     break;
             }
         }

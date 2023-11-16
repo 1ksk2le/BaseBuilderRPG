@@ -25,5 +25,23 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.DrawString(font, text, position, innerColor, 0f, Vector2.Zero, scale, SpriteEffects.None, layerDepth + 0.0001f);
             }
         }
+
+        public static void DrawRectangleWithBorder(this SpriteBatch spriteBatch, Rectangle rectangle, Color fillColor, Color borderColor, float borderWidth, float layerDepth)
+        {
+            // Draw the filled rectangle
+            spriteBatch.DrawRectangle(rectangle, fillColor, layerDepth);
+
+            // Draw the top border
+            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Y, rectangle.Width, (int)borderWidth), borderColor, layerDepth);
+
+            // Draw the bottom border
+            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Bottom - (int)borderWidth, rectangle.Width, (int)borderWidth), borderColor, layerDepth);
+
+            // Draw the left border
+            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Y, (int)borderWidth, rectangle.Height), borderColor, layerDepth);
+
+            // Draw the right border
+            spriteBatch.DrawRectangle(new Rectangle(rectangle.Right - (int)borderWidth, rectangle.Y, (int)borderWidth, rectangle.Height), borderColor, layerDepth);
+        }
     }
 }
