@@ -8,6 +8,8 @@ namespace BaseBuilderRPG.Content
     public class Item
     {
         public Texture2D texture { get; set; }
+        public Color rarityColor { get; set; }
+        public Vector2 position { get; set; }
         public int id { get; set; }
         public int prefixID { get; set; }
         public int suffixID { get; set; }
@@ -26,13 +28,14 @@ namespace BaseBuilderRPG.Content
         public string type { get; set; }
         public string damageType { get; set; }
         public string weaponType { get; set; }
-        public Color rarityColor { get; set; }
-        public Vector2 position { get; set; }
         public bool onGround { get; set; }
         public bool canBeUsed { get; set; }
-        public List<string> toolTips { get; set; }
 
+        public List<string> toolTips;
+        public Rectangle rectangle;
+        public Vector2 origin, center;
         public float levTimer = 0.0f;
+        public bool didSpawn;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
@@ -89,7 +92,7 @@ namespace BaseBuilderRPG.Content
             if (this.damage > 0)
             {
                 toolTips.Add("[" + this.type + " - " + this.weaponType + "]");
-                toolTips.Add(this.damage.ToString() + " " + this.damageType + " damage");
+                toolTips.Add("Damage: " + this.damage.ToString() + " " + this.damageType + " damage");
             }
             else
             {
@@ -97,27 +100,35 @@ namespace BaseBuilderRPG.Content
             }
             if (this.useTime > 0)
             {
-                toolTips.Add((this.useTime * 10).ToString() + " use time");
+                toolTips.Add("Use Time: " + (this.useTime * 10).ToString());
             }
             if (this.knockBack > -1)
             {
-                toolTips.Add(this.knockBack.ToString() + " knockback");
+                toolTips.Add("Knockback: " + this.knockBack.ToString());
             }
             if (this.shootID > -1)
             {
-                toolTips.Add(this.shootSpeed.ToString() + " velocity");
+                toolTips.Add("Shoot Speed: " + this.shootSpeed.ToString() + " pps");
             }
             TooltipsBasedOnID();
+
+            didSpawn = false;
         }
 
         public void Update(GameTime gameTime)
         {
             levTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (!didSpawn)
+            {
+                origin = new Vector2(texture.Width / 2, texture.Height / 2);
+            }
+            center = position + origin;
+            rectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
         public bool PlayerClose(Player player, float pickRange)
         {
-            float distance = Vector2.Distance(position, player.Position);
+            float distance = Vector2.Distance(position, player.position);
             if (distance <= pickRange)
             {
                 return true;
@@ -132,11 +143,6 @@ namespace BaseBuilderRPG.Content
         {
             Rectangle slotRect = new((int)position.X, (int)position.Y, texture.Width, texture.Height);
             return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
-        }
-
-        public void RemoveItem(List<Item> itemList)
-        {
-            itemList.Remove(this);
         }
 
         public void SetDefaults()

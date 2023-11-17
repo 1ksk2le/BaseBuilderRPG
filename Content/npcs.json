@@ -4,9 +4,10 @@
     "ai": 0,
     "name": "Test Enemy",
     "damage": 0,
-    "maxHealth": 5000,
+    "healthMax": 5000,
     "knockBack": 20,
     "knockBackRes": 100,
+    "targetRange": 0,
     "numFrames": 1,
     "texturePath": "Textures/NPC/Test_NPC"
   },
@@ -14,10 +15,11 @@
     "id": 1,
     "ai": 1,
     "name": "Slime",
-    "damage": 0,
-    "maxHealth": 15,
+    "damage": 5,
+    "healthMax": 30,
     "knockBack": 20,
     "knockBackRes": 10,
+    "targetRange": 150,
     "numFrames": 6,
     "texturePath": "Textures/NPC/Slime"
   }

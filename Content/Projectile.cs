@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace BaseBuilderRPG.Content
@@ -10,13 +9,11 @@ namespace BaseBuilderRPG.Content
         public Player owner { get; set; }
         public Texture2D texture { get; set; }
         public int id { get; set; }
-        public int width { get; set; }
-        public int height { get; set; }
         public int penetrate { get; set; }
         public int ai { get; set; }
         public int damage { get; set; }
+        public float lifeTimeMax { get; set; }
         public float lifeTime { get; set; }
-        public float lifeTimeCurrent { get; set; }
         public float knockBack { get; set; }
         public float speed { get; set; }
         public string texturePath { get; set; }
@@ -26,9 +23,14 @@ namespace BaseBuilderRPG.Content
 
         private Vector2 spawnPosition;
         private Vector2 target;
+        public Vector2 origin, center;
+        public Rectangle rectangle;
+        public int width, height;
         public float rotation;
+        public bool didSpawn;
 
-        public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, string name, int damage, int penetrate, float lifeTime, float knockBack, float speed, Player owner, bool isAlive)
+
+        public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, Vector2 target, string name, int damage, int penetrate, float lifeTime, float knockBack, float speed, Player owner, bool isAlive, int width, int height)
         {
             this.texture = texture;
             this.texturePath = texturePath;
@@ -36,31 +38,39 @@ namespace BaseBuilderRPG.Content
             this.ai = ai;
             this.name = name;
             this.damage = damage;
-            this.lifeTime = lifeTime;
+            this.lifeTimeMax = lifeTime;
             this.speed = speed;
             this.knockBack = knockBack;
             this.position = position;
             this.isAlive = isAlive;
             this.penetrate = penetrate;
             this.owner = owner;
-
-            MouseState mouseState = Mouse.GetState();
-            lifeTimeCurrent = 0f;
-            target = new Vector2(mouseState.X, mouseState.Y);
+            this.lifeTime = 0f;
+            this.width = width;
+            this.height = height;
+            this.target = target;
             spawnPosition = this.position;
-
+            didSpawn = false;
         }
 
         public void Update(GameTime gameTime, Projectile_Manager projManager)
         {
-            if (lifeTimeCurrent >= lifeTime)
+            if (!didSpawn)
+            {
+                origin = new Vector2(width / 2, height / 2);
+                didSpawn = true;
+            }
+            center = position + origin;
+            rectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
+
+            if (lifeTime >= lifeTimeMax)
             {
                 Kill(projManager);
                 isAlive = false;
             }
             else
             {
-                lifeTimeCurrent += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                lifeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
             if (penetrate < 0)
@@ -94,18 +104,28 @@ namespace BaseBuilderRPG.Content
 
                 if (ai == 0)
                 {
-                    if (lifeTimeCurrent < lifeTime / 2)
+                    if (lifeTime < lifeTimeMax / 2)
                     {
-                        scale = MathHelper.Lerp(0.3f, 1f, lifeTimeCurrent / (lifeTime / 2));
+                        scale = MathHelper.Lerp(0.3f, 1f, lifeTime / (lifeTimeMax / 2));
                     }
                     else
                     {
-                        scale = MathHelper.Lerp(1f, 0.3f, (lifeTimeCurrent - lifeTime / 2) / (lifeTime / 2));
+                        scale = MathHelper.Lerp(1f, 0.3f, (lifeTime - lifeTimeMax / 2) / (lifeTimeMax / 2));
                     }
+                    spriteBatch.Draw(texture, position + origin, null, Color.White, rotation, new Vector2(texture.Width, origin.Y / 2), scale, SpriteEffects.None, 0);
+                }
+                else
+                {
+                    spriteBatch.Draw(texture, position + origin, null, Color.White, rotation, origin, scale, SpriteEffects.None, 0);
                 }
 
-                //spriteBatch.Draw(p.Texture, p.Position + new Vector2(0, 10), null, new Color(0, 0, 0, 200), p.Rotation, new Vector2(p.Texture.Width / 2, p.Texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
-                spriteBatch.Draw(texture, position, null, Color.White, rotation, new Vector2(texture.Width / 2, texture.Height / 2), scale, SpriteEffects.None, 0);
+
+
+                if (Main.drawDebugRectangles)
+                {
+                    spriteBatch.DrawCircle(center, 4f, Color.Lime * 1.5f, 64, 1f);
+                    spriteBatch.DrawRectangleWithBorder(rectangle, Color.Lime, 1f, 0.01f);
+                }
             }
         }
     }

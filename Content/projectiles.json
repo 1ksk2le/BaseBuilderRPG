@@ -1,20 +1,20 @@
 [
   {
-    "ID": 0,
-    "AI": 0,
-    "Width": 8,
-    "Height": 8,
-    "Name": "Test Arrow",
-    "LifeTime": 2,
-    "TexturePath": "Textures/tex_Wooden_Arrow"
+    "id": 0,
+    "ai": 0,
+    "name": "Test Arrow",
+    "lifeTimeMax": 2,
+    "width": 10,
+    "height": 10,
+    "texturePath": "Textures/tex_Wooden_Arrow"
   },
   {
-    "ID": 1,
-    "AI": 1,
-    "Width": 8,
-    "Height": 8,
-    "Name": "Wooden Arrow",
-    "LifeTime": 2,
-    "TexturePath": "Textures/tex_Wooden_Arrow"
+    "id": 1,
+    "ai": 1,
+    "name": "Wooden Arrow",
+    "lifeTimeMax": 2,
+    "width": 10,
+    "height": 10,
+    "texturePath": "Textures/tex_Wooden_Arrow"
   }
 ]

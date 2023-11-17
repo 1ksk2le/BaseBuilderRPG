@@ -27,7 +27,6 @@ namespace BaseBuilderRPG.Content
 
             string itemsJson = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
-            Main.amountOfItems = items.Count;
             foreach (var item in items)
             {
                 itemDictionary.Add(item.id, item);
@@ -79,39 +78,30 @@ namespace BaseBuilderRPG.Content
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(Main.testFont, "ITEM MANAGER ITEM COUNT: " + items.Count.ToString(), new Vector2(10, 340), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
-            spriteBatch.DrawString(Main.testFont, "ITEM MANAGER GROUND ITEMS COUNT: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "ITEM MANAGER ITEM COUNT: " + items.Count.ToString(), new Vector2(10, 340), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "ITEM MANAGER GROUND ITEM COUNT: " + groundItems.Count.ToString(), new Vector2(10, 360), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.End();
 
             foreach (Item item in groundItems)
             {
                 if (item.texture != null && item.onGround)
                 {
-                    var RarityColor = item.rarityColor;
-                    float levitationSpeed = 3f;
-                    float levitationAmplitude = 0.5f;
-
-                    float levitationOffset = (float)Math.Sin(item.levTimer * levitationSpeed) * levitationAmplitude;
-
-                    float itemScale = 1.0f + 0.25f * levitationOffset;
-
-                    Color shadowColor = new Color(0, 0, 0, 200);
-                    float shadowScaleFactor = 1.2f;
-                    float shadowOffsetY = 6;
+                    float levitationOffset = (float)Math.Sin(item.levTimer * 3f) * 0.5f;
+                    float scale = 1.0f + 0.25f * levitationOffset;
 
                     spriteBatch.Begin();
 
                     Vector2 shadowPosition = item.position + new Vector2(item.texture.Width / 2, item.texture.Height / 2);
-                    shadowPosition.Y += shadowOffsetY + levitationOffset;
-                    spriteBatch.Draw(item.texture, shadowPosition, null, shadowColor, 0, new Vector2(item.texture.Width / 2, item.texture.Height / 2), itemScale * shadowScaleFactor, SpriteEffects.None, 0);
+                    shadowPosition.Y += 6 + levitationOffset;
+                    spriteBatch.Draw(item.texture, shadowPosition, null, new Color(0, 0, 0, 200), 0, new Vector2(item.texture.Width / 2, item.texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0);
 
                     spriteBatch.End();
 
                     Main.outlineShader.Parameters["texelSize"].SetValue(new Vector2(1.0f / item.texture.Width, 1.0f / item.texture.Height));
-                    Main.outlineShader.Parameters["outlineColor"].SetValue(new Vector4(RarityColor.R / 255f, RarityColor.G / 255f, RarityColor.B / 255f, RarityColor.A / 255f));
+                    Main.outlineShader.Parameters["outlineColor"].SetValue(new Vector4(item.rarityColor.R / 255f, item.rarityColor.G / 255f, item.rarityColor.B / 255f, item.rarityColor.A / 255f));
 
                     spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.outlineShader, null);
-                    spriteBatch.Draw(item.texture, item.position + new Vector2(item.texture.Width / 2, item.texture.Height / 2), null, Color.White, 0, new Vector2(item.texture.Width / 2, item.texture.Height / 2), itemScale, SpriteEffects.None, 0);
+                    spriteBatch.Draw(item.texture, item.center, null, Color.White, 0, item.origin, scale, SpriteEffects.None, 0);
 
                     spriteBatch.End();
 
@@ -131,6 +121,11 @@ namespace BaseBuilderRPG.Content
                     else
                     {
                         itemName = "[" + item.prefixName + " " + item.name + " " + item.suffixName + "]";
+                    }
+
+                    if (Main.drawDebugRectangles)
+                    {
+                        spriteBatch.DrawRectangleWithBorder(item.rectangle, Color.Yellow, 1f, 0.01f);
                     }
 
                     spriteBatch.End();

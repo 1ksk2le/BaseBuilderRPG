@@ -38,11 +38,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void NewProjectile(int id, Vector2 position, int damage, float speed, Player owner, bool isAlive)
+        public void NewProjectile(int id, Vector2 position, Vector2 target, int damage, float speed, Player owner, bool isAlive)
         {
             if (projectileDictionary.TryGetValue(id, out var p))
             {
-                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, p.name, damage, p.penetrate, p.lifeTime, p.knockBack, speed, owner, isAlive));
+                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, target, p.name, damage, p.penetrate, p.lifeTimeMax, p.knockBack, speed, owner, isAlive, p.width, p.height));
             }
         }
 
@@ -80,12 +80,19 @@ namespace BaseBuilderRPG.Content
             base.Update(gameTime);
         }
 
-
+        public Projectile GetProjectile(int id)
+        {
+            if (projectileDictionary.TryGetValue(id, out var p))
+            {
+                return p;
+            }
+            return null;
+        }
 
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(Main.testFont, "PROJECTILE MANAGER PROJ COUNT: " + projectiles.Count.ToString(), new Vector2(10, 300), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "PROJECTILE MANAGER PROJECTILE COUNT: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, Color.White, 1f, 0.99f);
             foreach (Projectile p in projectiles)
             {
                 p.Draw(spriteBatch);

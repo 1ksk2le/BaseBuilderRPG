@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Display_Text_Manager
+    public class Text_Manager
     {
         private List<Display_Text> _texts;
         private SpriteFont _font;
 
-        public Display_Text_Manager(SpriteFont font)
+        public Text_Manager(SpriteFont font)
         {
             this._texts = new List<Display_Text>();
             this._font = font;

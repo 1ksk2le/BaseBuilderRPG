@@ -12,13 +12,13 @@ namespace BaseBuilderRPG.Content
         private static Dictionary<int, NPC> npcDictionary;
 
         public List<NPC> npcs;
-        private List<NPC> npcsToRemove;
-        private List<Player> players;
-        private List<Projectile> projectiles;
-        private Item_Manager itemManager;
-        private Display_Text_Manager disTextManager;
+        private readonly List<NPC> npcsToRemove;
+        private readonly List<Player> players;
+        private readonly List<Projectile> projectiles;
+        private readonly Item_Manager itemManager;
+        private readonly Text_Manager disTextManager;
 
-        public NPC_Manager(Game game, SpriteBatch spriteBatch, Item_Manager _itemManager, Display_Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
+        public NPC_Manager(Game game, SpriteBatch spriteBatch, Item_Manager _itemManager, Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -52,7 +52,7 @@ namespace BaseBuilderRPG.Content
         {
             if (npcDictionary.TryGetValue(id, out var npc))
             {
-                npcs.Add(new NPC(npc.texture, npc.texturePath, id, npc.ai, position, npc.name, npc.damage, npc.maxHealth, npc.knockBack, npc.knockBackRes, npc.numFrames, true));
+                npcs.Add(new NPC(npc.texture, npc.texturePath, id, npc.ai, position, npc.name, npc.damage, npc.healthMax, npc.knockBack, npc.knockBackRes, npc.targetRange, npc.numFrames, true));
             }
         }
 
@@ -83,16 +83,16 @@ namespace BaseBuilderRPG.Content
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
-            spriteBatch.DrawString(Main.testFont, "NPC MANAGER NPC COUNT: " + npcs.Count.ToString(), new Vector2(10, 400), Color.Black, 0, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "NPC MANAGER NPC COUNT: " + npcs.Count.ToString(), new Vector2(10, 380), Color.Black, Color.White, 1f, 0.99f);
             foreach (NPC npc in npcs)
             {
                 if (npc.texture != null && npc.isAlive)
                 {
                     npc.Draw(spriteBatch);
-                    if (npc.health < npc.maxHealth)
+                    if (npc.health < npc.healthMax)
                     {
                         var pos = npc.position + new Vector2(0, npc.height + 6);
-                        float healthBarWidth = npc.width * ((float)npc.health / (float)npc.maxHealth);
+                        float healthBarWidth = npc.width * ((float)npc.health / (float)npc.healthMax);
 
                         Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(npc.width) + 4, 4);
                         Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(pos.X), (int)pos.Y, (int)(npc.width), 2);
@@ -104,7 +104,7 @@ namespace BaseBuilderRPG.Content
                     }
 
                     Vector2 textSize = Main.testFont.MeasureString(npc.name);
-                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.position.X + npc.width / 2 - textSize.X / 2, npc.position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
+                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.position.X + npc.origin.X / 2 - textSize.X / 2, npc.position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
                 }
             }
             spriteBatch.End();
