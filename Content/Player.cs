@@ -14,7 +14,7 @@ namespace BaseBuilderRPG.Content
         public int health { get; set; }
         public int maxHealth { get; set; }
         public float skinColorFloat { get; set; }
-        public bool isPicked { get; set; }
+        public bool isControlled { get; set; }
         public string name { get; set; }
 
         public Item equippedWeapon, mouseItem, hoveredItem;
@@ -24,14 +24,14 @@ namespace BaseBuilderRPG.Content
         private MouseState pMouse;
         private KeyboardState pKey;
         public Color skinColor;
-        public Vector2 velocity, target, origin, center;
+        public Vector2 velocity, target, origin, center, targetMovement;
         public Rectangle rectangle, rectangleMelee;
         private Rectangle rectangleMeleeAI;
         public int direction = 1;
         public int width, height;
-        public float immunityTime, immunityTimeMax, useTimer, meleeRange, rangedRange, rotationAngle;
-        public bool inventoryVisible, isImmune, isSwinging, canHit, didSpawn;
-        private bool aiAttackCheck = false;
+        public float immunityTime, immunityTimeMax, useTimer, meleeRange, rangedRange, rotationAngle, speed;
+        public bool inventoryVisible, isImmune, isSwinging, isPicked, canHit, didSpawn, hasMovementOrder;
+        private bool aiAttackCheck;
         private string aiState;
 
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, string name, Vector2 position, int healthMax, float skinColor, bool isActive)
@@ -44,21 +44,23 @@ namespace BaseBuilderRPG.Content
             textureBody = texture;
             textureHead = headTexture;
             textureEye = eyeTexture;
-            health = 100;
-            isPicked = isActive;
+            isControlled = isActive;
             maxHealth = healthMax;
             health = maxHealth;
             immunityTimeMax = 0.4f;
+            speed = 1.5f;
             immunityTime = 0f;
+            targetMovement = center;
             width = textureBody.Width;
             height = textureBody.Height;
             origin = new Vector2(width / 2, height / 2);
-            meleeRange = 2000f;
             inventory = new Inventory(5, 6);
             inventoryVisible = true;
             canHit = true;
             didSpawn = false;
             aiAttackCheck = false;
+            hasMovementOrder = false;
+            isPicked = false;
             aiState = "";
         }
 
@@ -69,14 +71,18 @@ namespace BaseBuilderRPG.Content
 
             if (equippedWeapon != null)
             {
+                meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
                 if (equippedWeapon.damageType == "ranged")
                 {
                     rangedRange = projManager.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * 60;
                 }
-                Vector2 pos = (direction == 1) ? new Vector2(width + equippedWeapon.texture.Height * 0.2f, height / 2)
-                                           : new Vector2(-equippedWeapon.texture.Height * 0.2f, height / 2);
-                rectangleMelee = CalcMeleeRectangle(position + pos, (int)(equippedWeapon.texture.Width), (int)(equippedWeapon.texture.Height * 1.1f), rotationAngle);
-                rectangleMeleeAI = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2), (int)(center.Y - equippedWeapon.texture.Height * 1.2f / 2), (int)(equippedWeapon.texture.Height), (int)(equippedWeapon.texture.Height * 1.2f));
+                else if (equippedWeapon.damageType == "melee")
+                {
+                    Vector2 pos = (direction == 1) ? new Vector2(width + equippedWeapon.texture.Height * 0.2f, height / 2)
+                                               : new Vector2(-equippedWeapon.texture.Height * 0.2f, height / 2);
+                    rectangleMelee = CalcMeleeRectangle(position + pos, (int)(equippedWeapon.texture.Width), (int)(equippedWeapon.texture.Height * 1.1f), rotationAngle);
+                    rectangleMeleeAI = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2), (int)(center.Y - equippedWeapon.texture.Height * 1.2f / 2), (int)(equippedWeapon.texture.Height), (int)(equippedWeapon.texture.Height * 1.2f));
+                }
             }
 
             KeyboardState keyboardState = Keyboard.GetState();
@@ -102,7 +108,7 @@ namespace BaseBuilderRPG.Content
 
             if (health > 0f)
             {
-                if (!isPicked)
+                if (!isControlled)
                 {
                     AI(gameTime, npcs, projManager);
 
@@ -112,7 +118,6 @@ namespace BaseBuilderRPG.Content
                     Shoot(gameTime, projManager, new Vector2(pMouse.X, pMouse.Y));
                     aiState = "";
                     PlayerInventoryInteractions(Keys.I, groundItems);
-                    Movement(Vector2.Zero, keyboardState);
                     Random rand = new Random();
                     AddItem(Keys.X, true, rand.Next(0, 11), itemDictionary, itemManager, groundItems, items);
                     inventory.SortItems(pMouse);
@@ -120,6 +125,11 @@ namespace BaseBuilderRPG.Content
                     {
                         if (item.PlayerClose(this, 40f) && Keyboard.GetState().IsKeyDown(Keys.F) && !pKey.IsKeyDown(Keys.F) && item.onGround && !inventory.IsFull())
                         {
+                            string text = "Picked: " + item.prefixName + " " + item.name + " " + item.suffixName;
+                            Vector2 textSize = Main.testFont.MeasureString(text);
+
+                            Vector2 textPos = position + new Vector2(-textSize.X / 5f, -20);
+                            textManager.AddFloatingText("Picked: ", (item.prefixName + " " + item.name + " " + item.suffixName), textPos, Color.White, item.rarityColor, 0.75f, 0.9f);
                             inventory.PickItem(textManager, this, item, groundItems);
                         }
                     }
@@ -132,6 +142,7 @@ namespace BaseBuilderRPG.Content
                         OneHandedSwing(gameTime);
                     }
                 }
+                Movement(Vector2.Zero, keyboardState);
             }
 
             pKey = Keyboard.GetState();
@@ -172,9 +183,13 @@ namespace BaseBuilderRPG.Content
                                 direction = 1;
                             }
 
-                            Vector2 targetDirection = target - center;
-                            targetDirection.Normalize();
-                            position += targetDirection * 1.5f;
+                            if (!hasMovementOrder)
+                            {
+                                Vector2 targetDirection = target - center;
+                                targetDirection.Normalize();
+                                position += targetDirection * speed;
+                            }
+
                             aiState = "Moving to target: [" + targetNPC.name + "]";
                         }
                         else
@@ -218,10 +233,14 @@ namespace BaseBuilderRPG.Content
                                 direction = 1;
                             }
 
-                            Vector2 targetDirection = target - center;
-                            targetDirection.Normalize();
-                            position += targetDirection * 1.5f;
-                            aiState = "Moving to target: [" + targetNPC.name + "]";
+                            if (!hasMovementOrder)
+                            {
+                                Vector2 targetDirection = target - center;
+                                targetDirection.Normalize();
+                                position += targetDirection * speed;
+                                aiState = "Moving to target: [" + targetNPC.name + "]";
+                            }
+
                         }
                         else
                         {
@@ -235,11 +254,13 @@ namespace BaseBuilderRPG.Content
                                 {
                                     direction = 1;
                                 }
-
-                                Vector2 targetDirection = target - center;
-                                targetDirection.Normalize();
-                                position -= targetDirection * 1.5f;
-                                aiState = "Running away from: [" + targetNPC.name + "]";
+                                if (!hasMovementOrder)
+                                {
+                                    Vector2 targetDirection = target - center;
+                                    targetDirection.Normalize();
+                                    position -= targetDirection * speed;
+                                    aiState = "Running away from: [" + targetNPC.name + "]";
+                                }
                             }
                             else
                             {
@@ -263,7 +284,7 @@ namespace BaseBuilderRPG.Content
             {
                 float start = (direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                 float end = (direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
-                if (isPicked)
+                if (isControlled)
                 {
                     if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                     {
@@ -310,11 +331,11 @@ namespace BaseBuilderRPG.Content
         }
 
 
-        private void Movement(Vector2 movement, KeyboardState keyboardState, float Speed = 1.5f)
+        private void Movement(Vector2 movement, KeyboardState keyboardState)
         {
             MouseState mouseState = Mouse.GetState();
 
-            if (isPicked)
+            if (isControlled)
             {
                 if (position.X > mouseState.X)
                 {
@@ -327,25 +348,55 @@ namespace BaseBuilderRPG.Content
 
 
                 if (keyboardState.IsKeyDown(Keys.W))
-                    movement.Y = -Speed;
+                    movement.Y = -speed;
                 if (keyboardState.IsKeyDown(Keys.S))
-                    movement.Y = Speed;
+                    movement.Y = speed;
                 if (keyboardState.IsKeyDown(Keys.A))
-                    movement.X = -Speed;
+                    movement.X = -speed;
                 if (keyboardState.IsKeyDown(Keys.D))
-                    movement.X = Speed;
+                    movement.X = speed;
 
                 if (movement != Vector2.Zero)
                     movement.Normalize();
 
-                velocity = movement * Speed;
+                velocity = movement * speed;
 
                 position += velocity;
             }
+
+            if (hasMovementOrder && !isControlled)
+            {
+                aiState = "Moving to: [" + targetMovement.ToString() + "]";
+                direction = (position.X > targetMovement.X) ? -1 : 1;
+
+                float distanceThreshold = 1f;
+                float deltaX = targetMovement.X - center.X;
+                float deltaY = targetMovement.Y - center.Y;
+                float distance = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                if (distance < distanceThreshold)
+                {
+                    hasMovementOrder = false;
+                }
+                else
+                {
+                    float directionX = deltaX / distance;
+                    float directionY = deltaY / distance;
+                    float newPositionX = position.X + directionX * speed;
+                    float newPositionY = position.Y + directionY * speed;
+                    position = new Vector2(newPositionX, newPositionY);
+                }
+            }
             else
             {
-                velocity = Vector2.Zero;
+                if (isControlled)
+                {
+                    isPicked = false;
+                }
+                targetMovement = center;
+                hasMovementOrder = false;
             }
+
         }
 
         private Color GetSkinColor(float progress)
@@ -358,7 +409,7 @@ namespace BaseBuilderRPG.Content
         public void GetDamaged(Text_Manager texMan, int damage)
         {
             health -= damage;
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + textureBody.Width / 2, position.Y), Color.Red, Color.Transparent, 1f, 1.1f);
+            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + textureBody.Width / 2, position.Y), Color.Red, Color.Transparent, 0.75f, 1.1f);
             immunityTime = immunityTimeMax;
         }
 
@@ -371,7 +422,7 @@ namespace BaseBuilderRPG.Content
             {
                 inventoryVisible = false;
             }
-            if (isPicked && Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            if (isControlled && Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
                 if (inventoryVisible)
                 {
@@ -384,7 +435,7 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-            if (isPicked && inventoryVisible)
+            if (isControlled && inventoryVisible)
             {
                 for (int i = 0; i < inventory.equipmentSlots.Count; i++)
                 {
@@ -432,7 +483,7 @@ namespace BaseBuilderRPG.Content
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
             {
-                if (isPicked && inventoryVisible)
+                if (isControlled && inventoryVisible)
                 {
                     for (int y = 0; y < inventory.height; y++)
                     {
@@ -485,7 +536,7 @@ namespace BaseBuilderRPG.Content
 
             if (Mouse.GetState().RightButton == ButtonState.Pressed && pMouse.RightButton == ButtonState.Released)
             {
-                if (isPicked)
+                if (isControlled)
                 {
                     if (mouseItem != null)
                     {
@@ -545,7 +596,7 @@ namespace BaseBuilderRPG.Content
 
                 if (addInventory)
                 {
-                    if (isPicked)
+                    if (isControlled)
                     {
                         if (itemDictionary.TryGetValue(itemID, out var itemData))
                         {
@@ -572,7 +623,7 @@ namespace BaseBuilderRPG.Content
 
                 if (useTimer <= 0)
                 {
-                    if (isPicked)
+                    if (isControlled)
                     {
                         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                         {
@@ -612,9 +663,9 @@ namespace BaseBuilderRPG.Content
                 {
                     if (equippedWeapon.damageType == "melee")
                     {
-                        spriteBatch.DrawCircle(center, meleeRange, Color.Blue, 64, 0.012f);
-                        spriteBatch.DrawRectangleWithBorder(rectangleMelee, Color.Blue, 1f, 0.011f);
-                        spriteBatch.DrawRectangleWithBorder(rectangleMeleeAI, Color.Cyan, 1f, 0.011f);
+                        spriteBatch.DrawCircle(center, meleeRange, Color.Cyan, 64, 0.012f);
+                        spriteBatch.DrawRectangleBorder(rectangleMelee, Color.Blue, 1f, 0.011f);
+                        spriteBatch.DrawRectangleBorder(rectangleMeleeAI, Color.Cyan, 1f, 0.011f);
                     }
                     else if (equippedWeapon.damageType == "ranged")
                     {
@@ -623,15 +674,29 @@ namespace BaseBuilderRPG.Content
                     }
 
                 }
+                if (hasMovementOrder)
+                {
+                    spriteBatch.DrawLine(center, targetMovement, Color.Indigo, 0.013f);
+                    spriteBatch.DrawCircle(targetMovement, 16f, Color.Indigo, 64, 0.012f);
+
+                }
                 spriteBatch.DrawCircle(center, 4f, Color.Blue * 1.5f, 64, 1f);
-                spriteBatch.DrawLine(center, target, Color.Blue, 0.013f);
-                spriteBatch.DrawRectangleWithBorder(rectangle, Color.Blue, 1f, 0.012f);
+                spriteBatch.DrawRectangleBorder(rectangle, Color.Blue, 1f, 0.012f);
+                if (!isControlled && target != Vector2.Zero)
+                {
+                    spriteBatch.DrawLine(center, target, Color.Blue, 0.013f);
+                }
             }
 
             PreDraw(spriteBatch);
 
             Color nameColor;
-            if (rectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+
+            if (isPicked)
+            {
+                nameColor = Color.OrangeRed;
+            }
+            else if (rectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
             {
                 nameColor = Color.Lime;
             }
@@ -639,14 +704,19 @@ namespace BaseBuilderRPG.Content
             {
                 nameColor = Color.White;
             }
+
             Vector2 textPosition = position + new Vector2(0, -14);
             textPosition.X = position.X + width / 2 - Main.testFont.MeasureString(name).X / 2;
 
             Vector2 textPosition2 = position + new Vector2(0, height + 10);
             textPosition2.X = position.X + width / 2 - Main.testFont.MeasureString(aiState).X / 2;
 
-            spriteBatch.DrawStringWithOutline(Main.testFont, name, textPosition, Color.Black, isPicked ? Color.Yellow : nameColor, 1f, isPicked ? 0.8616f : 0.7616f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, aiState, textPosition2, Color.Black, isPicked ? Color.Yellow : nameColor, 1f, isPicked ? 0.8617f : 0.7617f);
+            Vector2 textPosition3 = position + new Vector2(0, height + 20);
+            textPosition3.X = position.X + width / 2 - Main.testFont.MeasureString(aiState).X / 2;
+
+            spriteBatch.DrawStringWithOutline(Main.testFont, name, textPosition, Color.Black, isControlled ? Color.Yellow : nameColor, 1f, isControlled ? 0.8616f : 0.7616f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, aiState, textPosition2, Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, (!isControlled) ? "Controlled by AI" : "", textPosition3 + new Vector2(0, 20), Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
 
             SpriteEffects eff = (direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             MouseState mouseState = Mouse.GetState();
@@ -657,9 +727,9 @@ namespace BaseBuilderRPG.Content
             float rotation = (float)Math.Atan2(directionToMouse.Y * direction, directionToMouse.X * direction);
             rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
 
-            spriteBatch.Draw(textureBody, position, null, Color.Lerp(skinColor, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, isPicked ? 0.851f : 0.751f);
+            spriteBatch.Draw(textureBody, position, null, Color.Lerp(skinColor, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, isControlled ? 0.851f : 0.751f);
 
-            if (isPicked)
+            if (isControlled)
             {
                 Vector2 headOrigin = new Vector2(textureHead.Width / 2, textureHead.Height);
                 Vector2 eyesOrigin = new Vector2(textureEye.Width / 2, (textureEye.Height) / 2);
@@ -678,7 +748,7 @@ namespace BaseBuilderRPG.Content
 
             PostDraw(spriteBatch, rotation);
 
-            if (isPicked && inventoryVisible)
+            if (isControlled && inventoryVisible)
             {
                 inventory.Draw(spriteBatch, this);
             }
@@ -701,11 +771,11 @@ namespace BaseBuilderRPG.Content
 
                     if (isSwinging)
                     {
-                        spriteBatch.Draw(equippedWeapon.texture, weaponPosition, null, Color.White, rotationAngle, weaponOrigin, 0.8f, eff, isPicked ? 0.841f : 0.741f);
+                        spriteBatch.Draw(equippedWeapon.texture, weaponPosition, null, Color.White, rotationAngle, weaponOrigin, 0.8f, eff, isControlled ? 0.841f : 0.741f);
                     }
                     else
                     {
-                        spriteBatch.Draw(equippedWeapon.texture, weaponPosition, null, Color.White, end, weaponOrigin, 0.8f, eff, isPicked ? 0.841f : 0.741f);
+                        spriteBatch.Draw(equippedWeapon.texture, weaponPosition, null, Color.White, end, weaponOrigin, 0.8f, eff, isControlled ? 0.841f : 0.741f);
                     }
                 }
             }
@@ -724,9 +794,9 @@ namespace BaseBuilderRPG.Content
 
                 if (health < maxHealth)
                 {
-                    spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, isPicked ? 0.8613f : 0.7613f);
-                    spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, isPicked ? 0.8614f : 0.7614f);
-                    spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, isPicked ? 0.8615f : 0.7615f);
+                    spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, isControlled ? 0.8613f : 0.7613f);
+                    spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, isControlled ? 0.8614f : 0.7614f);
+                    spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, isControlled ? 0.8615f : 0.7615f);
                 }
             }
 
@@ -734,11 +804,11 @@ namespace BaseBuilderRPG.Content
             SpriteEffects eff = (direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             if (inventory.equipmentSlots[2].equippedItem != null) //Offhand
             {
-                spriteBatch.Draw(inventory.equipmentSlots[2].equippedItem.texture, position + new Vector2(direction == 1 ? 0 : 22, height / 1.2f), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), 0f, origin, 0.8f, SpriteEffects.None, isPicked ? 0.8612f : 0.7612f);
+                spriteBatch.Draw(inventory.equipmentSlots[2].equippedItem.texture, position + new Vector2(direction == 1 ? 0 : 22, height / 1.2f), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), 0f, origin, 0.8f, SpriteEffects.None, isControlled ? 0.8612f : 0.7612f);
             }
             if (inventory.equipmentSlots[1].equippedItem != null)//Body Armor
             {
-                spriteBatch.Draw(inventory.equipmentSlots[1].equippedItem.texture, position + new Vector2(0, 22), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, isPicked ? 0.8519f : 0.7519f);
+                spriteBatch.Draw(inventory.equipmentSlots[1].equippedItem.texture, position + new Vector2(0, 22), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, isControlled ? 0.8519f : 0.7519f);
             }
             if (inventory.equipmentSlots[4].equippedItem != null)//Head Armor
             {
@@ -754,7 +824,7 @@ namespace BaseBuilderRPG.Content
                         headOffset = 0;
                         break;
                 }
-                spriteBatch.Draw(inventory.equipmentSlots[4].equippedItem.texture, position + new Vector2(textureHead.Width / 2 - headOffset * direction, textureHead.Height), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), isPicked ? headRot : 0f, headOrigin, 1f, eff, isPicked ? 0.8611f : 0.7611f);
+                spriteBatch.Draw(inventory.equipmentSlots[4].equippedItem.texture, position + new Vector2(textureHead.Width / 2 - headOffset * direction, textureHead.Height), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), isControlled ? headRot : 0f, headOrigin, 1f, eff, isControlled ? 0.8611f : 0.7611f);
             }
         }
     }

@@ -54,6 +54,7 @@ namespace BaseBuilderRPG
             graphics.ApplyChanges();
         }
 
+        private Vector2 lightPosition;
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -121,6 +122,7 @@ namespace BaseBuilderRPG
 
         protected override void Update(GameTime gameTime)
         {
+            lightPosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             if (npcs.Count <= 0)
             {
                 for (int i = 0; i < 10; i++)
@@ -129,15 +131,6 @@ namespace BaseBuilderRPG
                     Random rnd2 = new Random();
                     npcManager.NewNPC(1, new Vector2(rnd.Next(0, graphics.PreferredBackBufferWidth), rnd2.Next(0, graphics.PreferredBackBufferHeight)));
                 }
-            }
-
-
-            if (players.Count <= 0)
-            {
-                players.Add(new Player(playerManager._texture, playerManager._textureHead, playerManager._textureEyes, "Warrior", new Vector2(10, 10), 200000, 0.2f, true));
-                players[0].equippedWeapon = items[10];
-                players.Add(new Player(playerManager._texture, playerManager._textureHead, playerManager._textureEyes, "Archer", new Vector2(500, 500), 200000, 0.8f, true));
-                players[1].equippedWeapon = items[3];
             }
 
             foreach (Player p in players)
@@ -219,6 +212,8 @@ namespace BaseBuilderRPG
             base.Draw(gameTime);
 
             spriteBatch.Begin();
+
+
             if (drawDebugRectangles)
             {
                 spriteBatch.DrawRectangle(new Rectangle(10, graphics.PreferredBackBufferHeight - 32, 16, 16), Color.Cyan, 1f);

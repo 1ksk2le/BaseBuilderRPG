@@ -124,7 +124,7 @@ namespace BaseBuilderRPG.Content
                 if (Main.drawDebugRectangles)
                 {
                     spriteBatch.DrawCircle(center, 4f, Color.Lime * 1.5f, 64, 1f);
-                    spriteBatch.DrawRectangleWithBorder(rectangle, Color.Lime, 1f, 0.01f);
+                    spriteBatch.DrawRectangleBorder(rectangle, Color.Lime, 1f, 0.01f);
                 }
             }
         }

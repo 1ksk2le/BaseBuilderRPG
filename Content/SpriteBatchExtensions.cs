@@ -23,13 +23,14 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public static void DrawRectangleWithBorder(this SpriteBatch spriteBatch, Rectangle rectangle, Color borderColor, float borderWidth, float layerDepth)
+        public static void DrawRectangleBorder(this SpriteBatch spriteBatch, Rectangle rectangle, Color borderColor, float borderWidth, float layerDepth)
         {
-            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Y, rectangle.Width, (int)borderWidth), borderColor, layerDepth);
-            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Bottom - (int)borderWidth, rectangle.Width, (int)borderWidth), borderColor, layerDepth);
-            spriteBatch.DrawRectangle(new Rectangle(rectangle.X, rectangle.Y, (int)borderWidth, rectangle.Height), borderColor, layerDepth);
-            spriteBatch.DrawRectangle(new Rectangle(rectangle.Right - (int)borderWidth, rectangle.Y, (int)borderWidth, rectangle.Height), borderColor, layerDepth);
+            spriteBatch.DrawLine(new Vector2(rectangle.X, rectangle.Y), new Vector2(rectangle.Right, rectangle.Y), borderColor, layerDepth);
+            spriteBatch.DrawLine(new Vector2(rectangle.X, rectangle.Bottom), new Vector2(rectangle.Right, rectangle.Bottom), borderColor, layerDepth);
+            spriteBatch.DrawLine(new Vector2(rectangle.X, rectangle.Y), new Vector2(rectangle.X, rectangle.Bottom), borderColor, layerDepth);
+            spriteBatch.DrawLine(new Vector2(rectangle.Right, rectangle.Y), new Vector2(rectangle.Right, rectangle.Bottom), borderColor, layerDepth);
         }
+
 
         public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, Color color, int segments, float layerDepth)
         {
@@ -54,5 +55,21 @@ namespace BaseBuilderRPG.Content
 
             spriteBatch.Draw(Main.pixel, start, null, color, angle, Vector2.Zero, new Vector2(edge.Length(), 1), SpriteEffects.None, layerDepth);
         }
+
+        public static void DrawRectangleOutlineBetweenPoints(this SpriteBatch spriteBatch, Vector2 startPoint, Vector2 endPoint, Color color, float layerDepth)
+        {
+            Vector2[] corners = new Vector2[4];
+            corners[0] = startPoint;
+            corners[1] = new Vector2(endPoint.X, startPoint.Y);
+            corners[2] = endPoint;
+            corners[3] = new Vector2(startPoint.X, endPoint.Y);
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nextIndex = (i + 1) % 4;
+                spriteBatch.DrawLine(corners[i], corners[nextIndex], color, layerDepth);
+            }
+        }
+
     }
 }

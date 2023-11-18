@@ -205,12 +205,6 @@ namespace BaseBuilderRPG.Content
 
                             if (item.onGround)
                             {
-                                string text = "Picked: " + item.prefixName + " " + item.name + " " + item.suffixName;
-                                Vector2 textSize = Main.testFont.MeasureString(text);
-
-                                Vector2 textPos = player.position + new Vector2(-textSize.X / 5f, -20);
-                                textManager.AddFloatingText("Picked: ", (item.prefixName + " " + item.name + " " + item.suffixName), textPos, Color.White, item.rarityColor, 1f, 0.9f);
-
                                 droppedItems.Remove(item);
                             }
 

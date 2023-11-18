@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,9 @@ namespace BaseBuilderRPG.Content
         SpriteBatch spriteBatch;
         public List<NPC> npcs;
         public List<Player> players;
+        private List<Player> pickedPlayers;
         public List<Player> playersToRemove;
+        private List<Player> pickedPlayersToRemove;
         private List<Item> items;
         private List<Item> groundItems;
         private List<Item> itemsToRemove;
@@ -23,6 +26,7 @@ namespace BaseBuilderRPG.Content
         public Texture2D _textureHead;
         public Texture2D _textureEyes;
         private KeyboardState pKey;
+        private MouseState pMouse;
 
         public Player_Manager(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
             Item> _itemDictionary, Item_Manager _itemManager, Projectile_Manager _projManager, Text_Manager _textManager, KeyboardState _keyboardState)
@@ -35,7 +39,9 @@ namespace BaseBuilderRPG.Content
             _textureEyes = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Eyes");
 
             players = new List<Player>();
+            pickedPlayers = new List<Player>();
             playersToRemove = new List<Player>();
+            pickedPlayersToRemove = new List<Player>();
             npcs = _npcs;
             items = _items;
             groundItems = _groundItems;
@@ -49,8 +55,12 @@ namespace BaseBuilderRPG.Content
 
         public void Load()
         {
-
+            players.Add(new Player(_texture, _textureHead, _textureEyes, "Warrior", new Vector2(300, 300), 200000, 0.2f, false));
+            players.Add(new Player(_texture, _textureHead, _textureEyes, "Archer", new Vector2(500, 500), 200000, 0.8f, false));
         }
+
+        private Vector2 startPos, endPos;
+        private bool isSelecting;
 
         public override void Update(GameTime gameTime)
         {
@@ -59,6 +69,7 @@ namespace BaseBuilderRPG.Content
                 if (player.health > 0)
                 {
                     player.Update(gameTime, itemDictionary, itemManager, textManager, projManager, npcs, groundItems, items);
+                    MovementOrder(player);
                 }
                 else
                 {
@@ -77,6 +88,21 @@ namespace BaseBuilderRPG.Content
             base.Update(gameTime);
         }
 
+
+
+
+        private void MovementOrder(Player player)
+        {
+            if (Mouse.GetState().RightButton == ButtonState.Pressed && pMouse.RightButton == ButtonState.Released)
+            {
+                if (player.isPicked)
+                {
+                    player.targetMovement = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                    player.hasMovementOrder = true;
+                }
+            }
+        }
+
         public override void Draw(GameTime gameTime) //8617f max
         {
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
@@ -84,20 +110,37 @@ namespace BaseBuilderRPG.Content
             {
                 player.Draw(spriteBatch);
             }
+
+            if (startPos != Vector2.Zero)
+            {
+                spriteBatch.DrawRectangleOutlineBetweenPoints(startPos, endPos, Color.Black, 1f);
+            }
             spriteBatch.End();
             base.Draw(gameTime);
         }
+
+        public static Rectangle RectangleBetweenTwoPoints(Vector2 startPoint, Vector2 endPoint)
+        {
+            float x = Math.Min(startPoint.X, endPoint.X);
+            float y = Math.Min(startPoint.Y, endPoint.Y);
+            float width = Math.Abs(endPoint.X - startPoint.X);
+            float height = Math.Abs(endPoint.Y - startPoint.Y);
+
+            return new Rectangle((int)x, (int)y, (int)width, (int)height);
+        }
+
+
 
         private void PlayerSelect(List<Player> players, Keys key)
         {
             if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
             {
 
-                Player activePlayer = players.FirstOrDefault(p => p.isPicked);
+                Player activePlayer = players.FirstOrDefault(p => p.isControlled);
 
                 if (activePlayer != null)
                 {
-                    activePlayer.isPicked = false;
+                    activePlayer.isControlled = false;
                 }
 
                 Player closestPlayer = null;
@@ -113,8 +156,54 @@ namespace BaseBuilderRPG.Content
 
                 if (closestPlayer != null)
                 {
-                    closestPlayer.isPicked = true;
+                    closestPlayer.isControlled = true;
                 }
+            }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                isSelecting = true;
+                startPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            }
+
+            if (!isSelecting)
+            {
+                startPos = Vector2.Zero;
+                endPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            }
+
+            if (Mouse.GetState().LeftButton == ButtonState.Released && isSelecting)
+            {
+                foreach (Player player in players)
+                {
+                    player.isPicked = false;
+                }
+
+                bool anyPlayerSelected = false;
+
+                foreach (Player player in players)
+                {
+                    if (player.rectangle.Intersects(RectangleBetweenTwoPoints(startPos, endPos)))
+                    {
+                        if (!player.isControlled)
+                        {
+                            player.isPicked = true;
+                            anyPlayerSelected = true;
+                        }
+                        else
+                        {
+                            player.isPicked = false;
+                        }
+                    }
+                }
+
+                if (!anyPlayerSelected)
+                {
+                    startPos = Vector2.Zero;
+                    endPos = Vector2.Zero;
+                }
+
+                isSelecting = false;
             }
         }
 
