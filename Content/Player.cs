@@ -366,7 +366,7 @@ namespace BaseBuilderRPG.Content
 
             if (hasMovementOrder && !isControlled)
             {
-                aiState = "Moving to: [" + targetMovement.ToString() + "]";
+
                 direction = (position.X > targetMovement.X) ? -1 : 1;
 
                 float distanceThreshold = 1f;
@@ -376,6 +376,7 @@ namespace BaseBuilderRPG.Content
 
                 if (distance < distanceThreshold)
                 {
+                    aiState = "";
                     hasMovementOrder = false;
                 }
                 else
@@ -384,6 +385,7 @@ namespace BaseBuilderRPG.Content
                     float directionY = deltaY / distance;
                     float newPositionX = position.X + directionX * speed;
                     float newPositionY = position.Y + directionY * speed;
+                    aiState = "Moving to: [" + targetMovement.ToString() + "]";
                     position = new Vector2(newPositionX, newPositionY);
                 }
             }
@@ -659,6 +661,15 @@ namespace BaseBuilderRPG.Content
         {
             if (Main.drawDebugRectangles)
             {
+                Vector2 textPosition2 = position + new Vector2(0, height + 20);
+                textPosition2.X = position.X + width / 2 - Main.testFont.MeasureString(aiState).X / 2;
+
+                Vector2 textPosition3 = center + new Vector2(0, height);
+                textPosition3.X = center.X + width / 2 - Main.testFont.MeasureString("Controlled by AI").X / 2;
+
+                spriteBatch.DrawStringWithOutline(Main.testFont, aiState, textPosition2, Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
+                spriteBatch.DrawStringWithOutline(Main.testFont, (!isControlled) ? "Controlled by AI" : "", textPosition3 + new Vector2(0, -20), Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
+
                 if (equippedWeapon != null)
                 {
                     if (equippedWeapon.damageType == "melee")
@@ -677,7 +688,6 @@ namespace BaseBuilderRPG.Content
                 if (hasMovementOrder)
                 {
                     spriteBatch.DrawLine(center, targetMovement, Color.Indigo, 0.013f);
-                    spriteBatch.DrawCircle(targetMovement, 16f, Color.Indigo, 64, 0.012f);
 
                 }
                 spriteBatch.DrawCircle(center, 4f, Color.Blue * 1.5f, 64, 1f);
@@ -686,6 +696,12 @@ namespace BaseBuilderRPG.Content
                 {
                     spriteBatch.DrawLine(center, target, Color.Blue, 0.013f);
                 }
+            }
+
+            if (hasMovementOrder)
+            {
+                spriteBatch.DrawCircle(targetMovement, 8f, Color.Lime, 64, 0.012f);
+
             }
 
             PreDraw(spriteBatch);
@@ -708,15 +724,8 @@ namespace BaseBuilderRPG.Content
             Vector2 textPosition = position + new Vector2(0, -14);
             textPosition.X = position.X + width / 2 - Main.testFont.MeasureString(name).X / 2;
 
-            Vector2 textPosition2 = position + new Vector2(0, height + 10);
-            textPosition2.X = position.X + width / 2 - Main.testFont.MeasureString(aiState).X / 2;
-
-            Vector2 textPosition3 = position + new Vector2(0, height + 20);
-            textPosition3.X = position.X + width / 2 - Main.testFont.MeasureString(aiState).X / 2;
-
             spriteBatch.DrawStringWithOutline(Main.testFont, name, textPosition, Color.Black, isControlled ? Color.Yellow : nameColor, 1f, isControlled ? 0.8616f : 0.7616f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, aiState, textPosition2, Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, (!isControlled) ? "Controlled by AI" : "", textPosition3 + new Vector2(0, 20), Color.Black, Color.White, 1f, isControlled ? 0.8617f : 0.7617f);
+
 
             SpriteEffects eff = (direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             MouseState mouseState = Mouse.GetState();

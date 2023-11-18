@@ -91,7 +91,7 @@ namespace BaseBuilderRPG.Content
                     npc.Draw(spriteBatch);
                     if (npc.health < npc.healthMax)
                     {
-                        var pos = npc.position + new Vector2(0, npc.height + 6);
+                        var pos = npc.position + new Vector2(0, npc.height);
                         float healthBarWidth = npc.width * ((float)npc.health / (float)npc.healthMax);
 
                         Rectangle healthBarRectangleBackground = new Rectangle((int)(pos.X - 2), (int)pos.Y - 1, (int)(npc.width) + 4, 4);
@@ -104,7 +104,7 @@ namespace BaseBuilderRPG.Content
                     }
 
                     Vector2 textSize = Main.testFont.MeasureString(npc.name);
-                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.position.X + npc.origin.X / 2 - textSize.X / 2, npc.position.Y - 14), Color.Black, Color.White, 1f, 0.693f);
+                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.center.X - textSize.X / 2, npc.center.Y - npc.height), Color.Black, Color.Coral, 1f, 0.693f);
                 }
             }
             spriteBatch.End();
