@@ -53,7 +53,7 @@ namespace BaseBuilderRPG.Content
             didSpawn = false;
         }
 
-        public void Update(GameTime gameTime, Projectile_Manager projManager)
+        public void Update(GameTime gameTime, Global_Projectile projManager)
         {
             if (!didSpawn)
             {
@@ -89,7 +89,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void Kill(Projectile_Manager projManager)
+        public void Kill(Global_Projectile projManager)
         {
             if (ai == 0)
             {

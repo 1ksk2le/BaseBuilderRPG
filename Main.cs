@@ -11,7 +11,6 @@ namespace BaseBuilderRPG
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private KeyboardState pKey;
 
         public static Texture2D pixel;
         public static Texture2D texInventory;
@@ -29,12 +28,14 @@ namespace BaseBuilderRPG
         public static int inventorySlotStartPos = 148;
 
         public static Text_Manager textManager;
-        public static NPC_Manager npcManager;
-        public static Projectile_Manager projManager;
-        public static Player_Manager playerManager;
 
-        public static Item_Manager itemManager;
+        public static Global_NPC globalNPC;
+        public static Global_Projectile globalProjectile;
+        public static Global_Player globalPlayer;
+        public static Global_Item globalItem;
+
         public static Dictionary<int, Item> itemDictionary;
+
         public static List<Item> items;
         public List<Item> itemsToRemove;
         public List<Item> groundItems;
@@ -54,7 +55,6 @@ namespace BaseBuilderRPG
             graphics.ApplyChanges();
         }
 
-        private Vector2 lightPosition;
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -62,35 +62,35 @@ namespace BaseBuilderRPG
             outlineShader = Content.Load<Effect>("Shaders/Outline");
             testFont = Content.Load<SpriteFont>("Font_Test");
 
-            projManager = new Projectile_Manager(this, spriteBatch);
-            projectiles = projManager.projectiles;
+            globalProjectile = new Global_Projectile(this, spriteBatch);
+            projectiles = globalProjectile.projectiles;
 
             textManager = new Text_Manager(testFont);
 
-            itemManager = new Item_Manager(this, spriteBatch);
-            items = itemManager.items;
-            itemsToRemove = itemManager.itemsToRemove;
-            groundItems = itemManager.groundItems;
-            itemDictionary = itemManager.itemDictionary;
+            globalItem = new Global_Item(this, spriteBatch);
+            items = globalItem.items;
+            itemsToRemove = globalItem.itemsToRemove;
+            groundItems = globalItem.groundItems;
+            itemDictionary = globalItem.itemDictionary;
 
 
-            playerManager = new Player_Manager(this, spriteBatch, npcs, items, groundItems, itemsToRemove, itemDictionary, itemManager, projManager, textManager, pKey);
-            players = playerManager.players;
+            globalPlayer = new Global_Player(this, spriteBatch, npcs, items, groundItems, itemsToRemove, itemDictionary, globalItem, globalProjectile, textManager);
+            players = globalPlayer.players;
 
-            npcManager = new NPC_Manager(this, spriteBatch, itemManager, textManager, players, projectiles);
-            npcs = npcManager.npcs;
-            playerManager.npcs = npcManager.npcs;
+            globalNPC = new Global_NPC(this, spriteBatch, globalItem, textManager, players, projectiles);
+            npcs = globalNPC.npcs;
+            globalPlayer.npcs = globalNPC.npcs;
 
-            Components.Add(itemManager);
-            Components.Add(npcManager);
-            Components.Add(projManager);
-            Components.Add(playerManager);
+            Components.Add(globalItem);
+            Components.Add(globalNPC);
+            Components.Add(globalProjectile);
+            Components.Add(globalPlayer);
 
 
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;
 
-            npcManager.NewNPC(0, new Vector2(200, 500));
+            globalNPC.NewNPC(0, new Vector2(200, 500));
 
             drawDebugRectangles = true;
             base.Initialize();
@@ -106,30 +106,31 @@ namespace BaseBuilderRPG
             pixel.SetData(new[] { Color.White });
 
             base.LoadContent();
-            projManager.Load();
-            itemManager.Load();
-            playerManager.Load();
-            npcManager.Load();
+            globalProjectile.Load();
+            globalItem.Load();
+            globalPlayer.Load();
+            globalNPC.Load();
 
             foreach (Item item in items)
             {
-                itemManager.DropItem(item.id, -1, -1, 1, new Vector2(500 + item.id * 50, 300));
+                globalItem.DropItem(item.id, -1, -1, 1, new Vector2(500 + item.id * 50, 300));
             }
         }
 
         private bool isDragging = false;
-        private Vector2 previousMousePosition;
-
         protected override void Update(GameTime gameTime)
         {
-            lightPosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            var inputManager = Input_Manager.Instance;
+            inputManager.PreUpdate();
+            inputManager.PostUpdate();
+
             if (npcs.Count <= 0)
             {
                 for (int i = 0; i < 10; i++)
                 {
                     Random rnd = new Random();
                     Random rnd2 = new Random();
-                    npcManager.NewNPC(1, new Vector2(rnd.Next(0, graphics.PreferredBackBufferWidth), rnd2.Next(0, graphics.PreferredBackBufferHeight)));
+                    globalNPC.NewNPC(1, new Vector2(rnd.Next(0, graphics.PreferredBackBufferWidth), rnd2.Next(0, graphics.PreferredBackBufferHeight)));
                 }
             }
 
@@ -140,26 +141,24 @@ namespace BaseBuilderRPG
                     p.position = new Vector2(100, 100);
                 }
             }
+
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
 
-            if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            if (closeInvSlotRectangle.Contains(inputManager.mousePosition))
             {
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                if (inputManager.IsButtonPressed(true))
                 {
 
                     if (!isDragging)
                     {
                         isDragging = true;
-                        previousMousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                     }
 
-                    float deltaX = Mouse.GetState().X - previousMousePosition.X;
-                    float deltaY = Mouse.GetState().Y - previousMousePosition.Y;
+                    float deltaX = inputManager.mousePosition.X - inputManager.previousMouseState.X;
+                    float deltaY = inputManager.mousePosition.Y - inputManager.previousMouseState.Y;
 
                     inventoryPos.X += deltaX;
                     inventoryPos.Y += deltaY;
-
-                    previousMousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                 }
                 else
                 {
@@ -173,19 +172,19 @@ namespace BaseBuilderRPG
 
             textManager.Update(gameTime);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.G) && !pKey.IsKeyDown(Keys.G))
+            if (inputManager.IsKeySinglePress(Keys.G))
             {
-                npcManager.NewNPC(1, new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                globalNPC.NewNPC(1, inputManager.mousePosition);
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.V) && !pKey.IsKeyDown(Keys.V))
+            if (inputManager.IsKeySinglePress(Keys.V))
             {
                 foreach (NPC npc in npcs)
                 {
                     npc.health = -1;
-                    npc.Kill(itemManager);
+                    npc.Kill(globalItem);
                 }
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.L) && !pKey.IsKeyDown(Keys.L))
+            if (inputManager.IsKeySinglePress(Keys.L))
             {
                 if (drawDebugRectangles)
                 {
@@ -196,9 +195,6 @@ namespace BaseBuilderRPG
                     drawDebugRectangles = true;
                 }
             }
-
-
-            pKey = Keyboard.GetState();
             base.Update(gameTime);
         }
 

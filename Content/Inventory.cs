@@ -32,6 +32,7 @@ namespace BaseBuilderRPG.Content
 
         public void Draw(SpriteBatch spriteBatch, Player player)
         {
+            var mousePosition = Input_Manager.Instance.mousePosition;
             DrawInventory(spriteBatch, player.mouseItem, player.hoveredItem);
 
             int slotSize = Main.inventorySlotSize;
@@ -43,21 +44,21 @@ namespace BaseBuilderRPG.Content
             spriteBatch.Draw(Main.texInventory, Main.inventoryPos, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.95f);
 
             Rectangle sortSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
-            if (sortSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            if (sortSlotRectangle.Contains(mousePosition))
             {
                 string text = "Sort Inventory";
                 Vector2 textSize = Main.testFont.MeasureString(text);
-                spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.testFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawRectangle(new Rectangle((int)mousePosition.X + 14, (int)mousePosition.Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
+                spriteBatch.DrawString(Main.testFont, text, new Vector2((int)mousePosition.X + 18, mousePosition.Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
             }
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
-            if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            if (closeInvSlotRectangle.Contains(Input_Manager.Instance.mousePosition))
             {
                 string text = "Close Inventory";
                 Vector2 textSize = Main.testFont.MeasureString(text);
-                spriteBatch.DrawRectangle(new Rectangle(Mouse.GetState().X + 14, Mouse.GetState().Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.testFont, text, new Vector2(Mouse.GetState().X + 18, Mouse.GetState().Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawRectangle(new Rectangle((int)mousePosition.X + 14, (int)mousePosition.Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
+                spriteBatch.DrawString(Main.testFont, text, new Vector2(mousePosition.X + 18, mousePosition.Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
             }
 
             for (int width = 0; width < player.inventory.width; width++)
@@ -310,9 +311,9 @@ namespace BaseBuilderRPG.Content
         public void SortItems(MouseState pMouse)
         {
             Rectangle slotRect = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
-            if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            if (slotRect.Contains(Input_Manager.Instance.mousePosition))
             {
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+                if (Input_Manager.Instance.IsButtonSingleClick(true))
                 {
                     List<Item> itemList = GetAllItems();
 
@@ -368,7 +369,7 @@ namespace BaseBuilderRPG.Content
         public bool IsSlotHovered(int slotX, int slotY)
         {
             Rectangle slotRect = new Rectangle(slotX, slotY, Main.inventorySlotSize, Main.inventorySlotSize);
-            return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
+            return slotRect.Contains(Input_Manager.Instance.mousePosition);
         }
 
         public bool IsEquipmentSlotHovered(int x, int y, int slot)
@@ -376,7 +377,7 @@ namespace BaseBuilderRPG.Content
             if (slot == 5)
             {
                 Rectangle slotRect = new(x, y, 44, 44);
-                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                if (slotRect.Contains(Input_Manager.Instance.mousePosition))
                 {
                     return true;
                 }
@@ -384,7 +385,7 @@ namespace BaseBuilderRPG.Content
             else
             {
                 Rectangle slotRect = new Rectangle(x, y, 44, 44);
-                if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                if (slotRect.Contains(Input_Manager.Instance.mousePosition))
                 {
                     return true;
                 }
@@ -418,8 +419,8 @@ namespace BaseBuilderRPG.Content
                     maxTextWidth = Math.Max(maxTextWidth, textSize.X);
                 }
 
-                int initialX = Mouse.GetState().X + 18;
-                int initialY = Mouse.GetState().Y;
+                int initialX = (int)Input_Manager.Instance.mousePosition.X + 18;
+                int initialY = (int)Input_Manager.Instance.mousePosition.Y;
 
                 for (int i = 0; i < hoveredItem.toolTips.Count; i++)
                 {
@@ -455,7 +456,7 @@ namespace BaseBuilderRPG.Content
 
                     if (tooltipX + (int)backgroundSize.X + 8 > /*GraphicsDevice.Viewport.Width*/1500)
                     {
-                        tooltipX = Mouse.GetState().X - (int)backgroundSize.X - 18;
+                        tooltipX = (int)Input_Manager.Instance.mousePosition.X - (int)backgroundSize.X - 18;
                     }
 
                     spriteBatch.DrawRectangle(new Rectangle(tooltipX - 8, tooltipY + 8, (int)backgroundSize.X + 6, (int)backgroundSize.Y + 6), Color.Black, 0.98210f);
@@ -475,7 +476,7 @@ namespace BaseBuilderRPG.Content
 
             if (mouseItem != null)
             {
-                spriteBatch.Draw(mouseItem.texture, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9822f);
+                spriteBatch.Draw(mouseItem.texture, Input_Manager.Instance.mousePosition, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9822f);
             }
         }
     }

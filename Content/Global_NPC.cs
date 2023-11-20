@@ -6,7 +6,7 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class NPC_Manager : DrawableGameComponent
+    public class Global_NPC : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
         private static Dictionary<int, NPC> npcDictionary;
@@ -15,10 +15,10 @@ namespace BaseBuilderRPG.Content
         private readonly List<NPC> npcsToRemove;
         private readonly List<Player> players;
         private readonly List<Projectile> projectiles;
-        private readonly Item_Manager itemManager;
+        private readonly Global_Item globalItem;
         private readonly Text_Manager disTextManager;
 
-        public NPC_Manager(Game game, SpriteBatch spriteBatch, Item_Manager _itemManager, Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
+        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item _globalItem, Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -35,7 +35,7 @@ namespace BaseBuilderRPG.Content
             }
 
             players = _players;
-            itemManager = _itemManager;
+            globalItem = _globalItem;
             disTextManager = _disTextManager;
             this.projectiles = projectiles;
         }
@@ -62,7 +62,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (npc.isAlive)
                 {
-                    npc.Update(gameTime, players, projectiles, disTextManager, itemManager);
+                    npc.Update(gameTime, players, projectiles, disTextManager, globalItem);
                 }
                 else
                 {

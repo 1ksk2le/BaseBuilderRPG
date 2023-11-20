@@ -6,14 +6,14 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Projectile_Manager : DrawableGameComponent
+    public class Global_Projectile : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
         private static Dictionary<int, Projectile> projectileDictionary;
         public List<Projectile> projectiles;
         private List<Projectile> projectilesToRemove;
 
-        public Projectile_Manager(Game game, SpriteBatch spriteBatch)
+        public Global_Projectile(Game game, SpriteBatch spriteBatch)
             : base(game)
         {
             this.spriteBatch = spriteBatch;

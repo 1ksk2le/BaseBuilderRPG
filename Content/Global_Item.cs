@@ -7,7 +7,7 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Item_Manager : DrawableGameComponent
+    public class Global_Item : DrawableGameComponent
     {
         private SpriteBatch spriteBatch;
         public Dictionary<int, Item> itemDictionary;
@@ -15,7 +15,7 @@ namespace BaseBuilderRPG.Content
         public List<Item> itemsToRemove;
         public List<Item> groundItems;
 
-        public Item_Manager(Game game, SpriteBatch spriteBatch)
+        public Global_Item(Game game, SpriteBatch spriteBatch)
             : base(game)
         {
             this.spriteBatch = spriteBatch;

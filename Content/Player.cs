@@ -21,8 +21,6 @@ namespace BaseBuilderRPG.Content
         public Texture2D textureBody;
         public Texture2D textureHead;
         public Texture2D textureEye;
-        private MouseState pMouse;
-        private KeyboardState pKey;
         public Color skinColor;
         public Vector2 velocity, target, origin, center, targetMovement;
         public Rectangle rectangle, rectangleMelee;
@@ -64,8 +62,9 @@ namespace BaseBuilderRPG.Content
             aiState = "";
         }
 
-        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Item_Manager itemManager, Text_Manager textManager, Projectile_Manager projManager, List<NPC> npcs, List<Item> groundItems, List<Item> items)
+        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Global_Item itemManager, Text_Manager textManager, Global_Projectile projManager, List<NPC> npcs, List<Item> groundItems, List<Item> items)
         {
+            var inputManager = Input_Manager.Instance;
             rectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
             center = position + origin;
 
@@ -84,8 +83,6 @@ namespace BaseBuilderRPG.Content
                     rectangleMeleeAI = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2), (int)(center.Y - equippedWeapon.texture.Height * 1.2f / 2), (int)(equippedWeapon.texture.Height), (int)(equippedWeapon.texture.Height * 1.2f));
                 }
             }
-
-            KeyboardState keyboardState = Keyboard.GetState();
 
             if (immunityTime >= 0f)
             {
@@ -115,15 +112,15 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    Shoot(gameTime, projManager, new Vector2(pMouse.X, pMouse.Y));
+                    Shoot(gameTime, projManager, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
                     aiState = "";
                     PlayerInventoryInteractions(Keys.I, groundItems);
                     Random rand = new Random();
                     AddItem(Keys.X, true, rand.Next(0, 11), itemDictionary, itemManager, groundItems, items);
-                    inventory.SortItems(pMouse);
+                    inventory.SortItems(inputManager.previousMouseState);
                     foreach (Item item in groundItems.ToList())
                     {
-                        if (item.PlayerClose(this, 40f) && Keyboard.GetState().IsKeyDown(Keys.F) && !pKey.IsKeyDown(Keys.F) && item.onGround && !inventory.IsFull())
+                        if (item.PlayerClose(this, 40f) && inputManager.IsKeySinglePress(Keys.F) && item.onGround && !inventory.IsFull())
                         {
                             string text = "Picked: " + item.prefixName + " " + item.name + " " + item.suffixName;
                             Vector2 textSize = Main.testFont.MeasureString(text);
@@ -142,14 +139,11 @@ namespace BaseBuilderRPG.Content
                         OneHandedSwing(gameTime);
                     }
                 }
-                Movement(Vector2.Zero, keyboardState);
+                Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
             }
-
-            pKey = Keyboard.GetState();
-            pMouse = Mouse.GetState();
         }
 
-        private void AI(GameTime gameTime, List<NPC> npcs, Projectile_Manager projManager)
+        private void AI(GameTime gameTime, List<NPC> npcs, Global_Projectile projManager)
         {
             if (equippedWeapon != null)
             {
@@ -286,7 +280,7 @@ namespace BaseBuilderRPG.Content
                 float end = (direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                 if (isControlled)
                 {
-                    if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                    if (Input_Manager.Instance.IsButtonPressed(true))
                     {
                         if (!isSwinging)
                         {
@@ -333,11 +327,9 @@ namespace BaseBuilderRPG.Content
 
         private void Movement(Vector2 movement, KeyboardState keyboardState)
         {
-            MouseState mouseState = Mouse.GetState();
-
             if (isControlled)
             {
-                if (position.X > mouseState.X)
+                if (position.X > (int)Input_Manager.Instance.mousePosition.X)
                 {
                     direction = -1;
                 }
@@ -417,14 +409,15 @@ namespace BaseBuilderRPG.Content
 
         private void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
         {
+            var inputManager = Input_Manager.Instance;
             bool isMouseOverItem = false;
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
-            if (closeInvSlotRectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y) && Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+            if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))
             {
                 inventoryVisible = false;
             }
-            if (isControlled && Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            if (isControlled && inputManager.IsKeySinglePress(key))
             {
                 if (inventoryVisible)
                 {
@@ -432,7 +425,7 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    Main.inventoryPos = new Vector2(Mouse.GetState().X - Main.texInventory.Width / 2, Mouse.GetState().Y);
+                    Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.texInventory.Width / 2, inputManager.mousePosition.Y);
                     inventoryVisible = true;
                 }
             }
@@ -447,7 +440,7 @@ namespace BaseBuilderRPG.Content
                         if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
                         {
                             isMouseOverItem = true;
-                            hoveredItem = inventory.GetEquippedItem(i); // Adjust the slot parameter as needed
+                            hoveredItem = inventory.GetEquippedItem(i);
                         }
                     }
                 }
@@ -483,7 +476,7 @@ namespace BaseBuilderRPG.Content
                 hoveredItem = null;
             }
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && pMouse.LeftButton == ButtonState.Released)
+            if (inputManager.IsButtonSingleClick(true))
             {
                 if (isControlled && inventoryVisible)
                 {
@@ -536,7 +529,7 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-            if (Mouse.GetState().RightButton == ButtonState.Pressed && pMouse.RightButton == ButtonState.Released)
+            if (inputManager.IsButtonSingleClick(false))
             {
                 if (isControlled)
                 {
@@ -585,9 +578,10 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void AddItem(Keys key, bool addInventory, int itemID, Dictionary<int, Item> itemDictionary, Item_Manager itemManager, List<Item> groundItems, List<Item> items)
+        private void AddItem(Keys key, bool addInventory, int itemID, Dictionary<int, Item> itemDictionary, Global_Item itemManager, List<Item> groundItems, List<Item> items)
         {
-            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            var inputManager = Input_Manager.Instance;
+            if (inputManager.IsKeySinglePress(key))
             {
                 Random rand = new Random();
                 int prefixID;
@@ -608,13 +602,12 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                    itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), mousePosition);
+                    itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), inputManager.mousePosition);
                 }
             }
         }
 
-        private void Shoot(GameTime gameTime, Projectile_Manager projManager, Vector2 target)
+        private void Shoot(GameTime gameTime, Global_Projectile projManager, Vector2 target)
         {
             if (equippedWeapon != null && equippedWeapon.shootID > -1)
             {
@@ -627,7 +620,7 @@ namespace BaseBuilderRPG.Content
                 {
                     if (isControlled)
                     {
-                        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                        if (Input_Manager.Instance.IsButtonPressed(true))
                         {
                             projManager.NewProjectile(equippedWeapon.shootID, center, target, equippedWeapon.damage, equippedWeapon.shootSpeed, this, true);
                             useTimer = equippedWeapon.useTime;
@@ -712,7 +705,7 @@ namespace BaseBuilderRPG.Content
             {
                 nameColor = Color.OrangeRed;
             }
-            else if (rectangle.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+            else if (rectangle.Contains(Input_Manager.Instance.mousePosition))
             {
                 nameColor = Color.Lime;
             }
@@ -728,8 +721,7 @@ namespace BaseBuilderRPG.Content
 
 
             SpriteEffects eff = (direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-            MouseState mouseState = Mouse.GetState();
-            Vector2 mousePosition = new Vector2(mouseState.X, mouseState.Y);
+            Vector2 mousePosition = Input_Manager.Instance.mousePosition;
             Vector2 directionToMouse = mousePosition - position;
 
             float maxHeadRotation = MathHelper.ToRadians(20);

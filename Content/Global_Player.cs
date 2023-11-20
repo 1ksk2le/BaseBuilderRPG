@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Player_Manager : DrawableGameComponent
+    public class Global_Player : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
         public List<NPC> npcs;
@@ -17,17 +17,16 @@ namespace BaseBuilderRPG.Content
         private List<Item> groundItems;
         private List<Item> itemsToRemove;
         private Dictionary<int, Item> itemDictionary;
-        private Item_Manager itemManager;
-        private Projectile_Manager projManager;
+        private Global_Item globalItem;
+        private Global_Projectile globalProjectile;
         private Text_Manager textManager;
         public Texture2D _texture;
         public Texture2D _textureHead;
         public Texture2D _textureEyes;
-        private KeyboardState pKey;
-        private MouseState pMouse;
 
-        public Player_Manager(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
-            Item> _itemDictionary, Item_Manager _itemManager, Projectile_Manager _projManager, Text_Manager _textManager, KeyboardState _keyboardState)
+
+        public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
+            Item> _itemDictionary, Global_Item _globalItem, Global_Projectile _globalProjectile, Text_Manager _textManager)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -43,10 +42,9 @@ namespace BaseBuilderRPG.Content
             groundItems = _groundItems;
             itemsToRemove = _itemsToRemove;
             itemDictionary = _itemDictionary;
-            itemManager = _itemManager;
+            globalItem = _globalItem;
             textManager = _textManager;
-            projManager = _projManager;
-            pKey = _keyboardState;
+            globalProjectile = _globalProjectile;
         }
 
         public void Load()
@@ -71,7 +69,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.health > 0)
                 {
-                    player.Update(gameTime, itemDictionary, itemManager, textManager, projManager, npcs, groundItems, items);
+                    player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, npcs, groundItems, items);
                     if (player.isPicked)
                     {
                         PlayerMovementOrder();
@@ -91,7 +89,6 @@ namespace BaseBuilderRPG.Content
             PlayerSelect(players, Keys.E);
             ClearItems(itemsToRemove, true, true, true, Keys.C);
 
-            pMouse = Mouse.GetState();
             base.Update(gameTime);
         }
 
@@ -102,80 +99,84 @@ namespace BaseBuilderRPG.Content
 
         private void PlayerMovementOrder()
         {
-            if (Mouse.GetState().RightButton == ButtonState.Pressed && pMouse.RightButton == ButtonState.Released)
+            var inputManager = Input_Manager.Instance;
+            if (!inputManager.IsMouseOnInventory())
             {
-                lineStart = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-            }
-
-            if (Mouse.GetState().RightButton == ButtonState.Pressed)
-            {
-                lineEnd = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-
-                UpdatePreviewPositions();
-            }
-
-            if (Mouse.GetState().RightButton == ButtonState.Released && pMouse.RightButton == ButtonState.Pressed)
-            {
-                previewPositions.Clear();
-                previewPositionsRed.Clear();
-
-                List<Player> selectedPlayers = players.Where(p => p.isPicked).ToList();
-                int numberOfPlayers = selectedPlayers.Count;
-
-                if (numberOfPlayers > 1)
+                if (inputManager.IsButtonSingleClick(false))
                 {
-                    float totalDistance = Vector2.Distance(lineStart, lineEnd);
-                    if (totalDistance > numberOfPlayers * 16)
-                    {
-                        int spacing = (int)(totalDistance / (numberOfPlayers - 1));
-
-                        previewPositions.Add(lineStart);
-
-                        for (int i = 1; i < numberOfPlayers - 1; i++)
-                        {
-                            Vector2 offset = Vector2.Normalize(lineEnd - lineStart) * spacing * i;
-                            Vector2 playerPosition = lineStart + offset;
-
-                            previewPositions.Add(playerPosition);
-                        }
-
-                        previewPositions.Add(lineEnd);
-
-                        for (int i = 0; i < numberOfPlayers; i++)
-                        {
-                            selectedPlayers[i].targetMovement = previewPositions[i];
-                            selectedPlayers[i].hasMovementOrder = true;
-                        }
-                    }
-                    else
-                    {
-                        int squareSize = (int)Math.Ceiling(Math.Sqrt(numberOfPlayers));
-                        int sideLength = 50; // Adjust this value based on the desired spacing
-
-                        for (int i = 0; i < numberOfPlayers; i++)
-                        {
-                            int row = i / squareSize;
-                            int col = i % squareSize;
-
-                            Vector2 playerPosition = new Vector2(lineStart.X + col * sideLength, lineStart.Y + row * sideLength);
-                            previewPositions.Add(playerPosition);
-
-                            selectedPlayers[i].targetMovement = playerPosition;
-                            selectedPlayers[i].hasMovementOrder = true;
-                        }
-                    }
-
-                }
-                else if (numberOfPlayers == 1)
-                {
-                    Vector2 playerPosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                    previewPositions.Add(playerPosition);
-                    selectedPlayers[0].targetMovement = playerPosition;
-                    selectedPlayers[0].hasMovementOrder = true;
+                    lineStart = new Vector2(inputManager.currentMouseState.X, inputManager.currentMouseState.Y);
                 }
 
-                previewPositions.Clear();
-                previewPositionsRed.Clear();
+                if (inputManager.IsButtonPressed(false))
+                {
+                    lineEnd = new Vector2(inputManager.currentMouseState.X, inputManager.currentMouseState.Y);
+
+                    UpdatePreviewPositions();
+                }
+
+                if (inputManager.currentMouseState.RightButton == ButtonState.Released && inputManager.previousMouseState.RightButton == ButtonState.Pressed)
+                {
+                    previewPositions.Clear();
+                    previewPositionsRed.Clear();
+
+                    List<Player> selectedPlayers = players.Where(p => p.isPicked).ToList();
+                    int numberOfPlayers = selectedPlayers.Count;
+
+                    if (numberOfPlayers > 1)
+                    {
+                        float totalDistance = Vector2.Distance(lineStart, lineEnd);
+                        if (totalDistance > numberOfPlayers * 16)
+                        {
+                            int spacing = (int)(totalDistance / (numberOfPlayers - 1));
+
+                            previewPositions.Add(lineStart);
+
+                            for (int i = 1; i < numberOfPlayers - 1; i++)
+                            {
+                                Vector2 offset = Vector2.Normalize(lineEnd - lineStart) * spacing * i;
+                                Vector2 playerPosition = lineStart + offset;
+
+                                previewPositions.Add(playerPosition);
+                            }
+
+                            previewPositions.Add(lineEnd);
+
+                            for (int i = 0; i < numberOfPlayers; i++)
+                            {
+                                selectedPlayers[i].targetMovement = previewPositions[i];
+                                selectedPlayers[i].hasMovementOrder = true;
+                            }
+                        }
+                        else
+                        {
+                            int squareSize = (int)Math.Ceiling(Math.Sqrt(numberOfPlayers));
+                            int sideLength = 50;
+
+                            for (int i = 0; i < numberOfPlayers; i++)
+                            {
+                                int row = i / squareSize;
+                                int col = i % squareSize;
+
+                                Vector2 playerPosition = new Vector2(lineStart.X + col * sideLength, lineStart.Y + row * sideLength);
+                                previewPositions.Add(playerPosition);
+
+                                selectedPlayers[i].targetMovement = playerPosition;
+                                selectedPlayers[i].hasMovementOrder = true;
+                            }
+                        }
+
+                    }
+                    else if (numberOfPlayers == 1)
+                    {
+                        Vector2 playerPosition = inputManager.mousePosition;
+                        previewPositions.Add(playerPosition);
+                        selectedPlayers[0].targetMovement = playerPosition;
+                        selectedPlayers[0].hasMovementOrder = true;
+                    }
+
+                    previewPositions.Clear();
+                    previewPositionsRed.Clear();
+                }
             }
         }
 
@@ -226,13 +227,14 @@ namespace BaseBuilderRPG.Content
             }
             else if (numberOfPlayers == 1)
             {
-                previewPositions.Add(new Vector2(Mouse.GetState().X, Mouse.GetState().Y));
+                previewPositions.Add(Input_Manager.Instance.mousePosition);
             }
         }
 
         private void PlayerSelect(List<Player> players, Keys key)
         {
-            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            var inputManager = Input_Manager.Instance;
+            if (inputManager.IsKeySinglePress(key))
             {
 
                 Player activePlayer = players.FirstOrDefault(p => p.isControlled);
@@ -247,7 +249,7 @@ namespace BaseBuilderRPG.Content
                 foreach (Player player in players)
                 {
                     Rectangle slotRect = new Rectangle((int)player.position.X, (int)player.position.Y, player.textureBody.Width, player.textureBody.Height);
-                    if (slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y))
+                    if (slotRect.Contains(inputManager.mousePosition))
                     {
                         closestPlayer = player;
                     }
@@ -259,21 +261,21 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-            if (!Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+            if (inputManager.IsKeyDown(Keys.LeftShift))
             {
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                if (inputManager.IsButtonPressed(true))
                 {
                     isSelecting = true;
-                    startPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                    startPos = inputManager.mousePosition;
                 }
 
                 if (!isSelecting)
                 {
                     startPos = Vector2.Zero;
-                    endPos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                    endPos = inputManager.mousePosition;
                 }
 
-                if (Mouse.GetState().LeftButton == ButtonState.Released && isSelecting)
+                if (inputManager.IsButtonReleased(true) && isSelecting)
                 {
                     foreach (Player player in players)
                     {
@@ -311,9 +313,9 @@ namespace BaseBuilderRPG.Content
             {
                 foreach (Player player in players)
                 {
-                    if (player.rectangle.Contains(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
+                    if (player.rectangle.Contains(inputManager.mousePosition))
                     {
-                        if (Mouse.GetState().LeftButton == ButtonState.Released && pMouse.LeftButton == ButtonState.Pressed)
+                        if (inputManager.IsButtonSingleClick(true))
                         {
                             if (player.isPicked)
                             {
@@ -374,7 +376,8 @@ namespace BaseBuilderRPG.Content
 
         private void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)
         {
-            if (Keyboard.GetState().IsKeyDown(key) && !pKey.IsKeyDown(key))
+            var inputManager = Input_Manager.Instance;
+            if (inputManager.IsKeySinglePress(key))
             {
                 foreach (Player player in players)
                 {

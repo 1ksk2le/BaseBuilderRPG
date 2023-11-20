@@ -63,7 +63,7 @@ namespace BaseBuilderRPG.Content
             aiZ = 0f;
         }
 
-        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager disTextManager, Item_Manager itemManager)
+        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager disTextManager, Global_Item itemManager)
         {
             if (!didSpawn)
             {
@@ -299,7 +299,7 @@ namespace BaseBuilderRPG.Content
             immunityTime = immunityTimeMax;
         }
 
-        public void Kill(Item_Manager itemManager)
+        public void Kill(Global_Item itemManager)
         {
             health = -1;
             //itemManager.DropItem(1, 0, 0, 1, Position);

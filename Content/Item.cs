@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
@@ -141,8 +140,9 @@ namespace BaseBuilderRPG.Content
 
         public bool InteractsWithMouse()
         {
+            var inputManager = Input_Manager.Instance;
             Rectangle slotRect = new((int)position.X, (int)position.Y, texture.Width, texture.Height);
-            return slotRect.Contains(Mouse.GetState().X, Mouse.GetState().Y);
+            return slotRect.Contains(inputManager.mousePosition);
         }
 
         public void SetDefaults()
