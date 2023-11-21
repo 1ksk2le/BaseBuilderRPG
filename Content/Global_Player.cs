@@ -50,9 +50,9 @@ namespace BaseBuilderRPG.Content
         public void Load()
         {
             Random rand = new Random();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Warrior" : "Ranged", new Vector2(rand.Next(200, 600), rand.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(rand.Next(200, 600), rand.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
                 if (itemDictionary.TryGetValue((i < 5) ? 10 : 3, out var itemData))
                 {
                     players[i].equippedWeapon = itemData;
@@ -72,7 +72,7 @@ namespace BaseBuilderRPG.Content
                     player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, npcs, groundItems, items);
                     if (player.isPicked)
                     {
-                        PlayerMovementOrder();
+                        PlayerMovementOrder(player);
                     }
                 }
                 else
@@ -97,10 +97,10 @@ namespace BaseBuilderRPG.Content
         private List<Vector2> previewPositions = new List<Vector2>();
         private List<Vector2> previewPositionsRed = new List<Vector2>();
 
-        private void PlayerMovementOrder()
+        private void PlayerMovementOrder(Player player)
         {
             var inputManager = Input_Manager.Instance;
-            if (!inputManager.IsMouseOnInventory())
+            if (!inputManager.IsMouseOnInventory(player.inventoryVisible))
             {
                 if (inputManager.IsButtonSingleClick(false))
                 {
@@ -309,25 +309,23 @@ namespace BaseBuilderRPG.Content
                     isSelecting = false;
                 }
             }
-            else
+
+            foreach (Player player in players)
             {
-                foreach (Player player in players)
+                if (inputManager.IsButtonSingleClick(true) && inputManager.IsKeyDown(Keys.LeftShift))
                 {
                     if (player.rectangle.Contains(inputManager.mousePosition))
                     {
-                        if (inputManager.IsButtonSingleClick(true))
+                        if (player.isPicked)
                         {
-                            if (player.isPicked)
-                            {
-                                player.isPicked = false;
-                            }
-                            else
-                            {
-                                player.isPicked = true;
-
-                            }
+                            player.isPicked = false;
+                        }
+                        else
+                        {
+                            player.isPicked = true;
 
                         }
+
                     }
                 }
             }

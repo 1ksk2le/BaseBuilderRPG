@@ -86,7 +86,7 @@ namespace BaseBuilderRPG.Content
 
             toolTips = new List<string>();
 
-            toolTips.Add(prefixName + " " + this.name + " " + suffixName);
+            toolTips.Add("[" + this.id + "] " + prefixName + " " + this.name + " " + suffixName);
 
             if (this.damage > 0)
             {
@@ -99,7 +99,7 @@ namespace BaseBuilderRPG.Content
             }
             if (this.useTime > 0)
             {
-                toolTips.Add("Use Time: " + (this.useTime * 10).ToString());
+                toolTips.Add("Use Time: x" + (1f / this.useTime).ToString("F2") + " per second");
             }
             if (this.knockBack > -1)
             {

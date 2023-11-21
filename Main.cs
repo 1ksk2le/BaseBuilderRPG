@@ -122,7 +122,7 @@ namespace BaseBuilderRPG
         {
             var inputManager = Input_Manager.Instance;
             inputManager.PreUpdate();
-            inputManager.PostUpdate();
+            inputManager.PostUpdate(gameTime);
 
             if (npcs.Count <= 0)
             {
@@ -143,8 +143,9 @@ namespace BaseBuilderRPG
             }
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
+            Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.texInventory.Height + Main.texInventoryExtras.Height);
 
-            if (closeInvSlotRectangle.Contains(inputManager.mousePosition))
+            if (inventoryRectangle.Contains(inputManager.mousePosition))
             {
                 if (inputManager.IsButtonPressed(true))
                 {
@@ -154,8 +155,8 @@ namespace BaseBuilderRPG
                         isDragging = true;
                     }
 
-                    float deltaX = inputManager.mousePosition.X - inputManager.previousMouseState.X;
-                    float deltaY = inputManager.mousePosition.Y - inputManager.previousMouseState.Y;
+                    float deltaX = (float)(inputManager.mousePosition.X - inputManager.previousMouseState.X);
+                    float deltaY = (float)(inputManager.mousePosition.Y - inputManager.previousMouseState.Y);
 
                     inventoryPos.X += deltaX;
                     inventoryPos.Y += deltaY;
@@ -229,11 +230,12 @@ namespace BaseBuilderRPG
             spriteBatch.DrawStringWithOutline(Main.testFont, "X = Spawn item", new Vector2(10, 60), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "C = Clear items", new Vector2(10, 80), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "I = Open / Close inventory", new Vector2(10, 100), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "K = Damage player", new Vector2(10, 120), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "F = Pick item", new Vector2(10, 140), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "G = Spawn a slime", new Vector2(10, 160), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "V = Kill npcs", new Vector2(10, 180), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "L = Turn on / off debug mode", new Vector2(10, 200), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "F = Pick item", new Vector2(10, 120), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "G = Spawn a slime", new Vector2(10, 140), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "V = Kill npcs", new Vector2(10, 160), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "L = Turn on / off debug mode", new Vector2(10, 180), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "Left Shift + Left Mouse = Select players", new Vector2(10, 200), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "Right Mouse = Move selected players", new Vector2(10, 220), Color.Black, Color.White, 1f, 0.99f);
             textManager.Draw(spriteBatch);
             spriteBatch.End();
         }

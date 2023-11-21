@@ -18,7 +18,7 @@ namespace BaseBuilderRPG.Content
                 float angle = MathHelper.ToRadians(i);
                 Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 1.5f * scale;
 
-                spriteBatch.DrawString(font, text, position + offset, outlineColor, 0f, Vector2.Zero, scale, SpriteEffects.None, layerDepth - 0.0001f);
+                spriteBatch.DrawString(font, text, position + offset, outlineColor, 0f, Vector2.Zero, scale, SpriteEffects.None, layerDepth - 0.000001f);
                 spriteBatch.DrawString(font, text, position, innerColor, 0f, Vector2.Zero, scale, SpriteEffects.None, layerDepth);
             }
         }

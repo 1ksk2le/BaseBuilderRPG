@@ -24,9 +24,10 @@ namespace BaseBuilderRPG.Content
 
             string projectilesJson = File.ReadAllText("Content/projectiles.json");
             projectiles = JsonConvert.DeserializeObject<List<Projectile>>(projectilesJson);
-            foreach (var projectile in projectiles)
+            for (int i = 0; i < projectiles.Count; i++)
             {
-                projectileDictionary.Add(projectile.id, projectile);
+                projectiles[i].id = i;
+                projectileDictionary.Add(projectiles[i].id, projectiles[i]);
             }
         }
 

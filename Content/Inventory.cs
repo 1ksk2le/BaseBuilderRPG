@@ -49,7 +49,7 @@ namespace BaseBuilderRPG.Content
                 string text = "Sort Inventory";
                 Vector2 textSize = Main.testFont.MeasureString(text);
                 spriteBatch.DrawRectangle(new Rectangle((int)mousePosition.X + 14, (int)mousePosition.Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.testFont, text, new Vector2((int)mousePosition.X + 18, mousePosition.Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawStringWithOutline(Main.testFont, text, new Vector2((int)mousePosition.X + 18, mousePosition.Y), Color.Black, Color.White, 1f, 0.95031f);
             }
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
@@ -58,7 +58,7 @@ namespace BaseBuilderRPG.Content
                 string text = "Close Inventory";
                 Vector2 textSize = Main.testFont.MeasureString(text);
                 spriteBatch.DrawRectangle(new Rectangle((int)mousePosition.X + 14, (int)mousePosition.Y - 2, (int)textSize.X + 8, (int)textSize.Y + 4), Color.Black, 0.9503f);
-                spriteBatch.DrawString(Main.testFont, text, new Vector2(mousePosition.X + 18, mousePosition.Y), Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0.95031f);
+                spriteBatch.DrawStringWithOutline(Main.testFont, text, new Vector2((int)mousePosition.X + 18, mousePosition.Y), Color.Black, Color.White, 1f, 0.95031f);
             }
 
             for (int width = 0; width < player.inventory.width; width++)

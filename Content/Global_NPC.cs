@@ -29,9 +29,11 @@ namespace BaseBuilderRPG.Content
 
             string npcsJson = File.ReadAllText("Content/npcs.json");
             npcs = JsonConvert.DeserializeObject<List<NPC>>(npcsJson);
-            foreach (var npc in npcs)
+
+            for (int i = 0; i < npcs.Count; i++)
             {
-                npcDictionary.Add(npc.id, npc);
+                npcs[i].id = i;
+                npcDictionary.Add(npcs[i].id, npcs[i]);
             }
 
             players = _players;
@@ -104,7 +106,7 @@ namespace BaseBuilderRPG.Content
                     }
 
                     Vector2 textSize = Main.testFont.MeasureString(npc.name);
-                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.center.X - textSize.X / 2, npc.center.Y - npc.height), Color.Black, Color.Coral, 1f, 0.693f);
+                    spriteBatch.DrawStringWithOutline(Main.testFont, npc.name, new Vector2(npc.center.X - textSize.X / 2, npc.center.Y - npc.height), Color.Black, Color.Red, 1f, 0.693f);
                 }
             }
             spriteBatch.End();

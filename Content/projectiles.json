@@ -1,6 +1,5 @@
 [
   {
-    "id": 0,
     "ai": 0,
     "name": "Test Arrow",
     "lifeTimeMax": 2,
@@ -9,7 +8,6 @@
     "texturePath": "Textures/tex_Wooden_Arrow"
   },
   {
-    "id": 1,
     "ai": 1,
     "name": "Wooden Arrow",
     "lifeTimeMax": 2,

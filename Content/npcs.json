@@ -1,6 +1,5 @@
 [
   {
-    "id": 0,
     "ai": 0,
     "name": "Test Enemy",
     "damage": 0,
@@ -12,7 +11,6 @@
     "texturePath": "Textures/NPC/Test_NPC"
   },
   {
-    "id": 1,
     "ai": 1,
     "name": "Slime",
     "damage": 5,

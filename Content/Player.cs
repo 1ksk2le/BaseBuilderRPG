@@ -703,7 +703,7 @@ namespace BaseBuilderRPG.Content
 
             if (isPicked)
             {
-                nameColor = Color.OrangeRed;
+                nameColor = Color.Aqua;
             }
             else if (rectangle.Contains(Input_Manager.Instance.mousePosition))
             {

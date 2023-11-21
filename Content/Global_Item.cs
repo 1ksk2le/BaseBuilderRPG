@@ -15,8 +15,7 @@ namespace BaseBuilderRPG.Content
         public List<Item> itemsToRemove;
         public List<Item> groundItems;
 
-        public Global_Item(Game game, SpriteBatch spriteBatch)
-            : base(game)
+        public Global_Item(Game game, SpriteBatch spriteBatch) : base(game)
         {
             this.spriteBatch = spriteBatch;
 
@@ -27,11 +26,13 @@ namespace BaseBuilderRPG.Content
 
             string itemsJson = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
-            foreach (var item in items)
+            for (int i = 0; i < items.Count; i++)
             {
-                itemDictionary.Add(item.id, item);
+                items[i].id = i;
+                itemDictionary.Add(items[i].id, items[i]);
             }
         }
+
 
         public void Load()
         {

@@ -33,12 +33,12 @@ namespace BaseBuilderRPG.Content
             previousMouseState = currentMouseState;
         }
 
-        public void PostUpdate()
+        public void PostUpdate(GameTime gameTime)
         {
             currentKeyboardState = Keyboard.GetState();
             currentMouseState = Mouse.GetState();
 
-            mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
+            mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y) * (float)gameTime.ElapsedGameTime.TotalSeconds * 60f;
         }
 
         public bool IsKeyDown(Keys key)
@@ -77,10 +77,17 @@ namespace BaseBuilderRPG.Content
                 : currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
         }
 
-        public bool IsMouseOnInventory()
+        public bool IsMouseOnInventory(bool inventoryVisible)
         {
-            Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.texInventory.Height + Main.texInventoryExtras.Height);
-            return inventoryRectangle.Contains(mousePosition) ? true : false;
+            if (inventoryVisible)
+            {
+                Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.texInventory.Height + Main.texInventoryExtras.Height);
+                return inventoryRectangle.Contains(mousePosition) ? true : false;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 [
   {
-    "id": 0,
     "name": "Test Sword",
     "type": "Weapon",
     "damageType": "melee",
@@ -12,7 +11,6 @@
     "texturePath": "Textures/tex_Test_Sword"
   },
   {
-    "id": 1,
     "name": "Test Material",
     "type": "Material",
     "rarity": 10,
@@ -20,7 +18,6 @@
     "texturePath": "Textures/tex_Ruby"
   },
   {
-    "id": 2,
     "name": "Test Shield",
     "type": "Offhand",
     "rarity": 10,
@@ -28,7 +25,6 @@
     "texturePath": "Textures/tex_Test_Shield"
   },
   {
-    "id": 3,
     "name": "Test Bow",
     "type": "Weapon",
     "damageType": "ranged",
@@ -42,7 +38,6 @@
     "texturePath": "Textures/tex_Test_Bow"
   },
   {
-    "id": 4,
     "name": "Wooden Baton",
     "type": "Weapon",
     "damageType": "melee",
@@ -54,7 +49,6 @@
     "texturePath": "Textures/Weapons/Wooden_Baton"
   },
   {
-    "id": 5,
     "name": "Leather Armor",
     "type": "Body Armor",
     "rarity": 0,
@@ -62,7 +56,6 @@
     "texturePath": "Textures/Player/Armors/tex_Leather_Armor"
   },
   {
-    "id": 6,
     "name": "Leather Cap",
     "type": "Head Armor",
     "rarity": 0,
@@ -70,7 +63,6 @@
     "texturePath": "Textures/Player/Armors/tex_Leather_Cap"
   },
   {
-    "id": 7,
     "name": "Wooden Sword",
     "type": "Weapon",
     "damageType": "melee",
@@ -82,7 +74,6 @@
     "texturePath": "Textures/Weapons/Wooden_Sword"
   },
   {
-    "id": 8,
     "name": "Stone Sword",
     "type": "Weapon",
     "damageType": "melee",
@@ -94,7 +85,6 @@
     "texturePath": "Textures/Weapons/Stone_Sword"
   },
   {
-    "id": 9,
     "name": "Brass Sword",
     "type": "Weapon",
     "damageType": "melee",
@@ -106,7 +96,6 @@
     "texturePath": "Textures/Weapons/Brass_Sword"
   },
   {
-    "id": 10,
     "name": "Steel Sword",
     "type": "Weapon",
     "damageType": "melee",
