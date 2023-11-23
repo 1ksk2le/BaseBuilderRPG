@@ -87,6 +87,11 @@ namespace BaseBuilderRPG.Content
                 position += direction * speed;
                 rotation = (float)Math.Atan2(direction.Y, direction.X);
             }
+
+            if (id == 0)
+            {
+                globalParticle.NewParticle(0, 0, new Vector2(600, 600), new Vector2(random.Next(-50, 50), random.Next(-50, 50)), players[0].origin, 2f, 1f * random.Next(1, 100) / 100, Color.Orange);
+            }
         }
 
         public void Kill(Global_Projectile projManager)

@@ -133,6 +133,24 @@ namespace BaseBuilderRPG.Content
                             inventory.PickItem(textManager, this, item, groundItems);
                         }
                     }
+
+                    /*int numberOfParticles = 10;
+                    float radius = 50f; // Adjust the radius of the circle
+                    float angleIncrement = MathHelper.TwoPi / numberOfParticles; // Calculate the angle between each particle
+
+                    for (int i = 0; i < numberOfParticles; i++)
+                    {
+                        float angle = i * angleIncrement;
+                        float xOffset = radius * (float)Math.Cos(angle);
+                        float yOffset = radius * (float)Math.Sin(angle);
+
+                        Vector2 particlePosition = center + new Vector2(xOffset, yOffset);
+                        Vector2 particleVelocity = Vector2.Zero;
+
+                        globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, origin, 2f, 1f * random.Next(1, 100) / 100, Color.Red);
+                    }*/
+
+
                 }
 
                 if (equippedWeapon != null)

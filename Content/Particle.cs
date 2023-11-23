@@ -39,16 +39,21 @@ namespace BaseBuilderRPG.Content
 
         public void Update(GameTime gameTime)
         {
-            if (lifeTime >= lifeTimeMax)
+            if (isAlive)
             {
-                Kill();
+                if (lifeTime >= lifeTimeMax)
+                {
+                    Kill();
+                }
+                else
+                {
+                    lifeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                }
             }
-            else
-            {
-                lifeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
+
         }
+
 
         public void Kill()
         {
@@ -59,8 +64,17 @@ namespace BaseBuilderRPG.Content
         {
             if (texture != null && isAlive)
             {
-                spriteBatch.Draw(texture, position, null, color, 0f/*rot*/, origin, scale, SpriteEffects.None, 0);
+                float alpha = 1.0f - (lifeTime / lifeTimeMax);
+
+                // Clamp the alpha value to ensure it stays in the range [0, 1]
+                alpha = MathHelper.Clamp(alpha, 0f, 1f);
+
+                // Update the particle color with the new alpha value while preserving original RGB values
+                Color fadedColor = new Color(color.R, color.G, color.B, (byte)(color.A * alpha));
+
+                spriteBatch.Draw(texture, position, null, color * alpha, 0f/*rot*/, origin, scale, SpriteEffects.None, 0);
             }
         }
+
     }
 }

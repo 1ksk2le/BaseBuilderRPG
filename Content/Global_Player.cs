@@ -24,6 +24,7 @@ namespace BaseBuilderRPG.Content
         public Texture2D _texture;
         public Texture2D _textureHead;
         public Texture2D _textureEyes;
+        private Random random;
 
 
         public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
@@ -47,6 +48,8 @@ namespace BaseBuilderRPG.Content
             textManager = _textManager;
             globalProjectile = _globalProjectile;
             globalParticle = _globalParticle;
+
+            random = Main_Globals.GetRandomInstance();
         }
 
         public void Load()

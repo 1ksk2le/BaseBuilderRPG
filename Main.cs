@@ -45,6 +45,8 @@ namespace BaseBuilderRPG
         public List<NPC> npcs;
 
         public static bool drawDebugRectangles;
+
+        private Random random;
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -97,6 +99,8 @@ namespace BaseBuilderRPG
             globalNPC.NewNPC(0, new Vector2(200, 500));
 
             drawDebugRectangles = true;
+
+            random = Main_Globals.GetRandomInstance();
             base.Initialize();
         }
 
@@ -201,6 +205,103 @@ namespace BaseBuilderRPG
                     drawDebugRectangles = true;
                 }
             }
+
+            globalParticle.NewParticle(0, 0, new Vector2(600, 600), new Vector2(random.Next(-50, 50), random.Next(-50, 50)), players[0].origin, 2f, 1f * random.Next(1, 100) / 100, Color.Orange);
+
+
+            /*int numberOfParticles = 10;
+            float radius = 50f;
+            float angleIncrement = MathHelper.TwoPi / numberOfParticles;
+
+            for (int i = 0; i < numberOfParticles; i++)
+            {
+                float angle = i * angleIncrement;
+                float xOffset = radius * (float)Math.Cos(angle);
+                float yOffset = radius * (float)Math.Sin(angle);
+
+                Vector2 particlePosition = new Vector2(700, 600) + new Vector2(xOffset, yOffset);
+                Vector2 particleVelocity = Vector2.Zero;
+
+                globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, Vector2.Zero, 2f, 1f * random.Next(1, 100) / 100, Color.Red);
+            }*/
+
+            var center = inputManager.mousePosition;
+            var origin = Vector2.Zero;
+
+            /*int numberOfSegments = 3;
+            float radius = 40f;
+            float maxRadius = 80f; // Maximum radius for outward movement
+            float minRadius = 20f; // Minimum radius for inward movement
+            float angleIncrement = MathHelper.TwoPi / numberOfSegments;
+            float rotationSpeed = 2f; // Adjust the rotation speed
+
+            // Assuming inputManager is an instance of your input manager class
+            Vector2 mouseDelta = inputManager.GetMouseDelta();
+
+            for (int i = 0; i < numberOfSegments; i++)
+            {
+                float angle = i * angleIncrement + rotationSpeed * (float)gameTime.TotalGameTime.TotalSeconds;
+
+                float currentRadius = radius;
+
+                // Adjust the radius based on mouse movement
+                if (mouseDelta != Vector2.Zero)
+                {
+                    float movementFactor = 0.01f; // Adjust the movement factor
+                    currentRadius += mouseDelta.Length() * movementFactor;
+                }
+
+                // Ensure the radius stays within the specified range
+                currentRadius = MathHelper.Clamp(currentRadius, minRadius, maxRadius);
+
+                float xOffset1 = currentRadius * (float)Math.Cos(angle);
+                float yOffset1 = currentRadius * (float)Math.Sin(angle);
+
+                float xOffset2 = currentRadius * (float)Math.Cos(angle + MathHelper.Pi);
+                float yOffset2 = currentRadius * (float)Math.Sin(angle + MathHelper.Pi);
+
+                Vector2 particlePosition1 = center + new Vector2(xOffset1, yOffset1);
+                Vector2 particlePosition2 = center + new Vector2(xOffset2, yOffset2);
+
+                Vector2 particleVelocity = Vector2.Zero;
+
+                // Adjust lifetime, scale, and color as needed
+                float lifeTime = 1f;
+                float scale = 0.5f;
+                Color color = Color.Lime;
+
+                globalParticle.NewParticle(0, 0, particlePosition1, particleVelocity, origin, lifeTime, scale, color);
+                //globalParticle.NewParticle(0, 0, particlePosition2, particleVelocity, origin, lifeTime, scale, color);
+            }*/
+
+
+            int numberOfParticles = 10;
+            float amplitudeX = 20f; // Adjust the amplitude of the zigzag on the X axis
+            float frequencyX = 5f; // Adjust the frequency of the zigzag on the X axis
+            float amplitudeY = 10f; // Adjust the amplitude of the zigzag on the Y axis
+            float frequencyY = 2f; // Adjust the frequency of the zigzag on the Y axis
+
+            for (int i = 0; i < numberOfParticles; i++)
+            {
+                float time = (float)gameTime.TotalGameTime.TotalSeconds;
+                float xOffset = amplitudeX * (float)Math.Sin(frequencyX * time);
+                float yOffset = amplitudeY * (float)Math.Sin(frequencyY * time);
+
+                Vector2 particlePosition = center + new Vector2(i * 30 + xOffset, yOffset);
+                Vector2 particleVelocity = Vector2.Zero;
+
+                // Adjust lifetime, scale, and color as needed
+                float lifeTime = 2f;
+                float scale = 1f;
+                Color color = Color.Blue;
+
+                globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, origin, lifeTime, scale, color);
+            }
+
+
+
+
+
             base.Update(gameTime);
         }
 

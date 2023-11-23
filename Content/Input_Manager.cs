@@ -89,6 +89,12 @@ namespace BaseBuilderRPG.Content
                 return false;
             }
         }
+
+        public Vector2 GetMouseDelta()
+        {
+            Vector2 delta = new Vector2(currentMouseState.X - previousMouseState.X, currentMouseState.Y - previousMouseState.Y);
+            return delta;
+        }
     }
 
 }

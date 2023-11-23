@@ -11,8 +11,7 @@ namespace BaseBuilderRPG.Content
         SpriteBatch spriteBatch;
         private Vector2 pos;
         private List<Particle> particles;
-        private List<Particle> particlesToRemove;
-        private static Dictionary<int, Particle> particleDictionary;
+        private Dictionary<int, Particle> particleDictionary;
 
         public Global_Particle(Game game, SpriteBatch spriteBatch)
             : base(game)
@@ -20,7 +19,6 @@ namespace BaseBuilderRPG.Content
             this.spriteBatch = spriteBatch;
 
             particles = new List<Particle>();
-            particlesToRemove = new List<Particle>();
             particleDictionary = new Dictionary<int, Particle>();
 
             string projectilesJson = File.ReadAllText("Content/particles.json");
@@ -31,6 +29,7 @@ namespace BaseBuilderRPG.Content
                 particleDictionary.Add(particles[i].id, particles[i]);
             }
         }
+
 
         public void Load()
         {
@@ -44,40 +43,23 @@ namespace BaseBuilderRPG.Content
         {
             if (particleDictionary.TryGetValue(id, out var p))
             {
-                particles.Add(new Particle(p.texture, p.texturePath, p.name, id, ai, position, velocity, origin, lifeTime, scale, color, true));
+                Particle particle = new Particle(p.texture, p.texturePath, p.name, p.id, p.ai, position, velocity, origin, lifeTime, scale, color, true);
+                particles.Add(particle);
             }
         }
 
+
         public override void Update(GameTime gameTime)
         {
-            for (int i = particles.Count - 1; i >= 0; i--)
+            foreach (var particle in particles)
             {
-                if (particles.Count > 0)
+                if (particle.isAlive)
                 {
-                    Particle particle = particles[i];
-                    if (particle.isAlive)
-                    {
-                        particle.Update(gameTime);
-                    }
-                    else
-                    {
-                        particlesToRemove.Add(particle);
-                    }
+                    particle.Update(gameTime);
                 }
             }
 
-            /*foreach (Particle particle in particles)
-            {
-                if (particle.position == Vector2.Zero)
-                {
-                    particlesToRemove.Add(particle);
-                }
-            }*/
-
-            foreach (Particle particle in particlesToRemove)
-            {
-                particles.Remove(particle);
-            }
+            particles.RemoveAll(particle => !particle.isAlive);
 
             base.Update(gameTime);
         }
