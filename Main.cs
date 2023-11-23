@@ -33,6 +33,7 @@ namespace BaseBuilderRPG
         public static Global_Projectile globalProjectile;
         public static Global_Player globalPlayer;
         public static Global_Item globalItem;
+        public static Global_Particle globalParticle;
 
         public static Dictionary<int, Item> itemDictionary;
 
@@ -67,6 +68,8 @@ namespace BaseBuilderRPG
 
             textManager = new Text_Manager(testFont);
 
+            globalParticle = new Global_Particle(this, spriteBatch);
+
             globalItem = new Global_Item(this, spriteBatch);
             items = globalItem.items;
             itemsToRemove = globalItem.itemsToRemove;
@@ -74,13 +77,14 @@ namespace BaseBuilderRPG
             itemDictionary = globalItem.itemDictionary;
 
 
-            globalPlayer = new Global_Player(this, spriteBatch, npcs, items, groundItems, itemsToRemove, itemDictionary, globalItem, globalProjectile, textManager);
+            globalPlayer = new Global_Player(this, spriteBatch, npcs, items, groundItems, itemsToRemove, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
             players = globalPlayer.players;
 
-            globalNPC = new Global_NPC(this, spriteBatch, globalItem, textManager, players, projectiles);
+            globalNPC = new Global_NPC(this, spriteBatch, globalItem, globalParticle, textManager, players, projectiles);
             npcs = globalNPC.npcs;
             globalPlayer.npcs = globalNPC.npcs;
 
+            Components.Add(globalParticle);
             Components.Add(globalItem);
             Components.Add(globalNPC);
             Components.Add(globalProjectile);
@@ -106,6 +110,7 @@ namespace BaseBuilderRPG
             pixel.SetData(new[] { Color.White });
 
             base.LoadContent();
+            globalParticle.Load();
             globalProjectile.Load();
             globalItem.Load();
             globalPlayer.Load();
@@ -143,7 +148,7 @@ namespace BaseBuilderRPG
             }
 
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
-            Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.texInventory.Height + Main.texInventoryExtras.Height);
+            Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, 24);
 
             if (inventoryRectangle.Contains(inputManager.mousePosition))
             {
@@ -182,7 +187,7 @@ namespace BaseBuilderRPG
                 foreach (NPC npc in npcs)
                 {
                     npc.health = -1;
-                    npc.Kill(globalItem);
+                    npc.Kill(globalItem, globalParticle);
                 }
             }
             if (inputManager.IsKeySinglePress(Keys.L))

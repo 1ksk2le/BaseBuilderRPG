@@ -19,6 +19,7 @@ namespace BaseBuilderRPG.Content
         private Dictionary<int, Item> itemDictionary;
         private Global_Item globalItem;
         private Global_Projectile globalProjectile;
+        private Global_Particle globalParticle;
         private Text_Manager textManager;
         public Texture2D _texture;
         public Texture2D _textureHead;
@@ -26,7 +27,7 @@ namespace BaseBuilderRPG.Content
 
 
         public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
-            Item> _itemDictionary, Global_Item _globalItem, Global_Projectile _globalProjectile, Text_Manager _textManager)
+            Item> _itemDictionary, Global_Item _globalItem, Global_Projectile _globalProjectile, Text_Manager _textManager, Global_Particle _globalParticle)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -45,6 +46,7 @@ namespace BaseBuilderRPG.Content
             globalItem = _globalItem;
             textManager = _textManager;
             globalProjectile = _globalProjectile;
+            globalParticle = _globalParticle;
         }
 
         public void Load()
@@ -69,7 +71,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.health > 0)
                 {
-                    player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, npcs, groundItems, items);
+                    player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, globalParticle, npcs, groundItems, items);
                     if (player.isPicked)
                     {
                         PlayerMovementOrder(player);

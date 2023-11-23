@@ -32,6 +32,8 @@ namespace BaseBuilderRPG.Content
         private bool aiAttackCheck;
         private string aiState;
 
+        private Random random;
+
         public Player(Texture2D texture, Texture2D headTexture, Texture2D eyeTexture, string name, Vector2 position, int healthMax, float skinColor, bool isActive)
         {
             this.skinColorFloat = skinColor;
@@ -60,9 +62,11 @@ namespace BaseBuilderRPG.Content
             hasMovementOrder = false;
             isPicked = false;
             aiState = "";
+
+            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Global_Item itemManager, Text_Manager textManager, Global_Projectile projManager, List<NPC> npcs, List<Item> groundItems, List<Item> items)
+        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Global_Item globalItem, Text_Manager textManager, Global_Projectile globalProjectile, Global_Particle globalParticle, List<NPC> npcs, List<Item> groundItems, List<Item> items)
         {
             var inputManager = Input_Manager.Instance;
             rectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
@@ -73,7 +77,7 @@ namespace BaseBuilderRPG.Content
                 meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
                 if (equippedWeapon.damageType == "ranged")
                 {
-                    rangedRange = projManager.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * 60;
+                    rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * 60;
                 }
                 else if (equippedWeapon.damageType == "melee")
                 {
@@ -107,16 +111,15 @@ namespace BaseBuilderRPG.Content
             {
                 if (!isControlled)
                 {
-                    AI(gameTime, npcs, projManager);
+                    AI(gameTime, npcs, globalProjectile);
 
                 }
                 else
                 {
-                    Shoot(gameTime, projManager, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
+                    Shoot(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
                     aiState = "";
                     PlayerInventoryInteractions(Keys.I, groundItems);
-                    Random rand = new Random();
-                    AddItem(Keys.X, true, rand.Next(0, 11), itemDictionary, itemManager, groundItems, items);
+                    AddItem(Keys.X, true, random.Next(0, 11), itemDictionary, globalItem, groundItems, items);
                     inventory.SortItems(inputManager.previousMouseState);
                     foreach (Item item in groundItems.ToList())
                     {
@@ -125,8 +128,8 @@ namespace BaseBuilderRPG.Content
                             string text = "Picked: " + item.prefixName + " " + item.name + " " + item.suffixName;
                             Vector2 textSize = Main.testFont.MeasureString(text);
 
-                            Vector2 textPos = position + new Vector2(-textSize.X / 5f, -20);
-                            textManager.AddFloatingText("Picked: ", (item.prefixName + " " + item.name + " " + item.suffixName), textPos, Color.White, item.rarityColor, 0.75f, 0.9f);
+                            Vector2 textPos = position + new Vector2(-textSize.X / 5f, -10);
+                            textManager.AddFloatingText("Picked: ", (item.prefixName + " " + item.name + " " + item.suffixName), textPos, new Vector2(0, 10), Color.White, item.rarityColor, 0.75f, 1f);
                             inventory.PickItem(textManager, this, item, groundItems);
                         }
                     }
@@ -403,7 +406,7 @@ namespace BaseBuilderRPG.Content
         public void GetDamaged(Text_Manager texMan, int damage)
         {
             health -= damage;
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + textureBody.Width / 2, position.Y), Color.Red, Color.Transparent, 0.75f, 1.1f);
+            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + textureBody.Width / 2 + random.Next(-10, 10), position.Y), new Vector2(random.Next(-10, 10), random.Next(1, 10) + 10f), Color.Red, Color.Transparent, 2f, 1.1f);
             immunityTime = immunityTimeMax;
         }
 

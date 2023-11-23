@@ -6,18 +6,18 @@ namespace BaseBuilderRPG.Content
 {
     public class Text_Manager
     {
-        private List<Display_Text> _texts;
+        private List<Floating_Text> _texts;
         private SpriteFont _font;
 
         public Text_Manager(SpriteFont font)
         {
-            this._texts = new List<Display_Text>();
+            this._texts = new List<Floating_Text>();
             this._font = font;
         }
 
-        public void AddFloatingText(string text1, string text2, Vector2 position, Color color1, Color color2, float duration, float scale)
+        public void AddFloatingText(string text1, string text2, Vector2 position, Vector2 velocity, Color color1, Color color2, float duration, float scale)
         {
-            Display_Text floatingText = new Display_Text(text1, text2, position, color1, color2, duration, scale);
+            Floating_Text floatingText = new Floating_Text(text1, text2, position, velocity, color1, color2, duration, scale);
             _texts.Add(floatingText);
         }
 

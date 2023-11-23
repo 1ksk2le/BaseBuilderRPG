@@ -16,9 +16,10 @@ namespace BaseBuilderRPG.Content
         private readonly List<Player> players;
         private readonly List<Projectile> projectiles;
         private readonly Global_Item globalItem;
+        private readonly Global_Particle globalParticle;
         private readonly Text_Manager disTextManager;
 
-        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item _globalItem, Text_Manager _disTextManager, List<Player> _players, List<Projectile> projectiles)
+        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item _globalItem, Global_Particle _globalParticle, Text_Manager _textManager, List<Player> _players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -38,7 +39,8 @@ namespace BaseBuilderRPG.Content
 
             players = _players;
             globalItem = _globalItem;
-            disTextManager = _disTextManager;
+            globalParticle = _globalParticle;
+            disTextManager = _textManager;
             this.projectiles = projectiles;
         }
 
@@ -64,7 +66,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (npc.isAlive)
                 {
-                    npc.Update(gameTime, players, projectiles, disTextManager, globalItem);
+                    npc.Update(gameTime, players, projectiles, disTextManager, globalItem, globalParticle);
                 }
                 else
                 {

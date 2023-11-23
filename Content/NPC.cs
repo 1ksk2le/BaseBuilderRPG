@@ -27,13 +27,15 @@ namespace BaseBuilderRPG.Content
         public float rotation, animationSpeed, immunityTime, health, immunityTimeMax, aiX, aiY, aiZ;
         public int width, height;
         public bool isImmune;
-        private bool didSpawn;
 
+        private bool didSpawn;
         private int currentFrame;
         private const float kbDuration = 0.25f;
         private float kbTimer = 0f;
         private float animationTimer, hitEffectTimer, hitEffectTimerMax;
         private Vector2 kbStartPos, kbEndPos;
+
+        private Random random;
         public NPC(Texture2D texture, string texturePath, int id, int ai, Vector2 position, string name, int damage, float maxHealth, float knockBack, float knockBackRes, float targetRange, int numFrames, bool isAlive)
         {
             this.texture = texture;
@@ -61,9 +63,11 @@ namespace BaseBuilderRPG.Content
             aiX = 0f;
             aiY = 0f;
             aiZ = 0f;
+
+            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager disTextManager, Global_Item itemManager)
+        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Global_Item globalItem, Global_Particle globalParticle)
         {
             if (!didSpawn)
             {
@@ -101,17 +105,17 @@ namespace BaseBuilderRPG.Content
 
                     animationTimer = 0f;
                 }
-                ProcessAI(gameTime, players, projectiles, disTextManager);
+                ProcessAI(gameTime, players, projectiles, textManager, globalParticle);
                 isAlive = true;
             }
             else
             {
-                Kill(itemManager);
+                Kill(globalItem, globalParticle);
                 isAlive = false;
             }
         }
 
-        public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager disTexManager)
+        public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Global_Particle globalParticle)
         {
             Player targetPlayer = null;
             float distanceLimit = targetRange * targetRange;
@@ -132,9 +136,9 @@ namespace BaseBuilderRPG.Content
                 target = targetPlayer.center;
             }
 
-            HitByProjectile(gameTime, projectiles, disTexManager);
-            HitByPlayer(gameTime, players, disTexManager);
-            HitPlayer(gameTime, players, disTexManager);
+            HitByProjectile(gameTime, projectiles, textManager, globalParticle);
+            HitByPlayer(gameTime, players, textManager, globalParticle);
+            HitPlayer(gameTime, players, textManager);
 
             var tick = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (target != Vector2.Zero)
@@ -200,7 +204,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void HitByProjectile(GameTime gameTime, List<Projectile> projectiles, Text_Manager disTextManager)
+        private void HitByProjectile(GameTime gameTime, List<Projectile> projectiles, Text_Manager textManager, Global_Particle globalParticle)
         {
             foreach (Projectile proj in projectiles)
             {
@@ -220,7 +224,7 @@ namespace BaseBuilderRPG.Content
 
                             proj.penetrate--;
                             target = proj.owner.center;
-                            GetDamaged(disTextManager, proj.damage);
+                            GetDamaged(textManager, proj.damage, globalParticle);
                         }
                     }
                 }
@@ -232,7 +236,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void HitByPlayer(GameTime gameTime, List<Player> players, Text_Manager disTextManager)
+        private void HitByPlayer(GameTime gameTime, List<Player> players, Text_Manager textManager, Global_Particle globalParticle)
         {
             foreach (Player player in players)
             {
@@ -252,7 +256,7 @@ namespace BaseBuilderRPG.Content
 
                             target = player.center;
                             player.canHit = false;
-                            GetDamaged(disTextManager, player.equippedWeapon.damage);
+                            GetDamaged(textManager, player.equippedWeapon.damage, globalParticle);
                         }
                     }
                 }
@@ -265,13 +269,13 @@ namespace BaseBuilderRPG.Content
         }
 
 
-        private void HitPlayer(GameTime gameTime, List<Player> players, Text_Manager disTextManager)
+        private void HitPlayer(GameTime gameTime, List<Player> players, Text_Manager textManager)
         {
             foreach (Player player in players)
             {
                 if (rectangle.Intersects(player.rectangle) && !player.isImmune && damage > 0)
                 {
-                    player.GetDamaged(disTextManager, damage);
+                    player.GetDamaged(textManager, damage);
                 }
             }
         }
@@ -289,20 +293,30 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void GetDamaged(Text_Manager texMan, int damage)
+        private void GetDamaged(Text_Manager textManager, int damage, Global_Particle globalParticle)
         {
+            for (int i = 0; i < 10; i++)
+            {
+                globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width / 2), random.Next(height / 2)), new Vector2(random.Next(30, 50), random.Next(5, 5)), origin, 1f, 0.7f, Color.Red);
+            }
+
             health -= damage;
 
-            texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + width / 2, position.Y), Color.Red, Color.Transparent, 1f, 1.1f);
+            textManager.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + width / 2 + random.Next(-10, 10), position.Y), new Vector2(random.Next(-10, 10) * 1f, random.Next(1, 10) + 10f), Color.Red, Color.Transparent, 2f, 1.1f);
 
             hitEffectTimer = hitEffectTimerMax;
             immunityTime = immunityTimeMax;
         }
 
-        public void Kill(Global_Item itemManager)
+        public void Kill(Global_Item globalItem, Global_Particle globalParticle)
         {
+            for (int i = 0; i < 30; i++)
+            {
+                globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width / 2), random.Next(height / 2)), new Vector2(random.Next(-10, 10), random.Next(-50, -30)), origin, 1f, 0.7f, Color.Red);
+            }
             health = -1;
-            //itemManager.DropItem(1, 0, 0, 1, Position);
+
+
         }
     }
 }
