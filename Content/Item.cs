@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
@@ -35,6 +36,8 @@ namespace BaseBuilderRPG.Content
         public Vector2 origin, center;
         public float levTimer = 0.0f;
         public bool didSpawn;
+
+        private Random random;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
@@ -82,6 +85,8 @@ namespace BaseBuilderRPG.Content
                     this.shootSpeed = shootSpeed;
                 }
             }
+
+
             SetDefaults();
 
             toolTips = new List<string>();
@@ -112,9 +117,11 @@ namespace BaseBuilderRPG.Content
             TooltipsBasedOnID();
 
             didSpawn = false;
+
+            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Global_Particle globalParticle)
         {
             levTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (!didSpawn)
@@ -123,6 +130,28 @@ namespace BaseBuilderRPG.Content
             }
             center = position + origin;
             rectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
+
+            int numberOfParticles = 16;
+            float particleSpeed = 15f;
+
+            Vector2 particleOffset = new Vector2(-texture.Width / 4, texture.Height / 2);
+
+            for (int i = 0; i < numberOfParticles; i++)
+            {
+                Vector2 randomOffset = new Vector2(random.Next(texture.Width), random.NextFloat(-5f, 5f));
+
+                Vector2 particlePosition = position + particleOffset + randomOffset;
+
+                float particleScale = 1f * random.NextFloat(0.1f, 1f);
+
+                Vector2 particleVelocity = new Vector2(0, -particleSpeed);
+                if (random.Next(120) == 0)
+                {
+                    globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor);
+                    //globalParticle.NewParticle(0, 0, particlePosition, -particleVelocity, Vector2.Zero, 0f, 3f, particleScale, rarityColor);
+                }
+
+            }
         }
 
         public bool PlayerClose(Player player, float pickRange)

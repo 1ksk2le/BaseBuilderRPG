@@ -9,7 +9,6 @@ namespace BaseBuilderRPG.Content
     public class Global_Particle : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
-        private Vector2 pos;
         private List<Particle> particles;
         private Dictionary<int, Particle> particleDictionary;
 
@@ -39,11 +38,12 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void NewParticle(int id, int ai, Vector2 position, Vector2 velocity, Vector2 origin, float lifeTime, float scale, Color color)
+        public void NewParticle(int id, int ai, Vector2 position, Vector2 velocity, Vector2 origin, float rotationSpeed, float lifeTime, float scale, Color color)
         {
             if (particleDictionary.TryGetValue(id, out var p))
             {
                 Particle particle = new Particle(p.texture, p.texturePath, p.name, p.id, p.ai, position, velocity, origin, lifeTime, scale, color, true);
+                particle.rotationSpeed = rotationSpeed;
                 particles.Add(particle);
             }
         }

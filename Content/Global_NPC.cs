@@ -8,24 +8,21 @@ namespace BaseBuilderRPG.Content
 {
     public class Global_NPC : DrawableGameComponent
     {
-        SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;
         private static Dictionary<int, NPC> npcDictionary;
-
         public List<NPC> npcs;
-        private readonly List<NPC> npcsToRemove;
         private readonly List<Player> players;
         private readonly List<Projectile> projectiles;
         private readonly Global_Item globalItem;
         private readonly Global_Particle globalParticle;
-        private readonly Text_Manager disTextManager;
+        private readonly Text_Manager textManager;
 
-        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item _globalItem, Global_Particle _globalParticle, Text_Manager _textManager, List<Player> _players, List<Projectile> projectiles)
+        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item globalItem, Global_Particle globalParticle, Text_Manager textManager, List<Player> players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
 
             npcs = new List<NPC>();
-            npcsToRemove = new List<NPC>();
             npcDictionary = new Dictionary<int, NPC>();
 
             string npcsJson = File.ReadAllText("Content/npcs.json");
@@ -37,10 +34,10 @@ namespace BaseBuilderRPG.Content
                 npcDictionary.Add(npcs[i].id, npcs[i]);
             }
 
-            players = _players;
-            globalItem = _globalItem;
-            globalParticle = _globalParticle;
-            disTextManager = _textManager;
+            this.players = players;
+            this.globalItem = globalItem;
+            this.globalParticle = globalParticle;
+            this.textManager = textManager;
             this.projectiles = projectiles;
         }
 
@@ -66,18 +63,11 @@ namespace BaseBuilderRPG.Content
             {
                 if (npc.isAlive)
                 {
-                    npc.Update(gameTime, players, projectiles, disTextManager, globalItem, globalParticle);
-                }
-                else
-                {
-                    npcsToRemove.Add(npc);
+                    npc.Update(gameTime, players, projectiles, textManager, globalItem, globalParticle);
                 }
             }
 
-            foreach (NPC npc in npcsToRemove)
-            {
-                npcs.Remove(npc);
-            }
+            npcs.RemoveAll(npc => !npc.isAlive);
 
             base.Update(gameTime);
         }

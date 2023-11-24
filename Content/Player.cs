@@ -17,6 +17,7 @@ namespace BaseBuilderRPG.Content
         public bool isControlled { get; set; }
         public string name { get; set; }
 
+        public List<Projectile> ownedProjectiles;
         public Item equippedWeapon, mouseItem, hoveredItem;
         public Texture2D textureBody;
         public Texture2D textureHead;
@@ -27,7 +28,7 @@ namespace BaseBuilderRPG.Content
         private Rectangle rectangleMeleeAI;
         public int direction = 1;
         public int width, height;
-        public float immunityTime, immunityTimeMax, useTimer, meleeRange, rangedRange, rotationAngle, speed;
+        private float immunityTime, immunityTimeMax, useTimer, meleeRange, rangedRange, rotationAngle, speed, hitEffectTimer, hitEffectTimerMax;
         public bool inventoryVisible, isImmune, isSwinging, isPicked, canHit, didSpawn, hasMovementOrder;
         private bool aiAttackCheck;
         private string aiState;
@@ -50,6 +51,8 @@ namespace BaseBuilderRPG.Content
             immunityTimeMax = 0.4f;
             speed = 1.5f;
             immunityTime = 0f;
+            hitEffectTimer = 0f;
+            hitEffectTimerMax = 0.75f;
             targetMovement = center;
             width = textureBody.Width;
             height = textureBody.Height;
@@ -62,6 +65,8 @@ namespace BaseBuilderRPG.Content
             hasMovementOrder = false;
             isPicked = false;
             aiState = "";
+
+            ownedProjectiles = new List<Projectile>();
 
             random = Main_Globals.GetRandomInstance();
         }
@@ -77,7 +82,7 @@ namespace BaseBuilderRPG.Content
                 meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
                 if (equippedWeapon.damageType == "ranged")
                 {
-                    rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * 60;
+                    rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
                 }
                 else if (equippedWeapon.damageType == "melee")
                 {
@@ -96,6 +101,11 @@ namespace BaseBuilderRPG.Content
             else
             {
                 isImmune = false;
+            }
+
+            if (hitEffectTimer >= 0f)
+            {
+                hitEffectTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
             if (inventory.equipmentSlots[0].equippedItem != null)
@@ -133,24 +143,6 @@ namespace BaseBuilderRPG.Content
                             inventory.PickItem(textManager, this, item, groundItems);
                         }
                     }
-
-                    /*int numberOfParticles = 10;
-                    float radius = 50f; // Adjust the radius of the circle
-                    float angleIncrement = MathHelper.TwoPi / numberOfParticles; // Calculate the angle between each particle
-
-                    for (int i = 0; i < numberOfParticles; i++)
-                    {
-                        float angle = i * angleIncrement;
-                        float xOffset = radius * (float)Math.Cos(angle);
-                        float yOffset = radius * (float)Math.Sin(angle);
-
-                        Vector2 particlePosition = center + new Vector2(xOffset, yOffset);
-                        Vector2 particleVelocity = Vector2.Zero;
-
-                        globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, origin, 2f, 1f * random.Next(1, 100) / 100, Color.Red);
-                    }*/
-
-
                 }
 
                 if (equippedWeapon != null)
@@ -421,11 +413,22 @@ namespace BaseBuilderRPG.Content
             return Color.Lerp(black, white, progress);
         }
 
-        public void GetDamaged(Text_Manager texMan, int damage)
+        public void GetDamaged(Text_Manager texMan, int damage, Global_Particle globalParticle, NPC npc)
         {
             health -= damage;
             texMan.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + textureBody.Width / 2 + random.Next(-10, 10), position.Y), new Vector2(random.Next(-10, 10), random.Next(1, 10) + 10f), Color.Red, Color.Transparent, 2f, 1.1f);
             immunityTime = immunityTimeMax;
+            hitEffectTimer = hitEffectTimerMax;
+
+            for (int i = 0; i < damage * 2; i++)
+            {
+                if (npc != null)
+                {
+                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
+                   (npc.position.X > position.X) ? -1 * new Vector2(random.Next(20, 40), random.Next(-12, -6)) : new Vector2(random.Next(20, 80), random.Next(6, 12)), origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                }
+
+            }
         }
 
         private void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
@@ -749,23 +752,23 @@ namespace BaseBuilderRPG.Content
             float rotation = (float)Math.Atan2(directionToMouse.Y * direction, directionToMouse.X * direction);
             rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
 
-            spriteBatch.Draw(textureBody, position, null, Color.Lerp(skinColor, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, isControlled ? 0.851f : 0.751f);
+            spriteBatch.Draw(textureBody, position, null, Color.Lerp(skinColor, Color.Red, hitEffectTimer), 0f, Vector2.Zero, 1f, eff, isControlled ? 0.851f : 0.751f);
 
             if (isControlled)
             {
                 Vector2 headOrigin = new Vector2(textureHead.Width / 2, textureHead.Height);
                 Vector2 eyesOrigin = new Vector2(textureEye.Width / 2, (textureEye.Height) / 2);
 
-                spriteBatch.Draw(textureHead, position + new Vector2(textureHead.Width / 2 - 2 * direction, textureHead.Height), null, Color.Lerp(skinColor, Color.DarkRed, immunityTime), rotation, headOrigin, 1f, eff, 0.852f);
+                spriteBatch.Draw(textureHead, position + new Vector2(textureHead.Width / 2 - 2 * direction, textureHead.Height), null, Color.Lerp(skinColor, Color.Red, hitEffectTimer), rotation, headOrigin, 1f, eff, 0.852f);
 
                 Rectangle sourceRect = new Rectangle(0, 0, textureEye.Width, textureEye.Height / 2);
-                spriteBatch.Draw(textureEye, position + new Vector2(textureEye.Width / 2 - 2 * direction, textureEye.Height / 2), sourceRect, Color.Lerp(Color.White, Color.DarkRed, immunityTime), rotation, eyesOrigin, 1f, eff, 0.853f);
+                spriteBatch.Draw(textureEye, position + new Vector2(textureEye.Width / 2 - 2 * direction, textureEye.Height / 2), sourceRect, Color.Lerp(Color.White, Color.Red, hitEffectTimer), rotation, eyesOrigin, 1f, eff, 0.853f);
             }
             else
             {
-                spriteBatch.Draw(textureHead, position + new Vector2(-2 * direction, 0), null, Color.Lerp(skinColor, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, 0.752f);
+                spriteBatch.Draw(textureHead, position + new Vector2(-2 * direction, 0), null, Color.Lerp(skinColor, Color.Red, hitEffectTimer), 0f, Vector2.Zero, 1f, eff, 0.752f);
                 Rectangle sourceRect = new Rectangle(0, 0, textureEye.Width, textureEye.Height / 2);
-                spriteBatch.Draw(textureEye, position + new Vector2(-2 * direction, 0), sourceRect, Color.Lerp(Color.White, Color.DarkRed, immunityTime), 0f, Vector2.Zero, 1f, eff, 0.753f);
+                spriteBatch.Draw(textureEye, position + new Vector2(-2 * direction, 0), sourceRect, Color.Lerp(Color.White, Color.Red, hitEffectTimer), 0f, Vector2.Zero, 1f, eff, 0.753f);
             }
 
             PostDraw(spriteBatch, rotation);

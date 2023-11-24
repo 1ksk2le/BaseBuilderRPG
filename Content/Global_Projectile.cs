@@ -11,15 +11,14 @@ namespace BaseBuilderRPG.Content
         SpriteBatch spriteBatch;
         private static Dictionary<int, Projectile> projectileDictionary;
         public List<Projectile> projectiles;
-        private List<Projectile> projectilesToRemove;
+        private Global_Particle globalParticle;
 
-        public Global_Projectile(Game game, SpriteBatch spriteBatch)
+        public Global_Projectile(Game game, SpriteBatch spriteBatch, Global_Particle globalParticle)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
 
             projectiles = new List<Projectile>();
-            projectilesToRemove = new List<Projectile>();
             projectileDictionary = new Dictionary<int, Projectile>();
 
             string projectilesJson = File.ReadAllText("Content/projectiles.json");
@@ -29,6 +28,9 @@ namespace BaseBuilderRPG.Content
                 projectiles[i].id = i;
                 projectileDictionary.Add(projectiles[i].id, projectiles[i]);
             }
+
+            this.globalParticle = globalParticle;
+
         }
 
         public void Load()
@@ -43,40 +45,21 @@ namespace BaseBuilderRPG.Content
         {
             if (projectileDictionary.TryGetValue(id, out var p))
             {
-                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, target, p.name, damage, p.penetrate, p.lifeTimeMax, p.knockBack, speed, owner, isAlive, p.width, p.height));
+                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, target, speed, p.name, damage, p.penetrate, p.lifeTimeMax, p.knockBack, owner, isAlive, p.width, p.height));
             }
         }
 
         public override void Update(GameTime gameTime)
         {
-            for (int i = projectiles.Count - 1; i >= 0; i--)
+            foreach (Projectile projectile in projectiles)
             {
-                if (projectiles.Count > 0)
+                if (projectile.isAlive)
                 {
-                    Projectile projectile = projectiles[i];
-                    if (projectile.isAlive)
-                    {
-                        projectile.Update(gameTime, this);
-                    }
-                    else
-                    {
-                        projectilesToRemove.Add(projectile);
-                    }
+                    projectile.Update(gameTime, this, globalParticle);
                 }
             }
 
-            foreach (Projectile proj in projectiles)
-            {
-                if (proj.owner == null)
-                {
-                    projectilesToRemove.Add(proj);
-                }
-            }
-
-            foreach (Projectile projectile in projectilesToRemove)
-            {
-                projectiles.Remove(projectile);
-            }
+            projectiles.RemoveAll(projectile => !projectile.isAlive);
 
             base.Update(gameTime);
         }

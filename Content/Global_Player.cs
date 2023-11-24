@@ -12,10 +12,8 @@ namespace BaseBuilderRPG.Content
         SpriteBatch spriteBatch;
         public List<NPC> npcs;
         public List<Player> players;
-        public List<Player> playersToRemove;
         private List<Item> items;
         private List<Item> groundItems;
-        private List<Item> itemsToRemove;
         private Dictionary<int, Item> itemDictionary;
         private Global_Item globalItem;
         private Global_Projectile globalProjectile;
@@ -27,8 +25,8 @@ namespace BaseBuilderRPG.Content
         private Random random;
 
 
-        public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> _npcs, List<Item> _items, List<Item> _groundItems, List<Item> _itemsToRemove, Dictionary<int,
-            Item> _itemDictionary, Global_Item _globalItem, Global_Projectile _globalProjectile, Text_Manager _textManager, Global_Particle _globalParticle)
+        public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> npcs, List<Item> items, List<Item> groundItems, Dictionary<int,
+            Item> itemDictionary, Global_Item globalItem, Global_Projectile globalProjectile, Text_Manager textManager, Global_Particle globalParticle)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -38,16 +36,14 @@ namespace BaseBuilderRPG.Content
             _textureEyes = game.Content.Load<Texture2D>("Textures/Player/tex_Player_Eyes");
 
             players = new List<Player>();
-            playersToRemove = new List<Player>();
-            npcs = _npcs;
-            items = _items;
-            groundItems = _groundItems;
-            itemsToRemove = _itemsToRemove;
-            itemDictionary = _itemDictionary;
-            globalItem = _globalItem;
-            textManager = _textManager;
-            globalProjectile = _globalProjectile;
-            globalParticle = _globalParticle;
+            this.npcs = npcs;
+            this.items = items;
+            this.groundItems = groundItems;
+            this.itemDictionary = itemDictionary;
+            this.globalItem = globalItem;
+            this.textManager = textManager;
+            this.globalProjectile = globalProjectile;
+            this.globalParticle = globalParticle;
 
             random = Main_Globals.GetRandomInstance();
         }
@@ -58,10 +54,6 @@ namespace BaseBuilderRPG.Content
             for (int i = 0; i < 5; i++)
             {
                 players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(rand.Next(200, 600), rand.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
-                if (itemDictionary.TryGetValue((i < 5) ? 10 : 3, out var itemData))
-                {
-                    players[i].equippedWeapon = itemData;
-                }
             }
         }
 
@@ -80,19 +72,12 @@ namespace BaseBuilderRPG.Content
                         PlayerMovementOrder(player);
                     }
                 }
-                else
-                {
-                    playersToRemove.Add(player);
-                }
             }
 
-            foreach (Player player in playersToRemove)
-            {
-                players.Remove(player);
-            }
+            players.RemoveAll(player => (player.health <= 0));
 
             PlayerSelect(players, Keys.E);
-            ClearItems(itemsToRemove, true, true, true, Keys.C);
+            ClearItems(true, true, true, Keys.C);
 
             base.Update(gameTime);
         }
@@ -377,7 +362,7 @@ namespace BaseBuilderRPG.Content
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }
 
-        private void ClearItems(List<Item> itemsToRemove, bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)
+        private void ClearItems(bool clearInventory, bool clearGroundItems, bool clearEquippedItems, Keys key)
         {
             var inputManager = Input_Manager.Instance;
             if (inputManager.IsKeySinglePress(key))
@@ -388,7 +373,7 @@ namespace BaseBuilderRPG.Content
                     {
                         foreach (Item item in groundItems)
                         {
-                            itemsToRemove.Add(item);
+                            item.onGround = false;
                         }
                     }
                     if (clearInventory)

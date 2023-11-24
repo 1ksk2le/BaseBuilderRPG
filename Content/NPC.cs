@@ -138,7 +138,7 @@ namespace BaseBuilderRPG.Content
 
             HitByProjectile(gameTime, projectiles, textManager, globalParticle);
             HitByPlayer(gameTime, players, textManager, globalParticle);
-            HitPlayer(gameTime, players, textManager);
+            HitPlayer(gameTime, players, globalParticle, textManager);
 
             var tick = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (target != Vector2.Zero)
@@ -224,7 +224,7 @@ namespace BaseBuilderRPG.Content
 
                             proj.penetrate--;
                             target = proj.owner.center;
-                            GetDamaged(textManager, proj.damage, globalParticle);
+                            GetDamaged(textManager, proj.damage, globalParticle, proj, null);
                         }
                     }
                 }
@@ -256,7 +256,7 @@ namespace BaseBuilderRPG.Content
 
                             target = player.center;
                             player.canHit = false;
-                            GetDamaged(textManager, player.equippedWeapon.damage, globalParticle);
+                            GetDamaged(textManager, player.equippedWeapon.damage, globalParticle, null, player);
                         }
                     }
                 }
@@ -269,13 +269,13 @@ namespace BaseBuilderRPG.Content
         }
 
 
-        private void HitPlayer(GameTime gameTime, List<Player> players, Text_Manager textManager)
+        private void HitPlayer(GameTime gameTime, List<Player> players, Global_Particle globalParticle, Text_Manager textManager)
         {
             foreach (Player player in players)
             {
                 if (rectangle.Intersects(player.rectangle) && !player.isImmune && damage > 0)
                 {
-                    player.GetDamaged(textManager, damage);
+                    player.GetDamaged(textManager, damage, globalParticle, this);
                 }
             }
         }
@@ -293,39 +293,33 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void GetDamaged(Text_Manager textManager, int damage, Global_Particle globalParticle)
+        private void GetDamaged(Text_Manager textManager, int damage, Global_Particle globalParticle, Projectile projectile, Player player)
         {
-            int numberOfParticles = 10;
-            float radius = 50f; // Adjust the radius of the circle
-            float angleIncrement = MathHelper.TwoPi / numberOfParticles; // Calculate the angle between each particle
-
-            for (int i = 0; i < numberOfParticles; i++)
-            {
-                float angle = i * angleIncrement;
-                float xOffset = radius * (float)Math.Cos(angle);
-                float yOffset = radius * (float)Math.Sin(angle);
-
-                Vector2 particlePosition = center + new Vector2(xOffset, yOffset);
-                Vector2 particleVelocity = new Vector2(random.Next(30, 50), random.Next(5, 5));
-
-                globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, origin, 2f, 1f * random.Next(1, 100) / 100, Color.Red);
-            }
-
-
             health -= damage;
 
             textManager.AddFloatingText("-" + damage.ToString(), "", new Vector2(position.X + width / 2 + random.Next(-10, 10), position.Y), new Vector2(random.Next(-10, 10) * 1f, random.Next(1, 10) + 10f), Color.Red, Color.Transparent, 2f, 1.1f);
 
             hitEffectTimer = hitEffectTimerMax;
             immunityTime = immunityTimeMax;
+
+            for (int i = 0; i < damage * 2; i++)
+            {
+                if (player != null)
+                {
+                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
+                   (player.position.X > position.X) ? -1 * new Vector2(random.Next(20, 40), random.Next(-12, -6)) : new Vector2(random.Next(20, 80), random.Next(6, 12)), origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                }
+                else
+                {
+                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
+                  projectile.velocity * projectile.speed / 5, origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                }
+
+            }
         }
 
         public void Kill(Global_Item globalItem, Global_Particle globalParticle)
         {
-            for (int i = 0; i < 30; i++)
-            {
-                globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width / 2), random.Next(height / 2)), new Vector2(random.Next(-10, 10), random.Next(-50, -30)), origin, 1f, 0.7f, Color.Red);
-            }
             health = -1;
 
 

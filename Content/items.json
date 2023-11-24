@@ -34,7 +34,7 @@
     "useTime": 1.2,
     "knockBack": 10,
     "shootID": 0,
-    "shootSpeed": 4.5,
+    "shootSpeed": 200,
     "texturePath": "Textures/tex_Test_Bow"
   },
   {

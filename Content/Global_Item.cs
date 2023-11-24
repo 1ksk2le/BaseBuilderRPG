@@ -12,17 +12,17 @@ namespace BaseBuilderRPG.Content
         private SpriteBatch spriteBatch;
         public Dictionary<int, Item> itemDictionary;
         public List<Item> items;
-        public List<Item> itemsToRemove;
         public List<Item> groundItems;
+        private readonly Global_Particle globalParticle;
 
-        public Global_Item(Game game, SpriteBatch spriteBatch) : base(game)
+        public Global_Item(Game game, SpriteBatch spriteBatch, Global_Particle globalParticle) : base(game)
         {
             this.spriteBatch = spriteBatch;
 
             items = new List<Item>();
             groundItems = new List<Item>();
-            itemsToRemove = new List<Item>();
             itemDictionary = new Dictionary<int, Item>();
+            this.globalParticle = globalParticle;
 
             string itemsJson = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
@@ -59,20 +59,15 @@ namespace BaseBuilderRPG.Content
         {
             foreach (Item item in groundItems)
             {
-                item.Update(gameTime);
-            }
-            foreach (Item item in items)
-            {
-                if (!item.onGround)
+                if (item.onGround)
                 {
-                    itemsToRemove.Add(item);
+                    item.Update(gameTime, globalParticle);
                 }
             }
-            foreach (Item item in itemsToRemove)
-            {
-                groundItems.Remove(item);
-                items.Remove(item);
-            }
+
+            items.RemoveAll(item => !item.onGround);
+            groundItems.RemoveAll(item => !item.onGround);
+
             base.Update(gameTime);
         }
 

@@ -15,22 +15,25 @@ namespace BaseBuilderRPG.Content
         public float lifeTimeMax { get; set; }
         public float lifeTime { get; set; }
         public float knockBack { get; set; }
-        public float speed { get; set; }
         public string texturePath { get; set; }
         public string name { get; set; }
         public bool isAlive { get; set; }
         public Vector2 position { get; set; }
+        public Vector2 target { get; set; }
 
-        private Vector2 spawnPosition;
-        private Vector2 target;
+        public Vector2 velocity;
         public Vector2 origin, center;
         public Rectangle rectangle;
         public int width, height;
         public float rotation;
+        public float rotationSpeed;
+        public float speed;
         public bool didSpawn;
 
+        private Random random;
 
-        public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, Vector2 target, string name, int damage, int penetrate, float lifeTime, float knockBack, float speed, Player owner, bool isAlive, int width, int height)
+
+        public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, Vector2 target, float speed, string name, int damage, int penetrate, float lifeTime, float knockBack, Player owner, bool isAlive, int width, int height)
         {
             this.texture = texture;
             this.texturePath = texturePath;
@@ -39,25 +42,30 @@ namespace BaseBuilderRPG.Content
             this.name = name;
             this.damage = damage;
             this.lifeTimeMax = lifeTime;
-            this.speed = speed;
             this.knockBack = knockBack;
             this.position = position;
             this.isAlive = isAlive;
             this.penetrate = penetrate;
+            this.speed = speed;
             this.owner = owner;
             this.lifeTime = 0f;
             this.width = width;
             this.height = height;
             this.target = target;
-            spawnPosition = this.position;
             didSpawn = false;
+
+            velocity = (target - position);
+            velocity.Normalize();
+
+            origin = new Vector2(width / 2, height / 2);
+
+            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime, Global_Projectile projManager)
+        public void Update(GameTime gameTime, Global_Projectile globalProjectile, Global_Particle globalParticle)
         {
             if (!didSpawn)
             {
-                origin = new Vector2(width / 2, height / 2);
                 didSpawn = true;
             }
             center = position + origin;
@@ -65,7 +73,7 @@ namespace BaseBuilderRPG.Content
 
             if (lifeTime >= lifeTimeMax)
             {
-                Kill(projManager);
+                Kill(globalProjectile);
                 isAlive = false;
             }
             else
@@ -75,22 +83,15 @@ namespace BaseBuilderRPG.Content
 
             if (penetrate < 0)
             {
-                Kill(projManager);
+                Kill(globalProjectile);
                 isAlive = false;
             }
 
             if (ai == 0 || ai == 1)
             {
-                Vector2 direction = target - spawnPosition;
-                direction.Normalize();
+                rotation = (float)Math.Atan2(velocity.Y, velocity.X);
 
-                position += direction * speed;
-                rotation = (float)Math.Atan2(direction.Y, direction.X);
-            }
-
-            if (id == 0)
-            {
-                globalParticle.NewParticle(0, 0, new Vector2(600, 600), new Vector2(random.Next(-50, 50), random.Next(-50, 50)), players[0].origin, 2f, 1f * random.Next(1, 100) / 100, Color.Orange);
+                position += velocity * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
         }
 
