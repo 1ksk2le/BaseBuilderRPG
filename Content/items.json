@@ -38,15 +38,15 @@
     "texturePath": "Textures/tex_Test_Bow"
   },
   {
-    "name": "Wooden Baton",
+    "name": "Flaming Baton",
     "type": "Weapon",
     "damageType": "melee",
     "weaponType": "One Handed Sword",
-    "rarity": 0,
-    "damage": 14,
+    "rarity": 2,
+    "damage": 10,
     "useTime": 1,
     "knockBack": 30,
-    "texturePath": "Textures/Weapons/Wooden_Baton"
+    "texturePath": "Textures/Weapons/Flaming_Baton"
   },
   {
     "name": "Leather Armor",
@@ -100,7 +100,7 @@
     "type": "Weapon",
     "damageType": "melee",
     "weaponType": "One Handed Sword",
-    "rarity": 1,
+    "rarity": 2,
     "damage": 8,
     "useTime": 0.6,
     "knockBack": 24,

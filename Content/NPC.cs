@@ -302,17 +302,17 @@ namespace BaseBuilderRPG.Content
             hitEffectTimer = hitEffectTimerMax;
             immunityTime = immunityTimeMax;
 
-            for (int i = 0; i < damage * 2; i++)
+            for (int i = 0; i < damage; i++)
             {
                 if (player != null)
                 {
-                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
-                   (player.position.X > position.X) ? -1 * new Vector2(random.Next(20, 40), random.Next(-12, -6)) : new Vector2(random.Next(20, 80), random.Next(6, 12)), origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                    globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(width), random.Next(height)),
+                   (player.position.X > position.X) ? -1 * new Vector2(random.Next(10, 50), random.Next(70, 90)) : new Vector2(random.Next(10, 50), random.Next(-90, -70)), origin, 0f, 1f, random.NextFloat(1.5f, 4f), Color.DarkGray, Color.DarkGray, Color.DarkGray);
                 }
                 else
                 {
-                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
-                  projectile.velocity * projectile.speed / 5, origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                    globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(width), random.Next(height)),
+                  projectile.velocity * projectile.speed / 5, origin, 0f, 1f, random.NextFloat(1.5f, 4f), Color.DarkGray, Color.DarkGray, Color.DarkGray);
                 }
 
             }

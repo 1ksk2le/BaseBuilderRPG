@@ -1,6 +1,10 @@
 [
   {
-    "name":  "Test Particle",
-    "texturePath": "Textures/Test_Particle"
+    "name": "Square",
+    "texturePath": "Textures/Particles/Square"
+  },
+  {
+    "name": "Pixel",
+    "texturePath": "Textures/Particles/Pixel"
   }
 ]

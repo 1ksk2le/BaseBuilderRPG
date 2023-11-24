@@ -50,6 +50,30 @@
 /processorParam:TextureFormat=Color
 /build:Textures/NPC/Test_NPC.png
 
+#begin Textures/Particles/Pixel.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Particles/Pixel.png
+
+#begin Textures/Particles/Square.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Particles/Square.png
+
 #begin Textures/Player/Armors/tex_Leather_Armor.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -109,18 +133,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Player/tex_Player_Head.png
-
-#begin Textures/Test_Particle.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/Test_Particle.png
 
 #begin Textures/tex_Ruby.png
 /importer:TextureImporter
@@ -254,6 +266,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Weapons/Brass_Sword.png
 
+#begin Textures/Weapons/Flaming_Baton.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Weapons/Flaming_Baton.png
+
 #begin Textures/Weapons/Steel_Sword.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -277,18 +301,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Weapons/Stone_Sword.png
-
-#begin Textures/Weapons/Wooden_Baton.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/Weapons/Wooden_Baton.png
 
 #begin Textures/Weapons/Wooden_Sword.png
 /importer:TextureImporter

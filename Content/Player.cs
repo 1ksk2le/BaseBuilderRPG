@@ -153,6 +153,54 @@ namespace BaseBuilderRPG.Content
                     }
                 }
                 Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
+                ParticleEffects(globalParticle);
+            }
+        }
+
+        private void ParticleEffects(Global_Particle globalParticle)
+        {
+            if (equippedWeapon != null)
+            {
+                if (equippedWeapon.id == 4)
+                {
+                    float circleTime = equippedWeapon.useTime; // Set the time it takes for one full circle in seconds
+
+                    float weaponStart = (direction == 1) ? -90 * MathHelper.Pi / 180 : 15 * MathHelper.Pi / 180;
+                    float weaponEnd = (direction == 1) ? -35 * MathHelper.Pi / 180 : -240 * MathHelper.Pi / 180;
+
+                    float particleStart = weaponStart - MathHelper.Pi / 4; // Adjust this angle as needed
+                    float particleEnd = weaponEnd + MathHelper.Pi / 4;   // Adjust this angle as needed
+
+                    float angleRange = particleEnd - particleStart;
+
+                    float progress = useTimer / equippedWeapon.useTime;
+                    float radians = particleStart + (progress * angleRange);
+                    float distance = equippedWeapon.texture.Height;
+
+                    if (isSwinging)
+                    {
+                        radians = particleStart + (progress * angleRange);
+                    }
+                    else
+                    {
+                        radians = particleEnd;
+                    }
+
+                    Vector2 offset = new Vector2((float)Math.Cos(radians) * distance, (float)Math.Sin(radians) * distance);
+                    Vector2 position = center + offset;
+
+                    for (int i = 0; i < 12; i++)
+                    {
+                        if (random.Next(25) == 0)
+                        {
+                            globalParticle.NewParticle(1, 0, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(0, random.Next(-30, -15)), Vector2.Zero, 0f, 0.6f, 0.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
+                            if (random.Next(25) == 0)
+                            {
+                                globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(random.Next(-20, 20), random.Next(-110, -40)), Vector2.Zero, 0f, 1.2f, 1.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -420,12 +468,12 @@ namespace BaseBuilderRPG.Content
             immunityTime = immunityTimeMax;
             hitEffectTimer = hitEffectTimerMax;
 
-            for (int i = 0; i < damage * 2; i++)
+            for (int i = 0; i < damage; i++)
             {
                 if (npc != null)
                 {
-                    globalParticle.NewParticle(0, 0, center + new Vector2(random.Next(width), random.Next(height)),
-                   (npc.position.X > position.X) ? -1 * new Vector2(random.Next(20, 40), random.Next(-12, -6)) : new Vector2(random.Next(20, 80), random.Next(6, 12)), origin, 0f, 1f, random.NextFloat(0.5f, 1.2f), Color.Red);
+                    globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(width), random.Next(height)),
+                   (npc.position.X > position.X) ? -1 * new Vector2(random.Next(10, 50), random.Next(70, 90)) : new Vector2(random.Next(10, 50), random.Next(-90, -70)), origin, 0f, 1f, random.NextFloat(1.5f, 4f), Color.DarkRed, Color.Red, Color.DarkRed);
                 }
 
             }

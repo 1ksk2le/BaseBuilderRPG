@@ -38,11 +38,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void NewParticle(int id, int ai, Vector2 position, Vector2 velocity, Vector2 origin, float rotationSpeed, float lifeTime, float scale, Color color)
+        public void NewParticle(int id, int ai, Vector2 position, Vector2 velocity, Vector2 origin, float rotationSpeed, float lifeTime, float scale, Color color, Color startColor, Color endColor)
         {
             if (particleDictionary.TryGetValue(id, out var p))
             {
-                Particle particle = new Particle(p.texture, p.texturePath, p.name, p.id, p.ai, position, velocity, origin, lifeTime, scale, color, true);
+                Particle particle = new Particle(p.texture, p.texturePath, p.name, p.id, ai, position, velocity, origin, lifeTime, scale, color, startColor, endColor, true);
                 particle.rotationSpeed = rotationSpeed;
                 particles.Add(particle);
             }

@@ -142,13 +142,12 @@ namespace BaseBuilderRPG.Content
 
                 Vector2 particlePosition = position + particleOffset + randomOffset;
 
-                float particleScale = 1f * random.NextFloat(0.1f, 1f);
+                float particleScale = 3f * random.NextFloat(0.1f, 1f);
 
                 Vector2 particleVelocity = new Vector2(0, -particleSpeed);
                 if (random.Next(120) == 0)
                 {
-                    globalParticle.NewParticle(0, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor);
-                    //globalParticle.NewParticle(0, 0, particlePosition, -particleVelocity, Vector2.Zero, 0f, 3f, particleScale, rarityColor);
+                    globalParticle.NewParticle(1, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor, rarityColor, rarityColor);
                 }
 
             }

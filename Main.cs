@@ -97,7 +97,7 @@ namespace BaseBuilderRPG
 
             globalNPC.NewNPC(0, new Vector2(200, 500));
 
-            drawDebugRectangles = true;
+            drawDebugRectangles = false;
 
             random = Main_Globals.GetRandomInstance();
             base.Initialize();
