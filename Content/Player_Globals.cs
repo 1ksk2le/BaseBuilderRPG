@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Global_Player : DrawableGameComponent
+    public class Player_Globals : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
         public List<NPC> npcs;
@@ -15,18 +15,16 @@ namespace BaseBuilderRPG.Content
         private List<Item> items;
         private List<Item> groundItems;
         private Dictionary<int, Item> itemDictionary;
-        private Global_Item globalItem;
-        private Global_Projectile globalProjectile;
-        private Global_Particle globalParticle;
+        private Item_Globals globalItem;
+        private Projectile_Globals globalProjectile;
+        private Particle_Globals globalParticle;
         private Text_Manager textManager;
         public Texture2D _texture;
         public Texture2D _textureHead;
         public Texture2D _textureEyes;
-        private Random random;
 
-
-        public Global_Player(Game game, SpriteBatch spriteBatch, List<NPC> npcs, List<Item> items, List<Item> groundItems, Dictionary<int,
-            Item> itemDictionary, Global_Item globalItem, Global_Projectile globalProjectile, Text_Manager textManager, Global_Particle globalParticle)
+        public Player_Globals(Game game, SpriteBatch spriteBatch, List<NPC> npcs, List<Item> items, List<Item> groundItems, Dictionary<int,
+            Item> itemDictionary, Item_Globals globalItem, Projectile_Globals globalProjectile, Text_Manager textManager, Particle_Globals globalParticle)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -44,16 +42,13 @@ namespace BaseBuilderRPG.Content
             this.textManager = textManager;
             this.globalProjectile = globalProjectile;
             this.globalParticle = globalParticle;
-
-            random = Main_Globals.GetRandomInstance();
         }
 
         public void Load()
         {
-            Random rand = new Random();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(rand.Next(200, 600), rand.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, true));
             }
         }
 
@@ -341,7 +336,7 @@ namespace BaseBuilderRPG.Content
             }
             foreach (Player player in players)
             {
-                player.Draw(spriteBatch);
+                player.visualHandler.Draw(spriteBatch);
             }
 
             if (startPos != Vector2.Zero)

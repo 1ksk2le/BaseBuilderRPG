@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
@@ -36,8 +35,6 @@ namespace BaseBuilderRPG.Content
         public Vector2 origin, center;
         public float levTimer = 0.0f;
         public bool didSpawn;
-
-        private Random random;
 
         public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, bool onGround)
         {
@@ -117,16 +114,15 @@ namespace BaseBuilderRPG.Content
             TooltipsBasedOnID();
 
             didSpawn = false;
-
-            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime, Global_Particle globalParticle)
+        public void Update(GameTime gameTime, Particle_Globals globalParticle)
         {
             levTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (!didSpawn)
             {
                 origin = new Vector2(texture.Width / 2, texture.Height / 2);
+                didSpawn = true;
             }
             center = position + origin;
             rectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
@@ -138,14 +134,14 @@ namespace BaseBuilderRPG.Content
 
             for (int i = 0; i < numberOfParticles; i++)
             {
-                Vector2 randomOffset = new Vector2(random.Next(texture.Width), random.NextFloat(-5f, 5f));
+                Vector2 randomOffset = new Vector2(Main.random.Next(texture.Width), Main.random.NextFloat(-5f, 5f));
 
                 Vector2 particlePosition = position + particleOffset + randomOffset;
 
-                float particleScale = 3f * random.NextFloat(0.1f, 1f);
+                float particleScale = 3f * Main.random.NextFloat(0.1f, 1f);
 
                 Vector2 particleVelocity = new Vector2(0, -particleSpeed);
-                if (random.Next(120) == 0)
+                if (Main.random.Next(120) == 0)
                 {
                     globalParticle.NewParticle(1, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor, rarityColor, rarityColor);
                 }

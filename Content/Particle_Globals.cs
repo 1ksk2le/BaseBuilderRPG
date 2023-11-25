@@ -6,13 +6,13 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Global_Particle : DrawableGameComponent
+    public class Particle_Globals : DrawableGameComponent
     {
         SpriteBatch spriteBatch;
         private List<Particle> particles;
         private Dictionary<int, Particle> particleDictionary;
 
-        public Global_Particle(Game game, SpriteBatch spriteBatch)
+        public Particle_Globals(Game game, SpriteBatch spriteBatch)
             : base(game)
         {
             this.spriteBatch = spriteBatch;

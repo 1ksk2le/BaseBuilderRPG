@@ -6,18 +6,18 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Global_NPC : DrawableGameComponent
+    public class NPC_Globals : DrawableGameComponent
     {
         private SpriteBatch spriteBatch;
         private static Dictionary<int, NPC> npcDictionary;
         public List<NPC> npcs;
         private readonly List<Player> players;
         private readonly List<Projectile> projectiles;
-        private readonly Global_Item globalItem;
-        private readonly Global_Particle globalParticle;
+        private readonly Item_Globals globalItem;
+        private readonly Particle_Globals globalParticle;
         private readonly Text_Manager textManager;
 
-        public Global_NPC(Game game, SpriteBatch spriteBatch, Global_Item globalItem, Global_Particle globalParticle, Text_Manager textManager, List<Player> players, List<Projectile> projectiles)
+        public NPC_Globals(Game game, SpriteBatch spriteBatch, Item_Globals globalItem, Particle_Globals globalParticle, Text_Manager textManager, List<Player> players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;

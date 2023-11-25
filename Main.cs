@@ -29,11 +29,11 @@ namespace BaseBuilderRPG
 
         public static Text_Manager textManager;
 
-        public static Global_NPC globalNPC;
-        public static Global_Projectile globalProjectile;
-        public static Global_Player globalPlayer;
-        public static Global_Item globalItem;
-        public static Global_Particle globalParticle;
+        public static NPC_Globals globalNPC;
+        public static Projectile_Globals globalProjectile;
+        public static Player_Globals globalPlayer;
+        public static Item_Globals globalItem;
+        public static Particle_Globals globalParticle;
 
         public static Dictionary<int, Item> itemDictionary;
 
@@ -46,7 +46,8 @@ namespace BaseBuilderRPG
 
         public static bool drawDebugRectangles;
 
-        private Random random;
+        public static Random random;
+
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -65,23 +66,23 @@ namespace BaseBuilderRPG
             outlineShader = Content.Load<Effect>("Shaders/Outline");
             testFont = Content.Load<SpriteFont>("Font_Test");
 
-            globalParticle = new Global_Particle(this, spriteBatch);
+            globalParticle = new Particle_Globals(this, spriteBatch);
 
-            globalProjectile = new Global_Projectile(this, spriteBatch, globalParticle);
+            globalProjectile = new Projectile_Globals(this, spriteBatch, globalParticle);
             projectiles = globalProjectile.projectiles;
 
             textManager = new Text_Manager(testFont);
 
-            globalItem = new Global_Item(this, spriteBatch, globalParticle);
+            globalItem = new Item_Globals(this, spriteBatch, globalParticle);
             items = globalItem.items;
             groundItems = globalItem.groundItems;
             itemDictionary = globalItem.itemDictionary;
 
 
-            globalPlayer = new Global_Player(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
+            globalPlayer = new Player_Globals(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
             players = globalPlayer.players;
 
-            globalNPC = new Global_NPC(this, spriteBatch, globalItem, globalParticle, textManager, players, projectiles);
+            globalNPC = new NPC_Globals(this, spriteBatch, globalItem, globalParticle, textManager, players, projectiles);
             npcs = globalNPC.npcs;
             globalPlayer.npcs = globalNPC.npcs;
 

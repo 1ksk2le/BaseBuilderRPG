@@ -30,8 +30,6 @@ namespace BaseBuilderRPG.Content
         public float speed;
         public bool didSpawn;
 
-        private Random random;
-
 
         public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, Vector2 target, float speed, string name, int damage, int penetrate, float lifeTime, float knockBack, Player owner, bool isAlive, int width, int height)
         {
@@ -58,11 +56,9 @@ namespace BaseBuilderRPG.Content
             velocity.Normalize();
 
             origin = new Vector2(width / 2, height / 2);
-
-            random = Main_Globals.GetRandomInstance();
         }
 
-        public void Update(GameTime gameTime, Global_Projectile globalProjectile, Global_Particle globalParticle)
+        public void Update(GameTime gameTime, Projectile_Globals globalProjectile, Particle_Globals globalParticle)
         {
             if (!didSpawn)
             {
@@ -95,7 +91,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void Kill(Global_Projectile projManager)
+        public void Kill(Projectile_Globals projManager)
         {
             if (ai == 0)
             {

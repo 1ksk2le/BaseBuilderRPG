@@ -10,5 +10,13 @@
   {
     "name": "Star",
     "texturePath": "Textures/Particles/Star"
+  },
+  {
+    "name": "Reticle",
+    "texturePath": "Textures/Particles/Reticle"
+  },
+  {
+    "name": "Empty Square",
+    "texturePath": "Textures/Particles/Empty_Square"
   }
 ]

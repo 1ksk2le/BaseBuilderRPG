@@ -7,15 +7,15 @@ using System.IO;
 
 namespace BaseBuilderRPG.Content
 {
-    public class Global_Item : DrawableGameComponent
+    public class Item_Globals : DrawableGameComponent
     {
         private SpriteBatch spriteBatch;
         public Dictionary<int, Item> itemDictionary;
         public List<Item> items;
         public List<Item> groundItems;
-        private readonly Global_Particle globalParticle;
+        private readonly Particle_Globals globalParticle;
 
-        public Global_Item(Game game, SpriteBatch spriteBatch, Global_Particle globalParticle) : base(game)
+        public Item_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticle) : base(game)
         {
             this.spriteBatch = spriteBatch;
 
