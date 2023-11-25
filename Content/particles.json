@@ -6,5 +6,9 @@
   {
     "name": "Pixel",
     "texturePath": "Textures/Particles/Pixel"
+  },
+  {
+    "name": "Star",
+    "texturePath": "Textures/Particles/Star"
   }
 ]

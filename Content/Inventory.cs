@@ -393,6 +393,16 @@ namespace BaseBuilderRPG.Content
             return false;
         }
 
+        public bool IsInventoryHovered()
+        {
+            Rectangle slotRect = new((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - Main.texInventoryExtras.Height / 2, Main.texInventory.Width, Main.texInventory.Height + Main.texInventoryExtras.Height);
+            if (slotRect.Contains(Input_Manager.Instance.mousePosition))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool IsFull()
         {
             for (int x = 0; x < width; x++)

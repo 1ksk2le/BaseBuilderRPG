@@ -147,60 +147,12 @@ namespace BaseBuilderRPG.Content
 
                 if (equippedWeapon != null)
                 {
-                    if (equippedWeapon.damageType == "melee")
+                    if (equippedWeapon.weaponType == "One Handed Sword")
                     {
-                        OneHandedSwing(gameTime);
+                        OneHandedSwing(gameTime, globalParticle);
                     }
                 }
                 Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
-                ParticleEffects(globalParticle);
-            }
-        }
-
-        private void ParticleEffects(Global_Particle globalParticle)
-        {
-            if (equippedWeapon != null)
-            {
-                if (equippedWeapon.id == 4)
-                {
-                    float circleTime = equippedWeapon.useTime; // Set the time it takes for one full circle in seconds
-
-                    float weaponStart = (direction == 1) ? -90 * MathHelper.Pi / 180 : 15 * MathHelper.Pi / 180;
-                    float weaponEnd = (direction == 1) ? -35 * MathHelper.Pi / 180 : -240 * MathHelper.Pi / 180;
-
-                    float particleStart = weaponStart - MathHelper.Pi / 4; // Adjust this angle as needed
-                    float particleEnd = weaponEnd + MathHelper.Pi / 4;   // Adjust this angle as needed
-
-                    float angleRange = particleEnd - particleStart;
-
-                    float progress = useTimer / equippedWeapon.useTime;
-                    float radians = particleStart + (progress * angleRange);
-                    float distance = equippedWeapon.texture.Height;
-
-                    if (isSwinging)
-                    {
-                        radians = particleStart + (progress * angleRange);
-                    }
-                    else
-                    {
-                        radians = particleEnd;
-                    }
-
-                    Vector2 offset = new Vector2((float)Math.Cos(radians) * distance, (float)Math.Sin(radians) * distance);
-                    Vector2 position = center + offset;
-
-                    for (int i = 0; i < 12; i++)
-                    {
-                        if (random.Next(25) == 0)
-                        {
-                            globalParticle.NewParticle(1, 0, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(0, random.Next(-30, -15)), Vector2.Zero, 0f, 0.6f, 0.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
-                            if (random.Next(25) == 0)
-                            {
-                                globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(random.Next(-20, 20), random.Next(-110, -40)), Vector2.Zero, 0f, 1.2f, 1.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
-                            }
-                        }
-                    }
-                }
             }
         }
 
@@ -333,15 +285,16 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void OneHandedSwing(GameTime gameTime)
+        private void OneHandedSwing(GameTime gameTime, Global_Particle globalParticle)
         {
             if (equippedWeapon != null && equippedWeapon.weaponType == "One Handed Sword")
             {
                 float start = (direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                 float end = (direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
+                float progress = useTimer / equippedWeapon.useTime;
                 if (isControlled)
                 {
-                    if (Input_Manager.Instance.IsButtonPressed(true))
+                    if (Input_Manager.Instance.IsButtonPressed(true) && !inventory.IsInventoryHovered())
                     {
                         if (!isSwinging)
                         {
@@ -378,10 +331,99 @@ namespace BaseBuilderRPG.Content
                     }
                     else
                     {
-                        float progress = useTimer / equippedWeapon.useTime;
                         rotationAngle = MathHelper.Lerp(start, end, progress);
                     }
                 }
+
+                float weaponStart = (direction == 1) ? -70 * MathHelper.Pi / 180 : -30 * MathHelper.Pi / 180;
+                float weaponEnd = (direction == 1) ? -35 * MathHelper.Pi / 180 : -240 * MathHelper.Pi / 180;
+
+                float particleStart = weaponStart - MathHelper.Pi / 4;
+                float particleEnd = weaponEnd + MathHelper.Pi / 4;
+
+                float angleRange = particleEnd - particleStart;
+
+
+                float radians;
+                float distance = equippedWeapon.texture.Height;
+
+                if (isSwinging)
+                {
+                    radians = particleStart + (progress * angleRange);
+                }
+                else
+                {
+                    radians = particleEnd;
+                }
+                Vector2 offset = new Vector2((float)Math.Cos(radians) * distance, (float)Math.Sin(radians) * distance);
+                Vector2 position;
+                if (equippedWeapon.id == 4)
+                {
+                    position = center + offset;
+
+                    for (int i = 0; i < 12; i++)
+                    {
+                        if (random.Next(25) == 0)
+                        {
+                            globalParticle.NewParticle(1, 0, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(0, random.Next(-30, -15)), Vector2.Zero, 0f, 0.6f, 0.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
+                            if (random.Next(25) == 0)
+                            {
+                                globalParticle.NewParticle(1, 1, position + new Vector2(random.Next(-5, 5), random.Next(-5, 5)), new Vector2(random.Next(-20, 20), random.Next(-110, -40)), Vector2.Zero, 0f, 1.2f, 2f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
+                            }
+                        }
+                    }
+                }
+                if (equippedWeapon.prefixName == "Magical")
+                {
+                    position = center + offset + new Vector2(0, equippedWeapon.texture.Width / 8);
+
+                    for (int i = 0; i < equippedWeapon.texture.Height / 2; i++)
+                    {
+                        if (random.Next(150) == 0)
+                        {
+                            globalParticle.NewParticle(1, 0,
+                                (direction == 1) ? position + new Vector2(random.Next(-equippedWeapon.texture.Height + 16, 0), random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)) : position + new Vector2(random.Next(0, equippedWeapon.texture.Height - 16), random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)),
+                                new Vector2(0, random.Next(-30, 30)), Vector2.Zero, 0f, 0.8f, 0.5f + random.NextFloat(0.5f, 3f), Color.Wheat, Color.Lime, Color.Yellow);
+                        }
+                        if (random.Next(150) == 0)
+                        {
+                            globalParticle.NewParticle(1, 1,
+                                (direction == 1) ? position + new Vector2(random.Next(-equippedWeapon.texture.Height + 16, 0), random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)) : position + new Vector2(random.Next(0, equippedWeapon.texture.Height - 16), random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)),
+                                new Vector2(random.Next(-10, 10), random.Next(-10, 10)), Vector2.Zero, 10f * -direction, 0.6f, 4f * random.NextFloat(0.1f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DrawParticleLine(Global_Particle globalParticle, Vector2 pointA, Vector2 pointB, float thickness, Color color, Color startColor, Color endColor, int particleCount)
+        {
+            Vector2 direction = pointB - pointA;
+            float length = direction.Length();
+
+            direction.Normalize();
+
+            float angle = (float)Math.Atan2(direction.Y, direction.X);
+
+            float spacing = length / particleCount;
+
+            for (int i = 0; i < particleCount; i++)
+            {
+                Vector2 particlePosition = pointA + direction * (spacing * i);
+
+                globalParticle.NewParticle(
+                    1,
+                    0,
+                    particlePosition,
+                    Vector2.Zero,
+                    Vector2.Zero,
+                    0f,
+                    thickness / 10f,
+                    thickness / 10f,
+                    color,
+                    startColor,
+                    endColor
+                );
             }
         }
 
@@ -479,205 +521,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
-        {
-            var inputManager = Input_Manager.Instance;
-            bool isMouseOverItem = false;
 
-            Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
-            if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))
-            {
-                inventoryVisible = false;
-            }
-            if (isControlled && inputManager.IsKeySinglePress(key))
-            {
-                if (inventoryVisible)
-                {
-                    inventoryVisible = false;
-                }
-                else
-                {
-                    Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.texInventory.Width / 2, inputManager.mousePosition.Y);
-                    inventoryVisible = true;
-                }
-            }
-
-            if (isControlled && inventoryVisible)
-            {
-                for (int i = 0; i < inventory.equipmentSlots.Count; i++)
-                {
-                    Vector2 position = Main.EquipmentSlotPositions(i);
-                    if (inventory.equipmentSlots[i].equippedItem != null)
-                    {
-                        if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
-                        {
-                            isMouseOverItem = true;
-                            hoveredItem = inventory.GetEquippedItem(i);
-                        }
-                    }
-                }
-                for (int y = 0; y < inventory.height; y++)
-                {
-                    for (int x = 0; x < inventory.width; x++)
-                    {
-                        int slotSize = Main.inventorySlotSize;
-                        int slotX = (int)Main.inventoryPos.X + x * slotSize;
-                        int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
-
-
-                        if (inventory.IsSlotHovered(slotX, slotY))
-                        {
-                            hoveredItem = inventory.GetItem(x, y);
-                            isMouseOverItem = true;
-                        }
-                    }
-                }
-            }
-
-            foreach (Item item in groundItems)
-            {
-                if (item.InteractsWithMouse())
-                {
-                    hoveredItem = item;
-                    isMouseOverItem = true;
-                }
-            }
-
-            if (!isMouseOverItem)
-            {
-                hoveredItem = null;
-            }
-
-            if (inputManager.IsButtonSingleClick(true))
-            {
-                if (isControlled && inventoryVisible)
-                {
-                    for (int y = 0; y < inventory.height; y++)
-                    {
-                        for (int x = 0; x < inventory.width; x++)
-                        {
-                            int slotSize = Main.inventorySlotSize;
-                            int slotX = (int)Main.inventoryPos.X + x * slotSize;
-                            int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
-
-                            if (inventory.IsSlotHovered(slotX, slotY))
-                            {
-                                if (mouseItem == null)
-                                {
-                                    mouseItem = inventory.GetItem(x, y);
-                                    inventory.RemoveItem(x, y);
-                                }
-                                else
-                                {
-                                    Item temp = mouseItem;
-                                    mouseItem = inventory.GetItem(x, y);
-                                    inventory.SetItem(x, y, temp);
-                                }
-                            }
-                        }
-                    }
-                    for (int i = 0; i < inventory.equipmentSlots.Count; i++)
-                    {
-                        Vector2 position = Main.EquipmentSlotPositions(i);
-                        if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
-                        {
-                            var equipSlot = inventory.equipmentSlots[i];
-                            if (mouseItem == null)
-                            {
-                                mouseItem = inventory.GetEquippedItem(i);
-                                equipSlot.equippedItem = null;
-                            }
-                            else
-                            {
-                                if (mouseItem.type == equipSlot.SlotType)
-                                {
-                                    Item temp = mouseItem;
-                                    mouseItem = inventory.GetEquippedItem(i);
-                                    equipSlot.equippedItem = temp;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (inputManager.IsButtonSingleClick(false))
-            {
-                if (isControlled)
-                {
-                    if (mouseItem != null)
-                    {
-                        mouseItem.position = position;
-                        mouseItem.onGround = true;
-                        groundItems.Add(mouseItem);
-                        mouseItem = null;
-                    }
-
-                    if (inventoryVisible)
-                    {
-                        for (int y = 0; y < inventory.height; y++)
-                        {
-                            for (int x = 0; x < inventory.width; x++)
-                            {
-                                int slotSize = Main.inventorySlotSize;
-                                int slotX = (int)Main.inventoryPos.X + x * slotSize;
-                                int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
-                                if (inventory.IsSlotHovered(slotX, slotY))
-                                {
-                                    hoveredItem = inventory.GetItem(x, y);
-                                    if (hoveredItem != null)
-                                    {
-                                        inventory.EquipItem(hoveredItem, x, y);
-                                    }
-                                }
-                            }
-                        }
-
-                        for (int i = 0; i < inventory.equipmentSlots.Count; i++)
-                        {
-                            Vector2 position = Main.EquipmentSlotPositions(i);
-                            if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
-                            {
-                                if (!inventory.IsFull() && inventory.equipmentSlots[i].equippedItem != null)
-                                {
-                                    inventory.AddItem(inventory.equipmentSlots[i].equippedItem, groundItems);
-                                    inventory.equipmentSlots[i].equippedItem = null;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void AddItem(Keys key, bool addInventory, int itemID, Dictionary<int, Item> itemDictionary, Global_Item itemManager, List<Item> groundItems, List<Item> items)
-        {
-            var inputManager = Input_Manager.Instance;
-            if (inputManager.IsKeySinglePress(key))
-            {
-                Random rand = new Random();
-                int prefixID;
-                int suffixID;
-
-                prefixID = rand.Next(0, 4);
-                suffixID = rand.Next(0, 4);
-
-                if (addInventory)
-                {
-                    if (isControlled)
-                    {
-                        if (itemDictionary.TryGetValue(itemID, out var itemData))
-                        {
-                            inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, prefixID, suffixID, 1, false), groundItems);
-                        }
-                    }
-                }
-                else
-                {
-                    itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), inputManager.mousePosition);
-                }
-            }
-        }
 
         private void Shoot(GameTime gameTime, Global_Projectile projManager, Vector2 target)
         {
@@ -898,6 +742,206 @@ namespace BaseBuilderRPG.Content
                         break;
                 }
                 spriteBatch.Draw(inventory.equipmentSlots[4].equippedItem.texture, position + new Vector2(textureHead.Width / 2 - headOffset * direction, textureHead.Height), null, Color.Lerp(Color.White, Color.DarkRed, immunityTime), isControlled ? headRot : 0f, headOrigin, 1f, eff, isControlled ? 0.8611f : 0.7611f);
+            }
+        }
+
+        private void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
+        {
+            var inputManager = Input_Manager.Instance;
+            bool isMouseOverItem = false;
+
+            Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
+            if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))
+            {
+                inventoryVisible = false;
+            }
+            if (isControlled && inputManager.IsKeySinglePress(key))
+            {
+                if (inventoryVisible)
+                {
+                    inventoryVisible = false;
+                }
+                else
+                {
+                    Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.texInventory.Width / 2, inputManager.mousePosition.Y);
+                    inventoryVisible = true;
+                }
+            }
+
+            if (isControlled && inventoryVisible)
+            {
+                for (int i = 0; i < inventory.equipmentSlots.Count; i++)
+                {
+                    Vector2 position = Main.EquipmentSlotPositions(i);
+                    if (inventory.equipmentSlots[i].equippedItem != null)
+                    {
+                        if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                        {
+                            isMouseOverItem = true;
+                            hoveredItem = inventory.GetEquippedItem(i);
+                        }
+                    }
+                }
+                for (int y = 0; y < inventory.height; y++)
+                {
+                    for (int x = 0; x < inventory.width; x++)
+                    {
+                        int slotSize = Main.inventorySlotSize;
+                        int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                        int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
+
+
+                        if (inventory.IsSlotHovered(slotX, slotY))
+                        {
+                            hoveredItem = inventory.GetItem(x, y);
+                            isMouseOverItem = true;
+                        }
+                    }
+                }
+            }
+
+            foreach (Item item in groundItems)
+            {
+                if (item.InteractsWithMouse())
+                {
+                    hoveredItem = item;
+                    isMouseOverItem = true;
+                }
+            }
+
+            if (!isMouseOverItem)
+            {
+                hoveredItem = null;
+            }
+
+            if (inputManager.IsButtonSingleClick(true))
+            {
+                if (isControlled && inventoryVisible)
+                {
+                    for (int y = 0; y < inventory.height; y++)
+                    {
+                        for (int x = 0; x < inventory.width; x++)
+                        {
+                            int slotSize = Main.inventorySlotSize;
+                            int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                            int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
+
+                            if (inventory.IsSlotHovered(slotX, slotY))
+                            {
+                                if (mouseItem == null)
+                                {
+                                    mouseItem = inventory.GetItem(x, y);
+                                    inventory.RemoveItem(x, y);
+                                }
+                                else
+                                {
+                                    Item temp = mouseItem;
+                                    mouseItem = inventory.GetItem(x, y);
+                                    inventory.SetItem(x, y, temp);
+                                }
+                            }
+                        }
+                    }
+                    for (int i = 0; i < inventory.equipmentSlots.Count; i++)
+                    {
+                        Vector2 position = Main.EquipmentSlotPositions(i);
+                        if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                        {
+                            var equipSlot = inventory.equipmentSlots[i];
+                            if (mouseItem == null)
+                            {
+                                mouseItem = inventory.GetEquippedItem(i);
+                                equipSlot.equippedItem = null;
+                            }
+                            else
+                            {
+                                if (mouseItem.type == equipSlot.SlotType)
+                                {
+                                    Item temp = mouseItem;
+                                    mouseItem = inventory.GetEquippedItem(i);
+                                    equipSlot.equippedItem = temp;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (inputManager.IsButtonSingleClick(false))
+            {
+                if (isControlled)
+                {
+                    if (mouseItem != null)
+                    {
+                        mouseItem.position = position;
+                        mouseItem.onGround = true;
+                        groundItems.Add(mouseItem);
+                        mouseItem = null;
+                    }
+
+                    if (inventoryVisible)
+                    {
+                        for (int y = 0; y < inventory.height; y++)
+                        {
+                            for (int x = 0; x < inventory.width; x++)
+                            {
+                                int slotSize = Main.inventorySlotSize;
+                                int slotX = (int)Main.inventoryPos.X + x * slotSize;
+                                int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
+                                if (inventory.IsSlotHovered(slotX, slotY))
+                                {
+                                    hoveredItem = inventory.GetItem(x, y);
+                                    if (hoveredItem != null)
+                                    {
+                                        inventory.EquipItem(hoveredItem, x, y);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < inventory.equipmentSlots.Count; i++)
+                        {
+                            Vector2 position = Main.EquipmentSlotPositions(i);
+                            if (inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
+                            {
+                                if (!inventory.IsFull() && inventory.equipmentSlots[i].equippedItem != null)
+                                {
+                                    inventory.AddItem(inventory.equipmentSlots[i].equippedItem, groundItems);
+                                    inventory.equipmentSlots[i].equippedItem = null;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void AddItem(Keys key, bool addInventory, int itemID, Dictionary<int, Item> itemDictionary, Global_Item itemManager, List<Item> groundItems, List<Item> items)
+        {
+            var inputManager = Input_Manager.Instance;
+            if (inputManager.IsKeySinglePress(key))
+            {
+                Random rand = new Random();
+                int prefixID;
+                int suffixID;
+
+                prefixID = rand.Next(0, 4);
+                suffixID = rand.Next(0, 4);
+
+                if (addInventory)
+                {
+                    if (isControlled)
+                    {
+                        if (itemDictionary.TryGetValue(itemID, out var itemData))
+                        {
+                            inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, prefixID, suffixID, 1, false), groundItems);
+                        }
+                    }
+                }
+                else
+                {
+                    itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), inputManager.mousePosition);
+                }
             }
         }
     }
