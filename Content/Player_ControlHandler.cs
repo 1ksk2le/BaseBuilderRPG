@@ -19,7 +19,7 @@
 
             public void OneHandedSwing(GameTime gameTime, Particle_Globals globalParticle)
             {
-                if (player.equippedWeapon != null && player.equippedWeapon.weaponType == "One Handed Sword")
+                if (player.equippedWeapon != null && player.equippedWeapon.weaponType == "One Handed")
                 {
                     float start = (player.direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
                     float end = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;

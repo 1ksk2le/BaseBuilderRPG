@@ -134,9 +134,9 @@ namespace BaseBuilderRPG.Content
 
                 if (equippedWeapon != null)
                 {
-                    if (equippedWeapon.weaponType == "One Handed Sword")
+                    if (equippedWeapon.weaponType == "One Handed")
                     {
-                        controlHandler.OneHandedSwing(gameTime, globalParticle);
+                        //controlHandler.OneHandedSwing(gameTime, globalParticle);
                     }
                 }
                 visualHandler.ParticleEffects(globalParticle);

@@ -36,7 +36,10 @@ namespace BaseBuilderRPG.Content
         {
             foreach (var projectile in projectiles)
             {
-                projectile.texture = Game.Content.Load<Texture2D>(projectile.texturePath);
+                if (projectile.texturePath != null)
+                {
+                    projectile.texture = Game.Content.Load<Texture2D>(projectile.texturePath);
+                }
             }
         }
 
@@ -74,7 +77,7 @@ namespace BaseBuilderRPG.Content
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
             spriteBatch.DrawStringWithOutline(Main.testFont, "PROJECTILE MANAGER PROJECTILE COUNT: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, Color.White, 1f, 0.99f);
             foreach (Projectile p in projectiles)
             {

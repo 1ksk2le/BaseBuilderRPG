@@ -117,7 +117,7 @@
             {
                 if (player.equippedWeapon != null)
                 {
-                    if (player.equippedWeapon.weaponType == "One Handed Sword")
+                    if (player.equippedWeapon.weaponType == "One Handed" && player.useTimer < 0)
                     {
                         float end = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                         SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;

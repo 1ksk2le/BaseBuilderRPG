@@ -1,5 +1,13 @@
 [
   {
+    "ai": 2,
+    "name": "Melee Swing",
+    "lifeTimeMax": 2,
+    "penetrate": 3,
+    "width": 10,
+    "height": 10
+  },
+  {
     "ai": 0,
     "name": "Test Arrow",
     "lifeTimeMax": 2,

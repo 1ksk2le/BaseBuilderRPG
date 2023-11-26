@@ -145,27 +145,54 @@
 
             public void Shoot(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
             {
-                if (player.equippedWeapon != null && player.equippedWeapon.shootID > -1)
+                if (player.equippedWeapon != null)
                 {
-                    if (player.useTimer > 0)
+                    if (player.equippedWeapon.shootID > -1)
                     {
-                        player.useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    }
-
-                    if (player.useTimer <= 0)
-                    {
-                        if (player.isControlled)
+                        if (player.useTimer > 0)
                         {
-                            if (Input_Manager.Instance.IsButtonPressed(true))
+                            player.useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                        }
+
+                        if (player.useTimer <= 0)
+                        {
+                            if (player.isControlled)
+                            {
+                                if (Input_Manager.Instance.IsButtonPressed(true))
+                                {
+                                    projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
+                                    player.useTimer = player.equippedWeapon.useTime;
+                                }
+                            }
+                            else
                             {
                                 projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
                         }
-                        else
+                    }
+                    if (player.equippedWeapon.weaponType == "One Handed")
+                    {
+                        if (player.useTimer > 0)
                         {
-                            projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
-                            player.useTimer = player.equippedWeapon.useTime;
+                            player.useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                        }
+
+                        if (player.useTimer <= 0)
+                        {
+                            if (player.isControlled)
+                            {
+                                if (Input_Manager.Instance.IsButtonPressed(true))
+                                {
+                                    projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
+                                    player.useTimer = player.equippedWeapon.useTime;
+                                }
+                            }
+                            else
+                            {
+                                projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
+                                player.useTimer = player.equippedWeapon.useTime;
+                            }
                         }
                     }
                 }
