@@ -118,15 +118,34 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.DrawCircle(center, 4f, Color.Red * 1.5f, 64, 1f);
                 spriteBatch.DrawRectangleBorder(rectangle, Color.Red, 1f, 0.01f);
                 spriteBatch.DrawCircle(center, targetRange, Color.Red, 64, 0.011f);
+
+                if (aiTimer[0] != 0f)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "AI 0: " + aiTimer[0].ToString("F2"), center + new Vector2(0, 30), Color.Black, Color.Aqua, 1f, 1f);
+                }
+                if (aiTimer[1] != 0f)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "AI 1: " + aiTimer[1].ToString("F2"), center + new Vector2(0, 40), Color.Black, Color.Aqua, 1f, 1f);
+                }
+                if (aiTimer[2] != 0f)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "AI 2: " + aiTimer[2].ToString("F2"), center + new Vector2(0, 50), Color.Black, Color.Aqua, 1f, 1f);
+                }
+                if (aiTimer[3] != 0f)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "AI 3: " + aiTimer[3].ToString("F2"), center + new Vector2(0, 60), Color.Black, Color.Aqua, 1f, 1f);
+                }
+                if (aiTimer[4] != 0f)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "AI 4: " + aiTimer[4].ToString("F2"), center + new Vector2(0, 70), Color.Black, Color.Aqua, 1f, 1f);
+                }
+                if (target != null)
+                {
+                    spriteBatch.DrawStringWithOutline(Main.testFont, "Target Position: " + target.position.ToString(), center + new Vector2(0, 80), Color.Black, Color.Aqua, 1f, 1f);
+                }
             }
 
-            spriteBatch.DrawStringWithOutline(Main.testFont, aiTimer[0].ToString("F2"), center + new Vector2(0, 30), Color.Black, Color.Aqua, 1f, 1f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, aiTimer[1].ToString("F2"), center + new Vector2(0, 40), Color.Black, Color.Aqua, 1f, 1f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, aiTimer[2].ToString("F2"), center + new Vector2(0, 50), Color.Black, Color.Aqua, 1f, 1f);
-            if (target != null)
-            {
-                spriteBatch.DrawStringWithOutline(Main.testFont, target.position.ToString(), center + new Vector2(0, 60), Color.Black, Color.Aqua, 1f, 1f);
-            }
+
 
             Color npcColor = Color.Lerp(Color.White, Color.Red, hitEffectTimer);
             if (ai == 0)
@@ -138,7 +157,7 @@ namespace BaseBuilderRPG.Content
                 float levitationSpeed = 3.5f;
                 float levitationAmplitude = 0.75f;
 
-                float levitationOffset = (float)Math.Sin(aiTimer[2] * levitationSpeed) * levitationAmplitude;
+                float levitationOffset = (float)Math.Sin(aiTimer[1] * levitationSpeed) * levitationAmplitude;
 
                 float scale = 1.0f + 0.4f * levitationOffset;
 

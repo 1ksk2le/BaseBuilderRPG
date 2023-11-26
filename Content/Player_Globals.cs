@@ -46,9 +46,9 @@ namespace BaseBuilderRPG.Content
 
         public void Load()
         {
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, true));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
             }
         }
 
@@ -65,6 +65,15 @@ namespace BaseBuilderRPG.Content
                     if (player.isPicked)
                     {
                         PlayerMovementOrder(player);
+                    }
+                    foreach (Player otherPlayer in players)
+                    {
+                        if (player != otherPlayer && player.rectangle.Intersects(otherPlayer.rectangle))
+                        {
+                            Vector2 separationVector = player.position - otherPlayer.position;
+                            separationVector.Normalize();
+                            player.position += separationVector * player.width * 1f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                        }
                     }
                 }
             }

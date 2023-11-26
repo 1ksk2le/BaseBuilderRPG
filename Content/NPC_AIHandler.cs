@@ -49,9 +49,9 @@
 
                         if (npc.aiTimer[1] >= 0f)
                         {
-                            if (npc.aiTimer[3] == 0)
+                            if (npc.aiTimer[2] == 0)
                             {
-                                npc.aiTimer[3]++;
+                                npc.aiTimer[2]++;
                                 npc.velocity = npc.target.center - npc.center;
                             }
 
@@ -62,18 +62,16 @@
                             }
                             npc.position += npc.velocity * 90f * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                            npc.aiTimer[2] += (float)gameTime.ElapsedGameTime.TotalSeconds;
                             if (npc.aiTimer[1] > 1f)
                             {
                                 npc.aiTimer[0] = 0f;
                                 npc.aiTimer[1] = 0f;
-                                npc.aiTimer[2] = 0f;
                             }
                         }
                     }
                     else
                     {
-                        npc.aiTimer[3] = 0;
+                        npc.aiTimer[2] = 0;
                         if (!npc.rectangle.Intersects(npc.target.rectangle))
                         {
                             npc.velocity = npc.target.center - npc.center;

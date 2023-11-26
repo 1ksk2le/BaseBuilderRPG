@@ -67,8 +67,6 @@
                     spriteBatch.DrawCircle(player.targetMovement, 8f, Color.Lime, 64, 0.012f);
                 }
 
-                PreDraw(spriteBatch);
-
                 Color nameColor;
 
                 if (player.isPicked)
@@ -97,26 +95,17 @@
                 float rotation = (float)Math.Atan2(directionToMouse.Y * player.direction, directionToMouse.X * player.direction);
                 rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
 
+                PreDraw(spriteBatch);
+                PostDraw(spriteBatch, rotation);
+
                 spriteBatch.Draw(player.textureBody, player.position, null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), 0f, Vector2.Zero, 1f, eff, player.isControlled ? 0.851f : 0.751f);
 
-                if (player.isControlled)
-                {
-                    Vector2 headOrigin = new Vector2(player.textureHead.Width / 2, player.textureHead.Height);
-                    Vector2 eyesOrigin = new Vector2(player.textureEye.Width / 2, (player.textureEye.Height) / 2);
+                Vector2 headOrigin = new Vector2(player.textureHead.Width / 2, player.textureHead.Height);
+                Vector2 eyesOrigin = new Vector2(player.textureEye.Width / 2, (player.textureEye.Height) / 2);
 
-                    spriteBatch.Draw(player.textureHead, player.position + new Vector2(player.textureHead.Width / 2 - 2 * player.direction, player.textureHead.Height), null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), rotation, headOrigin, 1f, eff, 0.852f);
-
-                    Rectangle sourceRect = new Rectangle(0, 0, player.textureEye.Width, player.textureEye.Height / 2);
-                    spriteBatch.Draw(player.textureEye, player.position + new Vector2(player.textureEye.Width / 2 - 2 * player.direction, player.textureEye.Height / 2), sourceRect, Color.Lerp(Color.White, Color.Red, player.hitEffectTimer), rotation, eyesOrigin, 1f, eff, 0.853f);
-                }
-                else
-                {
-                    spriteBatch.Draw(player.textureHead, player.position + new Vector2(-2 * player.direction, 0), null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), 0f, Vector2.Zero, 1f, eff, 0.752f);
-                    Rectangle sourceRect = new Rectangle(0, 0, player.textureEye.Width, player.textureEye.Height / 2);
-                    spriteBatch.Draw(player.textureEye, player.position + new Vector2(-2 * player.direction, 0), sourceRect, Color.Lerp(Color.White, Color.Red, player.hitEffectTimer), 0f, Vector2.Zero, 1f, eff, 0.753f);
-                }
-
-                PostDraw(spriteBatch, rotation);
+                Rectangle sourceRect = new Rectangle(0, 0, player.textureEye.Width, player.textureEye.Height / 2);
+                spriteBatch.Draw(player.textureHead, player.position + new Vector2(player.textureHead.Width / 2 - 2 * player.direction, player.textureHead.Height), null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), (player.isControlled) ? rotation : 0f, headOrigin, 1f, eff, (player.isControlled) ? 0.8511f : 0.7511f);
+                spriteBatch.Draw(player.textureEye, player.position + new Vector2(player.textureEye.Width / 2 - 2 * player.direction, player.textureEye.Height / 2), sourceRect, Color.Lerp(Color.White, Color.Red, player.hitEffectTimer), (player.isControlled) ? rotation : 0f, eyesOrigin, 1f, eff, (player.isControlled) ? 0.8512f : 0.7512f);
 
                 if (player.isControlled && player.inventoryVisible)
                 {

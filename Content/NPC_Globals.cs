@@ -63,6 +63,16 @@ namespace BaseBuilderRPG.Content
             {
                 if (npc.isAlive)
                 {
+                    foreach (NPC otherNPC in npcs)
+                    {
+                        if (otherNPC.isAlive && npc != otherNPC && npc.rectangle.Intersects(otherNPC.rectangle))
+                        {
+                            Vector2 separationVector = npc.position - otherNPC.position;
+                            separationVector.Normalize();
+                            npc.position += separationVector * npc.width * 1f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                        }
+                    }
+
                     npc.Update(gameTime, players, projectiles, textManager, globalItem, globalParticle);
                 }
             }
@@ -71,6 +81,7 @@ namespace BaseBuilderRPG.Content
 
             base.Update(gameTime);
         }
+
 
         public override void Draw(GameTime gameTime)
         {
