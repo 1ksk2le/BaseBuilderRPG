@@ -13,7 +13,5 @@ namespace BaseBuilderRPG.Content
         {
             return (float)random.NextDouble();
         }
-
     }
-
 }

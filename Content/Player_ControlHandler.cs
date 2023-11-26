@@ -36,7 +36,6 @@
                                 player.canHit = true;
                             }
                         }
-
                     }
                     else
                     {
@@ -46,8 +45,6 @@
                             player.aiAttackCheck = true;
                         }
                     }
-
-
 
                     if (player.isSwinging)
                     {
@@ -59,7 +56,6 @@
                             player.isSwinging = false;
                             player.useTimer = 0;
                             player.rotationAngle = end;
-
                         }
                         else
                         {
@@ -99,8 +95,10 @@
                     player.position += player.velocity;
                 }
             }
+
             public void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
             {
+                player.inventory.SortItems();
                 var inputManager = Input_Manager.Instance;
                 bool isMouseOverItem = false;
 
@@ -143,7 +141,6 @@
                             int slotSize = Main.inventorySlotSize;
                             int slotX = (int)Main.inventoryPos.X + x * slotSize;
                             int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
-
 
                             if (player.inventory.IsSlotHovered(slotX, slotY))
                             {
@@ -321,7 +318,7 @@
 
                     Vector2 textPos = player.position + new Vector2(-textSize.X / 5f, -10);
                     textManager.AddFloatingText("Picked: ", (targetItem.prefixName + " " + targetItem.name + " " + targetItem.suffixName), textPos, new Vector2(0, 10), Color.White, targetItem.rarityColor, 0.75f, 1f);
-                    player.inventory.PickItem(textManager, player, targetItem, groundItems);
+                    player.inventory.PickItem(player, targetItem, groundItems);
                 }
             }
         }

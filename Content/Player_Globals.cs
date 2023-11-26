@@ -9,7 +9,7 @@ namespace BaseBuilderRPG.Content
 {
     public class Player_Globals : DrawableGameComponent
     {
-        SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;
         public List<NPC> npcs;
         public List<Player> players;
         private List<Item> items;
@@ -149,7 +149,6 @@ namespace BaseBuilderRPG.Content
                                 selectedPlayers[i].hasMovementOrder = true;
                             }
                         }
-
                     }
                     else if (numberOfPlayers == 1)
                     {
@@ -208,7 +207,6 @@ namespace BaseBuilderRPG.Content
 
                     previewPositionsRed.Add(lineEnd);
                 }
-
             }
             else if (numberOfPlayers == 1)
             {
@@ -221,7 +219,6 @@ namespace BaseBuilderRPG.Content
             var inputManager = Input_Manager.Instance;
             if (inputManager.IsKeySinglePress(key))
             {
-
                 Player activePlayer = players.FirstOrDefault(p => p.isControlled);
 
                 if (activePlayer != null)
@@ -308,9 +305,7 @@ namespace BaseBuilderRPG.Content
                         else
                         {
                             player.isPicked = true;
-
                         }
-
                     }
                 }
             }

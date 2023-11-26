@@ -12,5 +12,4 @@ namespace BaseBuilderRPG
             return new Random(seed);
         }
     }
-
 }

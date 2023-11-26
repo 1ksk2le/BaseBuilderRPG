@@ -8,7 +8,7 @@ namespace BaseBuilderRPG.Content
 {
     public class Particle_Globals : DrawableGameComponent
     {
-        SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;
         private List<Particle> particles;
         private Dictionary<int, Particle> particleDictionary;
 
@@ -29,7 +29,6 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-
         public void Load()
         {
             foreach (var particle in particles)
@@ -47,7 +46,6 @@ namespace BaseBuilderRPG.Content
                 particles.Add(particle);
             }
         }
-
 
         public override void Update(GameTime gameTime)
         {

@@ -25,7 +25,8 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private Input_Manager() { }
+        private Input_Manager()
+        { }
 
         public void PreUpdate()
         {
@@ -96,5 +97,4 @@ namespace BaseBuilderRPG.Content
             return delta;
         }
     }
-
 }

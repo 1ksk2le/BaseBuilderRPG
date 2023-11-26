@@ -34,7 +34,6 @@ namespace BaseBuilderRPG.Content
 
         private List<Vector2> previousPositions;
 
-
         public Particle(Texture2D texture, string texturePath, string name, int id, int ai, Vector2 position, Vector2 velocity, Vector2 origin, float lifeTime, float scale, Color color, Color startColor, Color endColor, bool isAlive)
         {
             this.name = name;
@@ -95,7 +94,6 @@ namespace BaseBuilderRPG.Content
                 }
             }
         }
-
 
         public void Kill()
         {

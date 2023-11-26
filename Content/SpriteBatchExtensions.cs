@@ -31,7 +31,6 @@ namespace BaseBuilderRPG.Content
             spriteBatch.DrawLine(new Vector2(rectangle.Right, rectangle.Y), new Vector2(rectangle.Right, rectangle.Bottom), borderColor, layerDepth);
         }
 
-
         public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, Color color, int segments, float layerDepth)
         {
             float angleIncrement = MathHelper.TwoPi / segments;
@@ -70,6 +69,5 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.DrawLine(corners[i], corners[nextIndex], color, layerDepth);
             }
         }
-
     }
 }

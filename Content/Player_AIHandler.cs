@@ -9,6 +9,7 @@
         public class Player_AIHandler
         {
             private Player player;
+
             public Player_AIHandler(Player player)
             {
                 this.player = player;
@@ -106,7 +107,6 @@
                                     player.position += targetDirection * player.speed;
                                     player.aiState = "Moving to target: [" + targetNPC.name + "]";
                                 }
-
                             }
                             else
                             {
@@ -133,7 +133,6 @@
                                     Shoot(gameTime, projManager, player.target.center);
                                     player.aiState = "Shooting at target: [" + targetNPC.name + "]";
                                 }
-
                             }
                         }
                         else
@@ -176,7 +175,6 @@
             {
                 if (player.hasMovementOrder && !player.isControlled)
                 {
-
                     player.direction = (player.position.X > player.targetMovement.X) ? -1 : 1;
 
                     float distanceThreshold = 1f;
@@ -224,7 +222,6 @@
                         globalParticle.NewParticle(1, 1, player.position + new Vector2(Main.random.Next(player.width), Main.random.Next(player.height)),
                        (npc.position.X > player.position.X) ? -1 * new Vector2(Main.random.Next(10, 50), Main.random.Next(70, 90)) : new Vector2(Main.random.Next(10, 50), Main.random.Next(-90, -70)), player.origin, 0f, 1f, Main.random.NextFloat(1.5f, 4f), Color.DarkRed, Color.Red, Color.DarkRed);
                     }
-
                 }
             }
         }

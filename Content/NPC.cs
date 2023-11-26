@@ -35,6 +35,7 @@ namespace BaseBuilderRPG.Content
         public float kbTimer = 0f;
 
         private NPCAI_Handler aiHandler;
+
         public NPC(Texture2D texture, string texturePath, int id, int ai, Vector2 position, string name, int damage, float maxHealth, float knockBack, float knockBackRes, float targetRange, int numFrames, bool isAlive)
         {
             this.texture = texture;
@@ -81,7 +82,6 @@ namespace BaseBuilderRPG.Content
                 {
                     isImmune = true;
                     immunityTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-
                 }
                 else
                 {
@@ -118,7 +118,6 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.DrawCircle(center, 4f, Color.Red * 1.5f, 64, 1f);
                 spriteBatch.DrawRectangleBorder(rectangle, Color.Red, 1f, 0.01f);
                 spriteBatch.DrawCircle(center, targetRange, Color.Red, 64, 0.011f);
-
             }
 
             spriteBatch.DrawStringWithOutline(Main.testFont, aiTimer[0].ToString("F2"), center + new Vector2(0, 30), Color.Black, Color.Aqua, 1f, 1f);
@@ -128,7 +127,6 @@ namespace BaseBuilderRPG.Content
             {
                 spriteBatch.DrawStringWithOutline(Main.testFont, target.position.ToString(), center + new Vector2(0, 60), Color.Black, Color.Aqua, 1f, 1f);
             }
-
 
             Color npcColor = Color.Lerp(Color.White, Color.Red, hitEffectTimer);
             if (ai == 0)

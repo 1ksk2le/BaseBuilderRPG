@@ -78,10 +78,7 @@ namespace BaseBuilderRPG.Content
                 alpha
             );
 
-
-
             spriteBatch.DrawString(font, text, position, mainTextColor, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
         }
-
     }
 }

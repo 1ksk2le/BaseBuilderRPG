@@ -9,6 +9,7 @@
         public class NPCAI_Handler
         {
             private NPC npc;
+
             public NPCAI_Handler(NPC npc)
             {
                 this.npc = npc;
@@ -58,7 +59,6 @@
                             if (Math.Abs(npc.velocity.Length() - 1.0f) > 0.001f)
                             {
                                 throw new ArgumentException("NPC velocity is not normalized");
-
                             }
                             npc.position += npc.velocity * 90f * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -181,7 +181,6 @@
                 }
             }
 
-
             private void HitPlayer(GameTime gameTime, List<Player> players, Particle_Globals globalParticle, Text_Manager textManager)
             {
                 foreach (Player player in players)
@@ -227,7 +226,6 @@
                         globalParticle.NewParticle(1, 1, npc.position + new Vector2(Main.random.Next(npc.width), Main.random.Next(npc.height)),
                       projectile.velocity * projectile.speed / 5, npc.origin, 0f, 1f, Main.random.NextFloat(1.5f, 4f), Color.DarkGray, Color.DarkGray, Color.DarkGray);
                     }
-
                 }
             }
         }

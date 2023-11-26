@@ -83,7 +83,6 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-
             SetDefaults();
 
             toolTips = new List<string>();
@@ -145,7 +144,6 @@ namespace BaseBuilderRPG.Content
                 {
                     globalParticle.NewParticle(1, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor, rarityColor, rarityColor);
                 }
-
             }
         }
 

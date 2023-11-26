@@ -72,8 +72,6 @@ namespace BaseBuilderRPG.Content
             base.Update(gameTime);
         }
 
-
-
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);

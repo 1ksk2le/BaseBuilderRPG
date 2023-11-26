@@ -48,14 +48,11 @@
                         else if (player.equippedWeapon.damageType == "ranged")
                         {
                             spriteBatch.DrawCircle(player.center, player.rangedRange, Color.Cyan, 64, 0.012f);
-
                         }
-
                     }
                     if (player.hasMovementOrder)
                     {
                         spriteBatch.DrawLine(player.center, player.targetMovement, Color.Indigo, 0.013f);
-
                     }
                     spriteBatch.DrawCircle(player.center, 4f, Color.Blue * 1.5f, 64, 1f);
                     spriteBatch.DrawRectangleBorder(player.rectangle, Color.Blue, 1f, 0.012f);
@@ -68,7 +65,6 @@
                 if (player.hasMovementOrder)
                 {
                     spriteBatch.DrawCircle(player.targetMovement, 8f, Color.Lime, 64, 0.012f);
-
                 }
 
                 PreDraw(spriteBatch);
@@ -92,7 +88,6 @@
                 textPosition.X = player.position.X + player.width / 2 - Main.testFont.MeasureString(player.name).X / 2;
 
                 spriteBatch.DrawStringWithOutline(Main.testFont, player.name, textPosition, Color.Black, player.isControlled ? Color.Yellow : nameColor, 1f, player.isControlled ? 0.8616f : 0.7616f);
-
 
                 SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
                 Vector2 mousePosition = Input_Manager.Instance.mousePosition;
@@ -129,7 +124,6 @@
                 }
             }
 
-
             public void PreDraw(SpriteBatch spriteBatch)
             {
                 if (player.equippedWeapon != null)
@@ -155,6 +149,7 @@
                     }
                 }
             }
+
             public void PostDraw(SpriteBatch spriteBatch, float headRot) //0.8616f : 0.7616f MAX
             {
                 if (player.health <= player.maxHealth)
@@ -166,7 +161,6 @@
                     Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(player.position.X), (int)(player.position.Y + player.height + offSetY), player.width, 2);
                     Rectangle healthBarRectangle = new Rectangle((int)(player.position.X), (int)player.position.Y + player.height + offSetY, (int)healthBarWidth, 2);
 
-
                     if (player.health < player.maxHealth)
                     {
                         spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, player.isControlled ? 0.8613f : 0.7613f);
@@ -174,7 +168,6 @@
                         spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, player.isControlled ? 0.8615f : 0.7615f);
                     }
                 }
-
 
                 SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
                 if (player.inventory.equipmentSlots[2].equippedItem != null) //Offhand
@@ -221,7 +214,6 @@
                     float particleEnd = weaponEnd + MathHelper.Pi / 4;
 
                     float angleRange = particleEnd - particleStart;
-
 
                     float radians;
                     float distance = player.equippedWeapon.texture.Height;

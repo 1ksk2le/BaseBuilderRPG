@@ -78,7 +78,6 @@ namespace BaseBuilderRPG
             groundItems = globalItem.groundItems;
             itemDictionary = globalItem.itemDictionary;
 
-
             globalPlayer = new Player_Globals(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
             players = globalPlayer.players;
 
@@ -91,7 +90,6 @@ namespace BaseBuilderRPG
             Components.Add(globalNPC);
             Components.Add(globalProjectile);
             Components.Add(globalPlayer);
-
 
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;
@@ -127,6 +125,7 @@ namespace BaseBuilderRPG
         }
 
         private bool isDragging = false;
+
         protected override void Update(GameTime gameTime)
         {
             var inputManager = Input_Manager.Instance;
@@ -158,7 +157,6 @@ namespace BaseBuilderRPG
             {
                 if (inputManager.IsButtonPressed(true))
                 {
-
                     if (!isDragging)
                     {
                         isDragging = true;
@@ -210,15 +208,8 @@ namespace BaseBuilderRPG
             var position = inputManager.mousePosition;
             var origin = Vector2.Zero;
 
-
-
-
-
             base.Update(gameTime);
         }
-
-
-
 
         protected override void Draw(GameTime gameTime)
         {
@@ -227,7 +218,6 @@ namespace BaseBuilderRPG
             base.Draw(gameTime);
 
             spriteBatch.Begin();
-
 
             if (drawDebugRectangles)
             {
@@ -241,7 +231,6 @@ namespace BaseBuilderRPG
                 spriteBatch.DrawStringWithOutline(Main.testFont, "Projectile hitbox rectangle", new Vector2(32, graphics.PreferredBackBufferHeight - 88), Color.Black, Color.White, 1f, 0.99f);
                 spriteBatch.DrawRectangle(new Rectangle(10, graphics.PreferredBackBufferHeight - 112, 16, 16), Color.Yellow, 1f);
                 spriteBatch.DrawStringWithOutline(Main.testFont, "Item hitbox rectangle", new Vector2(32, graphics.PreferredBackBufferHeight - 108), Color.Black, Color.White, 1f, 0.99f);
-
             }
             spriteBatch.DrawStringWithOutline(Main.testFont, "Controls", new Vector2(10, 20), Color.Black, Color.Yellow, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "E = Control player", new Vector2(10, 40), Color.Black, Color.White, 1f, 0.99f);

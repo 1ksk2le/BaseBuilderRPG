@@ -33,7 +33,6 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-
         public void Load()
         {
             foreach (var item in items)

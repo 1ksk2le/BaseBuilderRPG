@@ -8,7 +8,7 @@ namespace BaseBuilderRPG.Content
 {
     public class Projectile_Globals : DrawableGameComponent
     {
-        SpriteBatch spriteBatch;
+        private SpriteBatch spriteBatch;
         private static Dictionary<int, Projectile> projectileDictionary;
         public List<Projectile> projectiles;
         private Particle_Globals globalParticle;
@@ -30,7 +30,6 @@ namespace BaseBuilderRPG.Content
             }
 
             this.globalParticle = globalParticle;
-
         }
 
         public void Load()

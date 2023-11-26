@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
@@ -188,7 +187,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void PickItem(Text_Manager textManager, Player player, Item item, List<Item> droppedItems)
+        public void PickItem(Player player, Item item, List<Item> droppedItems)
         {
             for (int y = 0; y < height; y++)
             {
@@ -308,7 +307,7 @@ namespace BaseBuilderRPG.Content
             return itemList;
         }
 
-        public void SortItems(MouseState pMouse)
+        public void SortItems()
         {
             Rectangle slotRect = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
             if (slotRect.Contains(Input_Manager.Instance.mousePosition))

@@ -122,7 +122,6 @@ namespace BaseBuilderRPG.Content
                 if (!isControlled)
                 {
                     aiHandler.ProcessAI(gameTime, npcs, globalProjectile);
-
                 }
                 else
                 {
@@ -130,7 +129,6 @@ namespace BaseBuilderRPG.Content
                     controlHandler.PlayerInventoryInteractions(Keys.I, groundItems);
                     controlHandler.AddItem(Keys.X, true, Main.random.Next(0, 11), itemDictionary, globalItem, groundItems, items);
                     controlHandler.PickItem(groundItems, inputManager, textManager);
-                    inventory.SortItems(inputManager.previousMouseState);
                     aiState = "";
                 }
 

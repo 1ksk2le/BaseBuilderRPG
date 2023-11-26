@@ -30,7 +30,6 @@ namespace BaseBuilderRPG.Content
         public float speed;
         public bool didSpawn;
 
-
         public Projectile(Texture2D texture, string texturePath, int id, int ai, Vector2 position, Vector2 target, float speed, string name, int damage, int penetrate, float lifeTime, float knockBack, Player owner, bool isAlive, int width, int height)
         {
             this.texture = texture;
@@ -120,8 +119,6 @@ namespace BaseBuilderRPG.Content
                 {
                     spriteBatch.Draw(texture, position + origin, null, Color.White, rotation, origin, scale, SpriteEffects.None, 0);
                 }
-
-
 
                 if (Main.drawDebugRectangles)
                 {
