@@ -17,7 +17,7 @@ namespace BaseBuilderRPG.Content
 
         public NPC target;
         public List<Projectile> ownedProjectiles;
-        public Item equippedWeapon, mouseItem, hoveredItem;
+        public Item equippedWeapon, equippedOffhand, equippedBodyArmor, equippedHeadArmor, equippedBoots, mouseItem, hoveredItem;
         public Texture2D textureBody;
         public Texture2D textureHead;
         public Texture2D textureEye;
@@ -26,7 +26,7 @@ namespace BaseBuilderRPG.Content
         public Rectangle rectangle, rectangleMelee;
         public int direction = 1;
         public int width, height;
-        public float meleeRange, rangedRange, speed, useTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax;
+        public float meleeRange, rangedRange, speed, useTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax, eyeTimer;
         public bool inventoryVisible, isImmune, isPicked, hasMovementOrder;
         public string aiState;
         public Player_AIHandler aiHandler;
@@ -47,6 +47,7 @@ namespace BaseBuilderRPG.Content
             health = maxHealth;
             immunityTimeMax = 0.5f;
             speed = 1.5f;
+            eyeTimer = 0f;
             immunityTime = 0f;
             hitEffectTimer = 0f;
             hitEffectTimerMax = 0.75f;
@@ -86,6 +87,16 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
+            if (Main.random.Next(100) == 0)
+            {
+                eyeTimer = 0.25f;
+            }
+
+            if (eyeTimer > 0f)
+            {
+                eyeTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
             if (immunityTime >= 0f)
             {
                 isImmune = true;
@@ -102,6 +113,9 @@ namespace BaseBuilderRPG.Content
             }
 
             equippedWeapon = inventory.equipmentSlots[0].equippedItem != null ? inventory.equipmentSlots[0].equippedItem : null;
+            equippedBodyArmor = inventory.equipmentSlots[1].equippedItem != null ? inventory.equipmentSlots[1].equippedItem : null;
+            equippedOffhand = inventory.equipmentSlots[2].equippedItem != null ? inventory.equipmentSlots[2].equippedItem : null;
+            equippedHeadArmor = inventory.equipmentSlots[4].equippedItem != null ? inventory.equipmentSlots[4].equippedItem : null;
 
             if (health > 0f)
             {

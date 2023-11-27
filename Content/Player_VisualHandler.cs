@@ -15,6 +15,10 @@ namespace BaseBuilderRPG.Content
             this.skinColor = GetSkinColor(player.skinColorFloat);
         }
 
+        private Color GetHitColor(bool armorPiece)
+        {
+            return armorPiece ? Color.Lerp(Color.White, Color.Red, player.hitEffectTimer) : Color.Lerp(skinColor, Color.Red, player.hitEffectTimer);
+        }
         private Color GetSkinColor(float progress)
         {
             Color black = new Color(94, 54, 33);
@@ -24,40 +28,9 @@ namespace BaseBuilderRPG.Content
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            if (Main.drawDebugRectangles)
-            {
-                Vector2 textPosition2 = player.position + new Vector2(0, player.height + 20);
-                textPosition2.X = player.position.X + player.width / 2 - Main.testFont.MeasureString(player.aiState).X / 2;
-
-                Vector2 textPosition3 = player.center + new Vector2(0, player.height);
-                textPosition3.X = player.center.X + player.width / 2 - Main.testFont.MeasureString("Controlled by AI").X / 2;
-
-                spriteBatch.DrawStringWithOutline(Main.testFont, player.aiState, textPosition2, Color.Black, Color.White, 1f, player.isControlled ? 0.8617f : 0.7617f);
-                spriteBatch.DrawStringWithOutline(Main.testFont, (!player.isControlled) ? "Controlled by AI" : "", textPosition3 + new Vector2(0, -20), Color.Black, Color.White, 1f, player.isControlled ? 0.8617f : 0.7617f);
-
-                if (player.equippedWeapon != null)
-                {
-                    if (player.equippedWeapon.damageType == "melee")
-                    {
-                        spriteBatch.DrawCircle(player.center, player.meleeRange, Color.Cyan, 64, 0.012f);
-                        spriteBatch.DrawRectangleBorder(player.rectangleMelee, Color.Cyan, 1f, 0.011f);
-                    }
-                    else if (player.equippedWeapon.damageType == "ranged")
-                    {
-                        spriteBatch.DrawCircle(player.center, player.rangedRange, Color.Cyan, 64, 0.012f);
-                    }
-                }
-                if (player.hasMovementOrder)
-                {
-                    spriteBatch.DrawLine(player.center, player.targetMovement, Color.Indigo, 0.013f);
-                }
-                spriteBatch.DrawCircle(player.center, 4f, Color.Blue * 1.5f, 64, 1f);
-                spriteBatch.DrawRectangleBorder(player.rectangle, Color.Blue, 1f, 0.012f);
-                if (!player.isControlled && player.target != null)
-                {
-                    spriteBatch.DrawLine(player.center, player.target.center, Color.Blue, 0.013f);
-                }
-            }
+            DrawDebugInformation(spriteBatch);
+            PreDraw(spriteBatch);
+            PostDraw(spriteBatch, HeadRotation());
 
             if (player.hasMovementOrder)
             {
@@ -81,27 +54,16 @@ namespace BaseBuilderRPG.Content
 
             Vector2 textPosition = player.position + new Vector2(0, -14);
             textPosition.X = player.position.X + player.width / 2 - Main.testFont.MeasureString(player.name).X / 2;
-
             spriteBatch.DrawStringWithOutline(Main.testFont, player.name, textPosition, Color.Black, player.isControlled ? Color.Yellow : nameColor, 1f, player.isControlled ? 0.8616f : 0.7616f);
 
             SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-            Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.position;
-
-            float maxHeadRotation = MathHelper.ToRadians(20);
-            float rotation = (float)Math.Atan2(directionToMouse.Y * player.direction, directionToMouse.X * player.direction);
-            rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
-
-            PreDraw(spriteBatch);
-            PostDraw(spriteBatch, rotation);
-
-            spriteBatch.Draw(player.textureBody, player.position, null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), 0f, Vector2.Zero, 1f, eff, player.isControlled ? 0.851f : 0.751f);
-
             Vector2 headOrigin = new Vector2(player.textureHead.Width / 2, player.textureHead.Height);
             Vector2 eyesOrigin = new Vector2(player.textureEye.Width / 2, (player.textureEye.Height) / 2);
+            Rectangle eyesSourceRectangle = new Rectangle(0, player.eyeTimer > 0f ? 24 : 0, player.textureEye.Width, player.textureEye.Height / 2);
 
-            Rectangle sourceRect = new Rectangle(0, 0, player.textureEye.Width, player.textureEye.Height / 2);
-            spriteBatch.Draw(player.textureHead, player.position + new Vector2(player.textureHead.Width / 2 - 2 * player.direction, player.textureHead.Height), null, Color.Lerp(skinColor, Color.Red, player.hitEffectTimer), (player.isControlled) ? rotation : 0f, headOrigin, 1f, eff, (player.isControlled) ? 0.8511f : 0.7511f);
-            spriteBatch.Draw(player.textureEye, player.position + new Vector2(player.textureEye.Width / 2 - 2 * player.direction, player.textureEye.Height / 2), sourceRect, Color.Lerp(Color.White, Color.Red, player.hitEffectTimer), (player.isControlled) ? rotation : 0f, eyesOrigin, 1f, eff, (player.isControlled) ? 0.8512f : 0.7512f);
+            spriteBatch.Draw(player.textureBody, player.position, null, GetHitColor(false), 0f, Vector2.Zero, 1f, eff, player.isControlled ? 0.851f : 0.751f);
+            spriteBatch.Draw(player.textureHead, player.position + headOrigin, null, GetHitColor(false), HeadRotation(), headOrigin, 1f, eff, (player.isControlled) ? 0.8512f : 0.7512f);
+            spriteBatch.Draw(player.textureEye, player.position + eyesOrigin, eyesSourceRectangle, GetHitColor(true), HeadRotation(), eyesOrigin, 1f, eff, (player.isControlled) ? 0.8513f : 0.7513f);
 
             if (player.isControlled && player.inventoryVisible)
             {
@@ -115,61 +77,33 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.equippedWeapon.weaponType == "One Handed Sword" && player.useTimer <= 0)
                 {
-                    float end = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
-                    SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
-                    Vector2 weaponPosition = player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2);
-                    Vector2 weaponOrigin = (player.direction == 1) ? new Vector2(0, player.equippedWeapon.texture.Height) : new Vector2(0, 0);
-
-                    spriteBatch.Draw(player.equippedWeapon.texture, weaponPosition, null, Color.White, end, weaponOrigin, 1f, eff, player.isControlled ? 0.841f : 0.741f);
+                    float rotation = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
+                    Vector2 origin = (player.direction == 1) ? new Vector2(0, player.equippedWeapon.texture.Height) : new Vector2(0, 0);
+                    spriteBatch.Draw(player.equippedWeapon.texture, player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2), null, Color.White, rotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically, player.isControlled ? 0.841f : 0.741f);
                 }
             }
         }
 
-        public void PostDraw(SpriteBatch spriteBatch, float headRot) //0.8616f : 0.7616f MAX
+        public void PostDraw(SpriteBatch spriteBatch, float headRot)
         {
-            #region DRAW HEALTHBAR
             if (player.health <= player.maxHealth)
             {
-                float healthBarWidth = player.width * ((float)player.health / (float)player.maxHealth);
-                int offSetY = 6;
-
-                Rectangle healthBarRectangleBackground = new Rectangle((int)(player.position.X - 2), (int)(player.position.Y + player.height + offSetY - 1), player.width + 4, 4);
-                Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(player.position.X), (int)(player.position.Y + player.height + offSetY), player.width, 2);
-                Rectangle healthBarRectangle = new Rectangle((int)(player.position.X), (int)player.position.Y + player.height + offSetY, (int)healthBarWidth, 2);
-
-                if (player.health < player.maxHealth)
-                {
-                    spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, player.isControlled ? 0.8613f : 0.7613f);
-                    spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, player.isControlled ? 0.8614f : 0.7614f);
-                    spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, player.isControlled ? 0.8615f : 0.7615f);
-                }
+                DrawHealthBar(spriteBatch);
             }
-            #endregion
 
             SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-            if (player.inventory.equipmentSlots[2].equippedItem != null) //Offhand
+            if (player.equippedOffhand != null)
             {
-                spriteBatch.Draw(player.inventory.equipmentSlots[2].equippedItem.texture, player.position + new Vector2(player.direction == 1 ? 0 : 22, player.height / 1.2f), null, Color.Lerp(Color.White, Color.DarkRed, player.immunityTime), 0f, player.origin, 0.8f, SpriteEffects.None, player.isControlled ? 0.8612f : 0.7612f);
+                spriteBatch.Draw(player.equippedOffhand.texture, player.position + new Vector2(player.direction == 1 ? 0 : 22, player.height / 1.2f), null, GetHitColor(true), 0f, player.origin, 1f, SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
             }
-            if (player.inventory.equipmentSlots[1].equippedItem != null)//Body Armor
+            if (player.equippedBodyArmor != null)
             {
-                spriteBatch.Draw(player.inventory.equipmentSlots[1].equippedItem.texture, player.position + new Vector2(0, 22), null, Color.Lerp(Color.White, Color.DarkRed, player.immunityTime), 0f, Vector2.Zero, 1f, eff, player.isControlled ? 0.8519f : 0.7519f);
+                spriteBatch.Draw(player.equippedBodyArmor.texture, player.position + new Vector2(0, 22), null, GetHitColor(true), 0f, Vector2.Zero, 1f, eff, player.isControlled ? 0.8511f : 0.7511f);
             }
-            if (player.inventory.equipmentSlots[4].equippedItem != null)//Head Armor
+            if (player.equippedHeadArmor != null)
             {
-                Vector2 headOrigin = new Vector2(player.inventory.equipmentSlots[4].equippedItem.texture.Width / 2, player.inventory.equipmentSlots[4].equippedItem.texture.Height);
-                int headOffset;
-                switch (player.inventory.equipmentSlots[4].equippedItem.name)
-                {
-                    case "Leather Cap":
-                        headOffset = 2;
-                        break;
-
-                    default:
-                        headOffset = 0;
-                        break;
-                }
-                spriteBatch.Draw(player.inventory.equipmentSlots[4].equippedItem.texture, player.position + new Vector2(player.textureHead.Width / 2 - headOffset * player.direction, player.textureHead.Height), null, Color.Lerp(Color.White, Color.DarkRed, player.immunityTime), player.isControlled ? headRot : 0f, headOrigin, 1f, eff, player.isControlled ? 0.8611f : 0.7611f);
+                Vector2 headOrigin = new Vector2(player.equippedHeadArmor.texture.Width / 2, player.equippedHeadArmor.texture.Height);
+                spriteBatch.Draw(player.equippedHeadArmor.texture, player.position + new Vector2(player.textureHead.Width / 2, player.textureHead.Height), null, GetHitColor(true), headRot, headOrigin, 1f, eff, player.isControlled ? 0.8514f : 0.7514f);
             }
         }
 
@@ -224,6 +158,116 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
+
+
+        }
+
+        private void DrawDebugInformation(SpriteBatch spriteBatch)
+        {
+            if (Main.drawDebugRectangles)
+            {
+                Vector2 textPosition2 = player.position + new Vector2(0, player.height + 20);
+                textPosition2.X = player.position.X + player.width / 2 - Main.testFont.MeasureString(player.aiState).X / 2;
+
+                Vector2 textPosition3 = player.center + new Vector2(0, player.height);
+                textPosition3.X = player.center.X + player.width / 2 - Main.testFont.MeasureString("Controlled by AI").X / 2;
+
+                spriteBatch.DrawStringWithOutline(Main.testFont, player.aiState, textPosition2, Color.Black, Color.White, 1f, player.isControlled ? 0.8617f : 0.7617f);
+                spriteBatch.DrawStringWithOutline(Main.testFont, (!player.isControlled) ? "Controlled by AI" : "", textPosition3 + new Vector2(0, -20), Color.Black, Color.White, 1f, player.isControlled ? 0.8617f : 0.7617f);
+
+                if (player.equippedWeapon != null)
+                {
+                    if (player.equippedWeapon.damageType == "melee")
+                    {
+                        spriteBatch.DrawCircle(player.center, player.meleeRange, Color.Cyan, 64, 0.012f);
+                        spriteBatch.DrawRectangleBorder(player.rectangleMelee, Color.Cyan, 1f, 0.011f);
+                    }
+                    else if (player.equippedWeapon.damageType == "ranged")
+                    {
+                        spriteBatch.DrawCircle(player.center, player.rangedRange, Color.Cyan, 64, 0.012f);
+                    }
+                }
+                if (player.hasMovementOrder)
+                {
+                    spriteBatch.DrawLine(player.center, player.targetMovement, Color.Indigo, 0.013f);
+                }
+                spriteBatch.DrawCircle(player.center, 4f, Color.Blue * 1.5f, 64, 1f);
+                spriteBatch.DrawRectangleBorder(player.rectangle, Color.Blue, 1f, 0.012f);
+                if (!player.isControlled && player.target != null)
+                {
+                    spriteBatch.DrawLine(player.center, player.target.center, Color.Blue, 0.013f);
+                }
+            }
+        }
+        private void DrawHealthBar(SpriteBatch spriteBatch)
+        {
+            float healthBarWidth = player.width * ((float)player.health / (float)player.maxHealth);
+            int offSetY = 6;
+
+            Rectangle healthBarRectangleBackground = new Rectangle((int)(player.position.X - 2), (int)(player.position.Y + player.height + offSetY - 1), player.width + 4, 4);
+            Rectangle healthBarRectangleBackgroundRed = new Rectangle((int)(player.position.X), (int)(player.position.Y + player.height + offSetY), player.width, 2);
+            Rectangle healthBarRectangle = new Rectangle((int)(player.position.X), (int)player.position.Y + player.height + offSetY, (int)healthBarWidth, 2);
+
+            if (player.health < player.maxHealth)
+            {
+                spriteBatch.DrawRectangle(healthBarRectangleBackground, Color.Black, player.isControlled ? 0.8613f : 0.7613f);
+                spriteBatch.DrawRectangle(healthBarRectangleBackgroundRed, Color.Red, player.isControlled ? 0.8614f : 0.7614f);
+                spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, player.isControlled ? 0.8615f : 0.7615f);
+            }
+        }
+        private float HeadRotation()
+        {
+            Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.position;
+
+            float maxHeadRotation = MathHelper.ToRadians(20);
+            float rotation;
+
+            if (player.isControlled)
+            {
+                rotation = (float)Math.Atan2(directionToMouse.Y * player.direction, directionToMouse.X * player.direction);
+                rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
+            }
+            else
+            {
+                if (player.hasMovementOrder)
+                {
+                    Vector2 targetDirection = player.targetMovement - player.center;
+
+                    if (player.direction == 1)
+                    {
+                        rotation = (float)Math.Atan2(targetDirection.Y, targetDirection.X);
+                    }
+                    else
+                    {
+                        rotation = (float)Math.Atan2(-targetDirection.Y, -targetDirection.X);
+                    }
+
+                    rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
+                }
+                else
+                {
+                    if (player.target != null)
+                    {
+                        Vector2 targetDirection = player.target.center - player.center;
+
+                        if (player.direction == 1)
+                        {
+                            rotation = (float)Math.Atan2(targetDirection.Y, targetDirection.X);
+                        }
+                        else
+                        {
+                            rotation = (float)Math.Atan2(-targetDirection.Y, -targetDirection.X);
+                        }
+
+                        rotation = MathHelper.Clamp(rotation, -maxHeadRotation, maxHeadRotation);
+                    }
+                    else
+                    {
+                        rotation = 0f;
+                    }
+                }
+            }
+            return rotation;
         }
     }
 }

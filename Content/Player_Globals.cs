@@ -239,7 +239,7 @@ namespace BaseBuilderRPG.Content
 
                 foreach (Player player in players)
                 {
-                    Rectangle slotRect = new Rectangle((int)player.position.X, (int)player.position.Y, player.textureBody.Width, player.textureBody.Height);
+                    Rectangle slotRect = new Rectangle((int)player.position.X, (int)player.position.Y, player.width, player.height);
                     if (slotRect.Contains(inputManager.mousePosition))
                     {
                         closestPlayer = player;
