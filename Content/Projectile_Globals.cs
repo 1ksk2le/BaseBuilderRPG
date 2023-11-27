@@ -81,7 +81,7 @@ namespace BaseBuilderRPG.Content
             spriteBatch.DrawStringWithOutline(Main.testFont, "PROJECTILE MANAGER PROJECTILE COUNT: " + projectiles.Count.ToString(), new Vector2(10, 320), Color.Black, Color.White, 1f, 0.99f);
             foreach (Projectile p in projectiles)
             {
-                p.Draw(spriteBatch);
+                p.visualHandler.Draw(spriteBatch);
             }
             spriteBatch.End();
             base.Draw(gameTime);

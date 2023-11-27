@@ -83,6 +83,8 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
+            SetDefaults();
+
             toolTips = new List<string>();
 
             toolTips.Add("[" + this.id + "] " + prefixName + " " + this.name + " " + suffixName);
@@ -109,7 +111,7 @@ namespace BaseBuilderRPG.Content
                 toolTips.Add("Shoot Speed: " + this.shootSpeed.ToString() + " pps");
             }
             TooltipsBasedOnID();
-            SetDefaults();
+
             didSpawn = false;
         }
 

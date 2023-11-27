@@ -1,5 +1,4 @@
-﻿using BaseBuilderRPG.Content.BaseBuilderRPG.Content;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
@@ -113,10 +112,11 @@ namespace BaseBuilderRPG.Content
                 else
                 {
                     controlHandler.Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
-                    controlHandler.Shoot(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
+                    controlHandler.UseItem(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
                     controlHandler.PlayerInventoryInteractions(Keys.I, groundItems, textManager, itemDictionary, globalItem, items);
                     aiState = "";
                 }
+                visualHandler.ParticleEffects(globalParticle);
             }
 
             if (useTimer > 0)
