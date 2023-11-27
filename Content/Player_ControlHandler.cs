@@ -16,67 +16,11 @@
             {
                 this.player = player;
             }
-
-            public void OneHandedSwing(GameTime gameTime, Particle_Globals globalParticle)
-            {
-                if (player.equippedWeapon != null && player.equippedWeapon.weaponType == "One Handed")
-                {
-                    float start = (player.direction == 1) ? -90 * MathHelper.Pi / 180 : -90 * MathHelper.Pi / 180;
-                    float end = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
-                    float progress = player.useTimer / player.equippedWeapon.useTime;
-                    if (player.isControlled)
-                    {
-                        if (Input_Manager.Instance.IsButtonPressed(true) && !player.inventory.IsInventoryHovered())
-                        {
-                            if (!player.isSwinging)
-                            {
-                                player.isSwinging = true;
-                                player.useTimer = 0;
-                                player.rotationAngle = start;
-                                player.canHit = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (player.isSwinging && !player.aiAttackCheck)
-                        {
-                            player.canHit = true;
-                            player.aiAttackCheck = true;
-                        }
-                    }
-
-                    if (player.isSwinging)
-                    {
-                        player.useTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                        if (player.useTimer >= player.equippedWeapon.useTime)
-                        {
-                            player.aiAttackCheck = false;
-                            player.isSwinging = false;
-                            player.useTimer = 0;
-                            player.rotationAngle = end;
-                        }
-                        else
-                        {
-                            player.rotationAngle = MathHelper.Lerp(start, end, progress);
-                        }
-                    }
-                }
-            }
-
             public void Movement(Vector2 movement, KeyboardState keyboardState)
             {
                 if (player.isControlled)
                 {
-                    if (player.position.X > (int)Input_Manager.Instance.mousePosition.X)
-                    {
-                        player.direction = -1;
-                    }
-                    else
-                    {
-                        player.direction = 1;
-                    }
+                    player.direction = player.position.X > (int)Input_Manager.Instance.mousePosition.X ? -1 : 1;
 
                     if (keyboardState.IsKeyDown(Keys.W))
                         movement.Y = -player.speed;
@@ -96,11 +40,50 @@
                 }
             }
 
-            public void PlayerInventoryInteractions(Keys key, List<Item> groundItems)
+            public void Shoot(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
             {
-                player.inventory.SortItems();
+                if (player.equippedWeapon != null)
+                {
+                    if (player.equippedWeapon.shootID > -1)
+                    {
+                        if (player.useTimer <= 0)
+                        {
+                            if (player.isControlled)
+                            {
+                                if (Input_Manager.Instance.IsButtonPressed(true))
+                                {
+                                    projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                                    player.useTimer = player.equippedWeapon.useTime;
+                                }
+                            }
+                        }
+                    }
+                    if (player.equippedWeapon.weaponType == "One Handed Sword")
+                    {
+                        if (player.useTimer <= 0)
+                        {
+                            if (player.isControlled)
+                            {
+                                if (Input_Manager.Instance.IsButtonPressed(true))
+                                {
+                                    projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                                    player.useTimer = player.equippedWeapon.useTime;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            public void PlayerInventoryInteractions(Keys key, List<Item> groundItems, Text_Manager textManager, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, List<Item> items)
+            {
                 var inputManager = Input_Manager.Instance;
                 bool isMouseOverItem = false;
+
+                player.inventory.SortItems();
+                AddItem(Keys.X, true, Main.random.Next(0, 11), itemDictionary, globalItem, groundItems, items);
+                PickItem(groundItems, inputManager, textManager);
+
 
                 Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
                 if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))

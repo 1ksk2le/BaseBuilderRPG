@@ -70,15 +70,7 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.DrawString(font, text, position + offset, outlineColor, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
             }
 
-            int alpha = (int)(color.A * (1 - timer / lifeTime));
-            Color mainTextColor = new Color(
-                MathHelper.Lerp(color.R, 0, 1 - timer / lifeTime),
-                MathHelper.Lerp(color.G, 0, 1 - timer / lifeTime),
-                MathHelper.Lerp(color.B, 0, 1 - timer / lifeTime),
-                alpha
-            );
-
-            spriteBatch.DrawString(font, text, position, mainTextColor, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(font, text, position, color, 0f, font.MeasureString(text) / 2, _scale, SpriteEffects.None, 0f);
         }
     }
 }

@@ -24,11 +24,11 @@ namespace BaseBuilderRPG.Content
         public Texture2D textureEye;
         public Color skinColor;
         public Vector2 velocity, origin, center, targetMovement;
-        public Rectangle rectangle, rectangleMelee, rectangleMeleeAI;
+        public Rectangle rectangle, rectangleMelee;
         public int direction = 1;
         public int width, height;
         public float meleeRange, rangedRange, speed, useTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax;
-        public bool inventoryVisible, isImmune, isSwinging, isPicked, canHit, didSpawn, hasMovementOrder, aiAttackCheck;
+        public bool inventoryVisible, isImmune, isPicked, hasMovementOrder;
         public string aiState;
         public Player_AIHandler aiHandler;
         public Player_VisualHandler visualHandler;
@@ -46,7 +46,7 @@ namespace BaseBuilderRPG.Content
             isControlled = isActive;
             maxHealth = healthMax;
             health = maxHealth;
-            immunityTimeMax = 0.4f;
+            immunityTimeMax = 0.5f;
             speed = 1.5f;
             immunityTime = 0f;
             hitEffectTimer = 0f;
@@ -57,9 +57,6 @@ namespace BaseBuilderRPG.Content
             origin = new Vector2(width / 2, height / 2);
             inventory = new Inventory(5, 6);
             inventoryVisible = true;
-            canHit = true;
-            didSpawn = false;
-            aiAttackCheck = false;
             hasMovementOrder = false;
             isPicked = false;
             aiState = "";
@@ -84,12 +81,9 @@ namespace BaseBuilderRPG.Content
                 {
                     rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
                 }
-                else if (equippedWeapon.damageType == "melee")
+                if (equippedWeapon.damageType == "melee")
                 {
-                    Vector2 pos = (direction == 1) ? new Vector2(width + equippedWeapon.texture.Height * 0.2f, height / 2)
-                                               : new Vector2(-equippedWeapon.texture.Height * 0.2f, height / 2);
-                    rectangleMelee = CalcMeleeRectangle(position + pos, (int)(equippedWeapon.texture.Width), (int)(equippedWeapon.texture.Height * 1.1f), rotationAngle);
-                    rectangleMeleeAI = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2), (int)(center.Y - equippedWeapon.texture.Height * 1.2f / 2), (int)(equippedWeapon.texture.Height), (int)(equippedWeapon.texture.Height * 1.2f));
+                    rectangleMelee = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2 - width / 2), (int)(center.Y - equippedWeapon.texture.Height / 2 - height / 4), (int)(width + equippedWeapon.texture.Height), (int)(height / 2 + equippedWeapon.texture.Height));
                 }
             }
 
@@ -108,14 +102,7 @@ namespace BaseBuilderRPG.Content
                 hitEffectTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            if (inventory.equipmentSlots[0].equippedItem != null)
-            {
-                equippedWeapon = inventory.equipmentSlots[0].equippedItem;
-            }
-            else
-            {
-                equippedWeapon = null;
-            }
+            equippedWeapon = inventory.equipmentSlots[0].equippedItem != null ? inventory.equipmentSlots[0].equippedItem : null;
 
             if (health > 0f)
             {
@@ -125,38 +112,17 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    aiHandler.Shoot(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
-                    controlHandler.PlayerInventoryInteractions(Keys.I, groundItems);
-                    controlHandler.AddItem(Keys.X, true, Main.random.Next(0, 11), itemDictionary, globalItem, groundItems, items);
-                    controlHandler.PickItem(groundItems, inputManager, textManager);
+                    controlHandler.Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
+                    controlHandler.Shoot(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
+                    controlHandler.PlayerInventoryInteractions(Keys.I, groundItems, textManager, itemDictionary, globalItem, items);
                     aiState = "";
                 }
-
-                if (equippedWeapon != null)
-                {
-                    if (equippedWeapon.weaponType == "One Handed")
-                    {
-                        //controlHandler.OneHandedSwing(gameTime, globalParticle);
-                    }
-                }
-                visualHandler.ParticleEffects(globalParticle);
-                controlHandler.Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
             }
-        }
 
-        public Rectangle CalcMeleeRectangle(Vector2 position, int width, int height, float rotation)
-        {
-            Matrix transform = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0);
-
-            Vector2 leftTop = Vector2.Transform(new Vector2(-width / 2, -height / 2), transform);
-            Vector2 rightTop = Vector2.Transform(new Vector2(width / 2, -height / 2), transform);
-            Vector2 leftBottom = Vector2.Transform(new Vector2(-width / 2, height / 2), transform);
-            Vector2 rightBottom = Vector2.Transform(new Vector2(width / 2, height / 2), transform);
-
-            Vector2 min = Vector2.Min(Vector2.Min(leftTop, rightTop), Vector2.Min(leftBottom, rightBottom));
-            Vector2 max = Vector2.Max(Vector2.Max(leftTop, rightTop), Vector2.Max(leftBottom, rightBottom));
-
-            return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+            if (useTimer > 0)
+            {
+                useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
         }
     }
 }

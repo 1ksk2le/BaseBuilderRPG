@@ -54,7 +54,7 @@ namespace BaseBuilderRPG.Content
 
             health = this.healthMax;
             animationSpeed = 0.1f;
-            immunityTimeMax = 0.1f;
+            immunityTimeMax = 0.5f;
             immunityTime = 0f;
             hitEffectTimerMax = 0.75f;
             hitEffectTimer = 0f;

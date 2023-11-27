@@ -18,21 +18,22 @@
             public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Particle_Globals globalParticle)
             {
                 OnHitByProjectile(gameTime, projectiles, textManager, globalParticle);
-                OnHitByMelee(gameTime, players, textManager, globalParticle);
                 HitPlayer(gameTime, players, globalParticle, textManager);
 
                 Player targetPlayer = FindTargetPlayer(players);
 
-                if (targetPlayer != null)
+                if (npc.target == null)
                 {
-                    npc.target = targetPlayer;
+                    if (targetPlayer != null)
+                    {
+                        npc.target = targetPlayer;
+                    }
+                    else
+                    {
+                        npc.target = null;
+                    }
                 }
                 else
-                {
-                    npc.target = null;
-                }
-
-                if (npc.target != null)
                 {
                     AI_1(gameTime, players);
                 }
@@ -145,37 +146,6 @@
                     {
                         ApplyKnockBack(gameTime);
                     }
-                }
-            }
-
-            private void OnHitByMelee(GameTime gameTime, List<Player> players, Text_Manager textManager, Particle_Globals globalParticle)
-            {
-                foreach (Player player in players)
-                {
-                    if (player.equippedWeapon != null && player.equippedWeapon.damageType == "melee")
-                    {
-                        if (player.rectangleMelee.Intersects(npc.rectangle) && !npc.isImmune && player.isSwinging && player.canHit)
-                        {
-                            if (npc.kbTimer <= 0)
-                            {
-                                npc.kbTimer = npc.kbDuration;
-
-                                Vector2 hitDirection = npc.position - player.position;
-                                hitDirection.Normalize();
-                                npc.kbStartPos = npc.position;
-                                npc.kbEndPos = npc.position + hitDirection * (player.equippedWeapon.knockBack * (1f - npc.knockBackRes / 100));
-
-                                npc.target = player;
-                                player.canHit = false;
-                                GetDamaged(textManager, player.equippedWeapon.damage, globalParticle, null, player);
-                            }
-                        }
-                    }
-                }
-
-                if (npc.kbTimer > 0)
-                {
-                    ApplyKnockBack(gameTime);
                 }
             }
 

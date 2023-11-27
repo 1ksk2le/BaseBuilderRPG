@@ -328,8 +328,9 @@ namespace BaseBuilderRPG.Content
             {
                 spriteBatch.DrawStringWithOutline(Main.testFont, lineStart.ToString(), lineStart, Color.Black, Color.White, 1f, 0.99f);
                 spriteBatch.DrawStringWithOutline(Main.testFont, lineEnd.ToString(), lineEnd, Color.Black, Color.White, 1f, 0.99f);
-            }
 
+
+            }
             foreach (Vector2 position in previewPositions)
             {
                 spriteBatch.DrawCircle(position, 8, Color.Aquamarine, 16, 0);

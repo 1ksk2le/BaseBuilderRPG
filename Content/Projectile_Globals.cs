@@ -43,11 +43,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void NewProjectile(int id, Vector2 position, Vector2 target, int damage, float speed, Player owner, bool isAlive)
+        public void NewProjectile(int id, Vector2 position, Vector2 target, int damage, float speed, float knockBack, Player owner, bool isAlive)
         {
             if (projectileDictionary.TryGetValue(id, out var p))
             {
-                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, target, speed, p.name, damage, p.penetrate, p.lifeTimeMax, p.knockBack, owner, isAlive, p.width, p.height));
+                projectiles.Add(new Projectile(p.texture, p.texturePath, id, p.ai, position, target, speed, p.name, damage, p.penetrate, p.lifeTimeMax, knockBack, owner, isAlive, p.width, p.height));
             }
         }
 

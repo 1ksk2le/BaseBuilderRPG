@@ -42,8 +42,7 @@
                         if (player.equippedWeapon.damageType == "melee")
                         {
                             spriteBatch.DrawCircle(player.center, player.meleeRange, Color.Cyan, 64, 0.012f);
-                            spriteBatch.DrawRectangleBorder(player.rectangleMelee, Color.Blue, 1f, 0.011f);
-                            spriteBatch.DrawRectangleBorder(player.rectangleMeleeAI, Color.Cyan, 1f, 0.011f);
+                            spriteBatch.DrawRectangleBorder(player.rectangleMelee, Color.Cyan, 1f, 0.011f);
                         }
                         else if (player.equippedWeapon.damageType == "ranged")
                         {
@@ -88,8 +87,7 @@
                 spriteBatch.DrawStringWithOutline(Main.testFont, player.name, textPosition, Color.Black, player.isControlled ? Color.Yellow : nameColor, 1f, player.isControlled ? 0.8616f : 0.7616f);
 
                 SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-                Vector2 mousePosition = Input_Manager.Instance.mousePosition;
-                Vector2 directionToMouse = mousePosition - player.position;
+                Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.position;
 
                 float maxHeadRotation = MathHelper.ToRadians(20);
                 float rotation = (float)Math.Atan2(directionToMouse.Y * player.direction, directionToMouse.X * player.direction);
@@ -117,30 +115,21 @@
             {
                 if (player.equippedWeapon != null)
                 {
-                    if (player.equippedWeapon.weaponType == "One Handed" && player.useTimer < 0)
+                    if (player.equippedWeapon.weaponType == "One Handed Sword" && player.useTimer <= 0)
                     {
                         float end = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
                         SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically;
-
-                        Vector2 Pos = (player.direction == 1) ? new Vector2(player.width, player.height / 2)
-                                                        : new Vector2(0, player.height / 2);
-                        Vector2 weaponPosition = player.position + Pos;
+                        Vector2 weaponPosition = player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2);
                         Vector2 weaponOrigin = (player.direction == 1) ? new Vector2(0, player.equippedWeapon.texture.Height) : new Vector2(0, 0);
 
-                        if (player.isSwinging)
-                        {
-                            spriteBatch.Draw(player.equippedWeapon.texture, weaponPosition, null, Color.White, player.rotationAngle, weaponOrigin, 0.8f, eff, player.isControlled ? 0.841f : 0.741f);
-                        }
-                        else
-                        {
-                            spriteBatch.Draw(player.equippedWeapon.texture, weaponPosition, null, Color.White, end, weaponOrigin, 0.8f, eff, player.isControlled ? 0.841f : 0.741f);
-                        }
+                        spriteBatch.Draw(player.equippedWeapon.texture, weaponPosition, null, Color.White, end, weaponOrigin, 0.8f, eff, player.isControlled ? 0.841f : 0.741f);
                     }
                 }
             }
 
             public void PostDraw(SpriteBatch spriteBatch, float headRot) //0.8616f : 0.7616f MAX
             {
+                #region DRAW HEALTHBAR
                 if (player.health <= player.maxHealth)
                 {
                     float healthBarWidth = player.width * ((float)player.health / (float)player.maxHealth);
@@ -157,6 +146,7 @@
                         spriteBatch.DrawRectangle(healthBarRectangle, Color.Lime, player.isControlled ? 0.8615f : 0.7615f);
                     }
                 }
+                #endregion
 
                 SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
                 if (player.inventory.equipmentSlots[2].equippedItem != null) //Offhand
@@ -171,9 +161,9 @@
                 {
                     Vector2 headOrigin = new Vector2(player.inventory.equipmentSlots[4].equippedItem.texture.Width / 2, player.inventory.equipmentSlots[4].equippedItem.texture.Height);
                     int headOffset;
-                    switch (player.inventory.equipmentSlots[4].equippedItem.id)
+                    switch (player.inventory.equipmentSlots[4].equippedItem.name)
                     {
-                        case 6:
+                        case "Leather Cap":
                             headOffset = 2;
                             break;
 
@@ -187,10 +177,10 @@
 
             public void ParticleEffects(Particle_Globals globalParticle)
             {
-                WeaponVisuals(globalParticle);
+                //WeaponVisuals(globalParticle);
             }
 
-            private void WeaponVisuals(Particle_Globals globalParticle)
+            /*private void WeaponVisuals(Particle_Globals globalParticle)
             {
                 if (player.equippedWeapon != null)
                 {
@@ -252,16 +242,16 @@
                                     (player.direction == 1) ? position + new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : position + new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height - 16), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)),
                                     new Vector2(Main.random.Next(-50, -10) * player.direction, Main.random.Next(-10, 10)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Aqua, Color.Magenta);
                             }
-                            /* if (Main.random.Next(75) == 0)
+                             if (Main.random.Next(75) == 0)
                              {
                                  globalParticle.NewParticle(3, 1,
                                      (direction == 1) ? position + new Vector2(Main.random.Next(-equippedWeapon.texture.Height + 16, 0), Main.random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)) : position + new Vector2(Main.random.Next(0, equippedWeapon.texture.Height - 16), Main.random.Next(-equippedWeapon.texture.Width / 2, equippedWeapon.texture.Width / 2)),
                                      new Vector2(Main.random.Next(-10, 10), Main.random.Next(-10, 10)), Vector2.Zero, 10f * -direction, 0.6f, 2f * Main.random.NextFloat(0.1f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
-                             }*/
+                             }
                         }
                     }
                 }
-            }
+        }*/
         }
     }
 }

@@ -92,14 +92,14 @@ namespace BaseBuilderRPG.Content
 
             if (ai == 2)
             {
-                if (owner.equippedWeapon != null && owner.equippedWeapon.weaponType == "One Handed")
+                if (owner.equippedWeapon != null && owner.equippedWeapon.weaponType == "One Handed Sword")
                 {
                     texture = owner.equippedWeapon.texture;
                     float progress = owner.useTimer / owner.equippedWeapon.useTime;
                     lifeTimeMax = owner.equippedWeapon.useTime;
-                    origin = (owner.direction == -1) ? new Vector2(0, 0) : new Vector2(width / 2 + height / 2, 0);
+                    origin = (owner.direction == -1) ? new Vector2(0, 0) : new Vector2(width, 0);
 
-                    position = owner.position + (owner.direction == 1 ? new Vector2(owner.width / 2 - width * 0.2f, owner.height / 2) : new Vector2(width / 2, owner.height / 2));
+                    position = owner.position + (owner.direction == 1 ? new Vector2(width, owner.height / 2) : new Vector2(width / 2, owner.height / 2));
 
                     float angleToTarget = (float)Math.Atan2(target.Y - owner.center.Y, target.X - owner.center.X);
                     float midpointRotation = angleToTarget;
@@ -111,10 +111,13 @@ namespace BaseBuilderRPG.Content
                     rotation = MathHelper.Lerp(startRotation, endRotation, progress);
 
                     rectangle = CalculateRotatedRectangle(texture.Bounds, position, origin, rotation);
+                    if (owner.direction == 1)
+                    {
+                        rectangle = new Rectangle(rectangle.X + width, rectangle.Y, rectangle.Width, rectangle.Height);
+                    }
                     midpointrot = midpointRotation;
                     startrot = startRotation;
                     endrot = endRotation;
-
                 }
             }
         }
@@ -138,7 +141,7 @@ namespace BaseBuilderRPG.Content
 
         public void Kill(Projectile_Globals projManager)
         {
-            if (ai == 0)
+            if (ai == 2)
             {
             }
         }
@@ -167,15 +170,10 @@ namespace BaseBuilderRPG.Content
                 }
 
 
-                //if (Main.drawDebugRectangles)
+                if (Main.drawDebugRectangles)
                 {
                     spriteBatch.DrawCircle(center, 4f, Color.Lime * 1.5f, 64, 1f);
                     spriteBatch.DrawRectangleBorder(rectangle, Color.Lime, 1f, 0.01f);
-                    spriteBatch.DrawString(Main.testFont, "midpoint " + midpointrot.ToString("F2"), owner.center + new Vector2(0, 40), Color.Black);
-                    spriteBatch.DrawString(Main.testFont, "start " + startrot.ToString("F2"), owner.center + new Vector2(0, 60), Color.Black);
-                    spriteBatch.DrawString(Main.testFont, "end " + endrot.ToString("F2"), owner.center + new Vector2(0, 70), Color.Black);
-                    spriteBatch.DrawString(Main.testFont, "midpoint test " + ((endrot + startrot) / 2).ToString("f2"), owner.center + new Vector2(0, 80), Color.Black);
-                    spriteBatch.DrawString(Main.testFont, "midpoint test substract" + (endrot - startrot).ToString("f2"), owner.center + new Vector2(0, 90), Color.Black);
                 }
             }
 

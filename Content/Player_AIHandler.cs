@@ -20,26 +20,36 @@
                 Movement();
                 if (player.equippedWeapon != null)
                 {
+                    NPC targetNPC = null;
+                    float closestDistance;
+                    switch (player.equippedWeapon.damageType)
+                    {
+                        case "melee":
+                            closestDistance = player.meleeRange * player.meleeRange;
+                            break;
+                        case "ranged":
+                            closestDistance = player.rangedRange * player.rangedRange * 2;
+                            break;
+                        default:
+                            closestDistance = 0f;
+                            break;
+                    }
+                    foreach (NPC npc in npcs)
+                    {
+                        float distance = Vector2.DistanceSquared(player.center, npc.center);
+
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            targetNPC = npc;
+                        }
+                    }
                     if (player.equippedWeapon.damageType == "melee")
                     {
-                        NPC targetNPC = null;
-                        float closestDistance = player.meleeRange * player.meleeRange;
-
-                        foreach (NPC npc in npcs)
-                        {
-                            float distance = Vector2.DistanceSquared(player.center, npc.center);
-
-                            if (distance < closestDistance)
-                            {
-                                closestDistance = distance;
-                                targetNPC = npc;
-                            }
-                        }
-
                         if (targetNPC != null)
                         {
                             player.target = targetNPC;
-                            if (!player.rectangleMeleeAI.Intersects(targetNPC.rectangle))
+                            if (!player.rectangleMelee.Intersects(targetNPC.rectangle))
                             {
                                 if (player.center.X > player.target.center.X)
                                 {
@@ -55,14 +65,15 @@
                                     Vector2 targetDirection = player.target.center - player.center;
                                     targetDirection.Normalize();
                                     player.position += targetDirection * player.speed;
+                                    player.aiState = "Moving to target: [" + targetNPC.name + "]";
                                 }
 
-                                player.aiState = "Moving to target: [" + targetNPC.name + "]";
+
                             }
                             else
                             {
                                 player.aiState = "Attacking target: [" + targetNPC.name + "]";
-                                player.isSwinging = true;
+                                Shoot(gameTime, projManager, player.target.center);
                             }
                         }
                         else
@@ -72,20 +83,6 @@
                     }
                     if (player.equippedWeapon.damageType == "ranged")
                     {
-                        NPC targetNPC = null;
-                        float closestDistance = player.rangedRange * player.rangedRange * 2;
-
-                        foreach (NPC npc in npcs)
-                        {
-                            float distance = Vector2.DistanceSquared(player.center, npc.center);
-
-                            if (distance < closestDistance)
-                            {
-                                closestDistance = distance;
-                                targetNPC = npc;
-                            }
-                        }
-
                         if (targetNPC != null)
                         {
                             player.target = targetNPC;
@@ -149,48 +146,22 @@
                 {
                     if (player.equippedWeapon.shootID > -1)
                     {
-                        if (player.useTimer > 0)
-                        {
-                            player.useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                        }
-
                         if (player.useTimer <= 0)
                         {
-                            if (player.isControlled)
+                            if (!player.isControlled)
                             {
-                                if (Input_Manager.Instance.IsButtonPressed(true))
-                                {
-                                    projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
-                                    player.useTimer = player.equippedWeapon.useTime;
-                                }
-                            }
-                            else
-                            {
-                                projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
+                                projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
                         }
                     }
-                    if (player.equippedWeapon.weaponType == "One Handed")
+                    if (player.equippedWeapon.weaponType == "One Handed Sword")
                     {
-                        if (player.useTimer > 0)
-                        {
-                            player.useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                        }
-
                         if (player.useTimer <= 0)
                         {
-                            if (player.isControlled)
+                            if (!player.isControlled)
                             {
-                                if (Input_Manager.Instance.IsButtonPressed(true))
-                                {
-                                    projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
-                                    player.useTimer = player.equippedWeapon.useTime;
-                                }
-                            }
-                            else
-                            {
-                                projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player, true);
+                                projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
                         }
