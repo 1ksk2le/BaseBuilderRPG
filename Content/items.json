@@ -40,12 +40,14 @@
   {
     "name": "Flaming Baton",
     "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 3,
-    "damage": 10,
-    "useTime": 1,
-    "knockBack": 30,
+    "damageType": "ranged",
+    "weaponType": "Bow",
+    "rarity": 2,
+    "damage": 6,
+    "useTime": 1.2,
+    "knockBack": 10,
+    "shootID": 3,
+    "shootSpeed": 300,
     "texturePath": "Textures/Weapons/Flaming_Baton"
   },
   {

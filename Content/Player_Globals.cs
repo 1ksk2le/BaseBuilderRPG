@@ -46,9 +46,9 @@ namespace BaseBuilderRPG.Content
 
         public void Load()
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, false));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, true));
             }
         }
 

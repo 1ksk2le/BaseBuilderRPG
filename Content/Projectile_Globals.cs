@@ -40,6 +40,10 @@ namespace BaseBuilderRPG.Content
                 {
                     projectile.texture = Game.Content.Load<Texture2D>(projectile.texturePath);
                 }
+                else
+                {
+                    projectile.texture = null;
+                }
             }
         }
 

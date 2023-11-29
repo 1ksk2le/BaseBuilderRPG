@@ -121,7 +121,7 @@ namespace BaseBuilderRPG.Content
                         spriteBatch.Draw(texture, position, null, color * alpha, rotation, origin, scale, SpriteEffects.None, 0);
                     }
                 }
-                else if (ai == 1)
+                else if (ai == 1 || ai == 2)
                 {
                     float alpha = 1.0f - (lifeTime / lifeTimeMax);
                     alpha = MathHelper.Clamp(alpha, 0f, 1f);
