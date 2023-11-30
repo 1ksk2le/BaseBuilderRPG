@@ -123,27 +123,15 @@ namespace BaseBuilderRPG.Content
                 {
                     if (proj.rectangle.Intersects(npc.rectangle) && !npc.isImmune)
                     {
-                        if (npc.kbTimer <= 0)
-                        {
-                            npc.kbTimer = npc.kbDuration;
+                        Vector2 hitDirection = npc.center - proj.center;
+                        hitDirection.Normalize();
 
-                            Vector2 hitDirection = npc.position - proj.position;
-                            hitDirection.Normalize();
-
-                            npc.kbStartPos = npc.position;
-                            npc.kbEndPos = npc.position + hitDirection * (proj.knockBack * (1f - npc.knockBackRes / 100));
-
-                            proj.penetrate--;
-                            npc.target = proj.owner;
-                            GetDamaged(textManager, proj.damage, globalParticle, proj, null);
-                        }
+                        proj.penetrate--;
+                        npc.target = proj.owner;
+                        GetDamaged(textManager, proj.damage, globalParticle, proj, null);
                     }
                 }
 
-                if (npc.kbTimer > 0)
-                {
-                    ApplyKnockBack(gameTime);
-                }
             }
         }
 
@@ -160,7 +148,7 @@ namespace BaseBuilderRPG.Content
 
         private void ApplyKnockBack(GameTime gameTime)
         {
-            float progress = 1f - (npc.kbTimer / npc.kbDuration);
+            float progress = 1f - (npc.kbTimer / npc.kbTimerMax);
             npc.position = Vector2.Lerp(npc.kbStartPos, npc.kbEndPos, progress);
 
             npc.kbTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -179,20 +167,6 @@ namespace BaseBuilderRPG.Content
 
             npc.hitEffectTimer = npc.hitEffectTimerMax;
             npc.immunityTime = npc.immunityTimeMax;
-
-            for (int i = 0; i < damage; i++)
-            {
-                if (player != null)
-                {
-                    globalParticle.NewParticle(1, 1, npc.position + new Vector2(Main.random.Next(npc.width), Main.random.Next(npc.height)),
-                   (player.position.X > npc.position.X) ? -1 * new Vector2(Main.random.Next(10, 50), Main.random.Next(70, 90)) : new Vector2(Main.random.Next(10, 50), Main.random.Next(-90, -70)), npc.origin, 0f, 1f, Main.random.NextFloat(1.5f, 4f), Color.DarkGray, Color.DarkGray, Color.DarkGray);
-                }
-                else
-                {
-                    globalParticle.NewParticle(1, 1, npc.position + new Vector2(Main.random.Next(npc.width), Main.random.Next(npc.height)),
-                  projectile.velocity * projectile.speed / 5, npc.origin, 0f, 1f, Main.random.NextFloat(1.5f, 4f), Color.DarkGray, Color.DarkGray, Color.DarkGray);
-                }
-            }
         }
     }
 }

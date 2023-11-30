@@ -63,23 +63,19 @@ namespace BaseBuilderRPG.Content
                 this.suffixID = -1;
                 this.useTime = -1;
                 this.knockBack = -1;
-                this.damage = -1;
                 this.stackLimit = stackLimit;
                 stackSize = this.stackLimit == 1 ? 1 : dropAmount;
             }
             else
             {
+                this.shootID = shoot;
+                this.shootSpeed = shootSpeed;
                 this.stackLimit = 1;
                 stackSize = 1;
-                if (this.damageType != "ranged")
+                if (this.shootSpeed < 1)
                 {
                     this.shootID = -1;
                     this.shootSpeed = 0f;
-                }
-                else
-                {
-                    this.shootID = shoot;
-                    this.shootSpeed = shootSpeed;
                 }
             }
 
@@ -125,26 +121,6 @@ namespace BaseBuilderRPG.Content
             }
             center = position + origin;
             rectangle = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
-
-            int numberOfParticles = 16;
-            float particleSpeed = 15f;
-
-            Vector2 particleOffset = new Vector2(-texture.Width / 4, texture.Height / 2);
-
-            for (int i = 0; i < numberOfParticles; i++)
-            {
-                Vector2 randomOffset = new Vector2(Main.random.Next(texture.Width), Main.random.NextFloat(-5f, 5f));
-
-                Vector2 particlePosition = position + particleOffset + randomOffset;
-
-                float particleScale = 3f * Main.random.NextFloat(0.1f, 1f);
-
-                Vector2 particleVelocity = new Vector2(0, -particleSpeed);
-                if (Main.random.Next(120) == 0)
-                {
-                    globalParticle.NewParticle(1, 0, particlePosition, particleVelocity, Vector2.Zero, 0f, 2.5f, particleScale, rarityColor, rarityColor, rarityColor);
-                }
-            }
         }
 
         public bool PlayerClose(Player player, float pickRange)
@@ -255,6 +231,11 @@ namespace BaseBuilderRPG.Content
 
         private void TooltipsBasedOnID()
         {
+            if (name == "Flaming Baton")
+            {
+                toolTips.Add("'Shoots a fiery ball.'");
+            }
+
         }
     }
 }

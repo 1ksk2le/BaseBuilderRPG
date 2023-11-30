@@ -85,11 +85,11 @@ namespace BaseBuilderRPG
             npcs = globalNPC.npcs;
             globalPlayer.npcs = globalNPC.npcs;
 
-            Components.Add(globalParticle);
             Components.Add(globalItem);
             Components.Add(globalNPC);
             Components.Add(globalProjectile);
             Components.Add(globalPlayer);
+            Components.Add(globalParticle);
 
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;

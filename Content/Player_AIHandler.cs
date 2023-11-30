@@ -26,7 +26,7 @@ namespace BaseBuilderRPG.Content
                         closestDistance = player.meleeRange * player.meleeRange;
                         break;
                     case "ranged":
-                        closestDistance = player.rangedRange * player.rangedRange * 2;
+                        closestDistance = player.rangedRange * player.rangedRange;
                         break;
                     default:
                         closestDistance = 0f;
@@ -36,7 +36,7 @@ namespace BaseBuilderRPG.Content
                 {
                     float distance = Vector2.DistanceSquared(player.center, npc.center);
 
-                    if (distance < closestDistance)
+                    if (npc.isAlive && distance < closestDistance)
                     {
                         closestDistance = distance;
                         targetNPC = npc;
@@ -47,17 +47,9 @@ namespace BaseBuilderRPG.Content
                     if (targetNPC != null)
                     {
                         player.target = targetNPC;
+                        player.direction = player.position.X > (int)player.target.position.X ? -1 : 1;
                         if (!player.rectangleMelee.Intersects(targetNPC.rectangle))
                         {
-                            if (player.center.X > player.target.center.X)
-                            {
-                                player.direction = -1;
-                            }
-                            else
-                            {
-                                player.direction = 1;
-                            }
-
                             if (!player.hasMovementOrder)
                             {
                                 Vector2 targetDirection = player.target.center - player.center;
@@ -76,6 +68,7 @@ namespace BaseBuilderRPG.Content
                     }
                     else
                     {
+                        player.target = null;
                         player.aiState = "Waiting for orders";
                     }
                 }
@@ -84,17 +77,9 @@ namespace BaseBuilderRPG.Content
                     if (targetNPC != null)
                     {
                         player.target = targetNPC;
+                        player.direction = player.position.X > (int)player.target.position.X ? -1 : 1;
                         if (Vector2.Distance(player.target.center, player.center) > player.rangedRange * 0.8f)
                         {
-                            if (player.position.X > player.target.position.X)
-                            {
-                                player.direction = -1;
-                            }
-                            else
-                            {
-                                player.direction = 1;
-                            }
-
                             if (!player.hasMovementOrder)
                             {
                                 Vector2 targetDirection = player.target.center - player.center;
@@ -107,14 +92,6 @@ namespace BaseBuilderRPG.Content
                         {
                             if (Vector2.Distance(player.target.center, player.center) < 100f)
                             {
-                                if (player.position.X > player.target.center.X)
-                                {
-                                    player.direction = -1;
-                                }
-                                else
-                                {
-                                    player.direction = 1;
-                                }
                                 if (!player.hasMovementOrder)
                                 {
                                     Vector2 targetDirection = player.target.center - player.center;
@@ -125,6 +102,7 @@ namespace BaseBuilderRPG.Content
                             }
                             else
                             {
+
                                 UseItem(gameTime, projManager, player.target.center);
                                 player.aiState = "Shooting at target: [" + targetNPC.name + "]";
                             }
@@ -132,6 +110,7 @@ namespace BaseBuilderRPG.Content
                     }
                     else
                     {
+                        player.target = null;
                         player.aiState = "Waiting for orders";
                     }
                 }

@@ -40,8 +40,8 @@
   {
     "name": "Flaming Baton",
     "type": "Weapon",
-    "damageType": "ranged",
-    "weaponType": "Bow",
+    "damageType": "magic",
+    "weaponType": "One Handed Wand",
     "rarity": 2,
     "damage": 6,
     "useTime": 1.2,

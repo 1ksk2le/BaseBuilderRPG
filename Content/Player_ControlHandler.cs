@@ -18,7 +18,10 @@ namespace BaseBuilderRPG.Content
         {
             if (player.isControlled)
             {
-                player.direction = player.position.X > (int)Input_Manager.Instance.mousePosition.X ? -1 : 1;
+                if (player.isControlled)
+                {
+                    player.direction = player.position.X > (int)Input_Manager.Instance.mousePosition.X ? -1 : 1;
+                }
 
                 if (keyboardState.IsKeyDown(Keys.W))
                     movement.Y = -player.speed;

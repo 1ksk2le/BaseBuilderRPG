@@ -70,8 +70,7 @@ namespace BaseBuilderRPG.Content
 
             if (lifeTime >= lifeTimeMax)
             {
-                Kill(globalProjectile);
-                isAlive = false;
+                Kill(globalProjectile, globalParticle);
             }
             else
             {
@@ -80,8 +79,7 @@ namespace BaseBuilderRPG.Content
 
             if (penetrate < 0 && ai != 2)
             {
-                Kill(globalProjectile);
-                isAlive = false;
+                Kill(globalProjectile, globalParticle);
             }
 
             if (ai == 0 || ai == 1)
@@ -139,11 +137,10 @@ namespace BaseBuilderRPG.Content
             return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
         }
 
-        public void Kill(Projectile_Globals projManager)
+        public void Kill(Projectile_Globals projManager, Particle_Globals globalParticle)
         {
-            if (ai == 2)
-            {
-            }
+            visualHandler.SpawnProjectileKillParticles(globalParticle);
+            isAlive = false;
         }
     }
 }

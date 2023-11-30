@@ -30,7 +30,7 @@ namespace BaseBuilderRPG.Content
         public int width, height, currentFrame;
         public bool isImmune, didSpawn;
 
-        public float kbDuration = 0.25f;
+        public float kbTimerMax = 0.25f;
         public float kbTimer = 0f;
 
         private NPCAI_Handler aiHandler;

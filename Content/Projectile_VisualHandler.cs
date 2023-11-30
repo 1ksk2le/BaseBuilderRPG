@@ -62,12 +62,25 @@ namespace BaseBuilderRPG.Content
                 for (int i = 0; i < projectile.width; i++)
                 {
                     Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
-                    globalParticle.NewParticle(3, 0, projectile.center + posAdjuster, Vector2.Zero, Vector2.Zero, 0f, Main.random.NextFloat(0.01f, 0.4f), 3f * Main.random.NextFloat(0.2f, 1f), Color.Transparent, Color.OrangeRed, Color.WhiteSmoke);
-                    globalParticle.NewParticle(3, 0, projectile.center, Vector2.Zero, Vector2.Zero, 0f, Main.random.NextFloat(0.2f, 0.4f), 2f * Main.random.NextFloat(0.2f, 1f), Color.Transparent, Color.Red, Color.White);
-                    if (Main.random.Next(120) == 0)
+                    globalParticle.NewParticle(3, 0, projectile.center + posAdjuster, Vector2.Zero, Vector2.Zero, 0f, Main.random.NextFloat(0.01f, 0.4f), 3f * Main.random.NextFloat(0.2f, 1f), Color.Transparent, Color.OrangeRed, Color.LightYellow);
+                    globalParticle.NewParticle(3, 0, projectile.center, Vector2.Zero, Vector2.Zero, 0f, Main.random.NextFloat(0.3f, 0.6f), 2f * Main.random.NextFloat(0.2f, 0.7f), Color.Transparent, Color.OrangeRed, Color.LightYellow);
+                    if (Main.random.Next(40) == 0)
                     {
-                        globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-30, 30), Main.random.Next(-30, 30)), Vector2.Zero, 0f, 0.6f, 2f + Main.random.NextFloat(0.5f, 3f), Color.Wheat, Color.Red, Color.White);
+                        globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-30, 30), Main.random.Next(-30, 30)), Vector2.Zero, 0f, 0.6f, 1.5f * Main.random.NextFloat(0.1f, 3f), Color.Wheat, Color.Red, Color.LightYellow);
                     }
+                }
+            }
+        }
+
+        public void SpawnProjectileKillParticles(Particle_Globals globalParticle)
+        {
+            if (projectile.id == 3)
+            {
+                for (int i = 0; i < projectile.width * 2; i++)
+                {
+                    Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
+                    globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-100, 100), Main.random.Next(-100, 100)), Vector2.Zero, 0f, Main.random.NextFloat(0.2f, 0.8f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.OrangeRed, Color.LightYellow);
+                    globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-60, 60), Main.random.Next(-60, 60)), Vector2.Zero, 0f, Main.random.NextFloat(0.2f, 0.8f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.Red, Color.Orange);
                 }
             }
         }
@@ -94,25 +107,33 @@ namespace BaseBuilderRPG.Content
 
             if (owner.equippedWeapon.prefixName == "Magical")
             {
-                for (int i = 0; i < owner.equippedWeapon.texture.Height / 2; i++)
+                if (owner.equippedWeapon.weaponType == "One Handed Sword")
                 {
-                    if (Main.random.Next(150) == 0)
+                    for (int i = 0; i < owner.equippedWeapon.texture.Height / 2; i++)
                     {
-                        globalParticle.NewParticle(3, 0,
-                            (owner.direction == 1) ? basePos + new Vector2(Main.random.Next(-owner.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)) : basePos + new Vector2(Main.random.Next(0, owner.equippedWeapon.texture.Height - 16), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)),
-                            new Vector2(Main.random.Next(-50, -10) * owner.direction, Main.random.Next(-20, 20)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Lime, Color.Yellow);
-                    }
-                    if (Main.random.Next(150) == 0)
-                    {
-                        globalParticle.NewParticle(3, 0,
-                            (owner.direction == 1) ? basePos + new Vector2(Main.random.Next(-owner.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)) : basePos + new Vector2(Main.random.Next(0, owner.equippedWeapon.texture.Height - 16), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)),
-                            new Vector2(Main.random.Next(-50, -10) * owner.direction, Main.random.Next(-20, 20)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Aqua, Color.Magenta);
-                    }
-                    if (Main.random.Next(150) == 0)
-                    {
-                        globalParticle.NewParticle(3, 1,
-                            (owner.direction == 1) ? basePos + new Vector2(Main.random.Next(-owner.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)) : basePos + new Vector2(Main.random.Next(0, owner.equippedWeapon.texture.Height - 16), Main.random.Next(-owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width / 2)),
-                            new Vector2(Main.random.Next(-50, -30) * owner.direction, Main.random.Next(-10, 10)), Vector2.Zero, 2f * owner.direction * Main.random.Next(-2, 2), 0.8f, 2f * Main.random.NextFloat(0.2f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
+                        Vector2 particleOffset = new Vector2(Main.random.Next(owner.equippedWeapon.texture.Width / 2, owner.equippedWeapon.texture.Width), Main.random.Next(6, owner.equippedWeapon.texture.Height));
+
+                        Vector2 particlePosition = projectile.center + Vector2Extensions.RotateVector(particleOffset, rotation, origin);
+
+                        if (Main.random.Next(150) == 0)
+                        {
+
+                            globalParticle.NewParticle(3, 0,
+                                particlePosition,
+                                Vector2.Transform(new Vector2(0, Main.random.Next(-50, -10)), Matrix.CreateRotationZ(rotation)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Lime, Color.Yellow);
+                        }
+                        if (Main.random.Next(150) == 0)
+                        {
+                            globalParticle.NewParticle(3, 0,
+                                particlePosition,
+                                Vector2.Transform(new Vector2(Main.random.Next(-50, -10), Main.random.Next(-20, 20)), Matrix.CreateRotationZ(rotation)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Aqua, Color.Magenta);
+                        }
+                        if (Main.random.Next(150) == 0)
+                        {
+                            globalParticle.NewParticle(3, 1,
+                                particlePosition,
+                                Vector2.Transform(new Vector2(Main.random.Next(-50, -30), Main.random.Next(-10, 10)), Matrix.CreateRotationZ(rotation)), Vector2.Zero, 2f * owner.direction * Main.random.Next(-2, 2), 0.8f, 2f * Main.random.NextFloat(0.2f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
+                        }
                     }
                 }
             }

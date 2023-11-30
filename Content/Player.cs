@@ -125,8 +125,8 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    controlHandler.Movement(Vector2.Zero, Input_Manager.Instance.currentKeyboardState);
-                    controlHandler.UseItem(gameTime, globalProjectile, new Vector2(inputManager.previousMouseState.X, inputManager.previousMouseState.Y));
+                    controlHandler.Movement(Vector2.Zero, inputManager.currentKeyboardState);
+                    controlHandler.UseItem(gameTime, globalProjectile, inputManager.mousePosition);
                     controlHandler.PlayerInventoryInteractions(Keys.I, groundItems, textManager, itemDictionary, globalItem, items);
                     aiState = "";
                 }
