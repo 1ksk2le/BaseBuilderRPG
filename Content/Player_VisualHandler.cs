@@ -110,7 +110,24 @@ namespace BaseBuilderRPG.Content
                     Vector2 weaponDrawPosition = player.center + new Vector2(circularMotionX, circularMotionY);
 
                     spriteBatch.Draw(player.equippedWeapon.texture, weaponDrawPosition, null, Color.White, rotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
+
+                    Vector2 topOfBow = weaponDrawPosition - new Vector2(player.equippedWeapon.texture.Width / 2 - 2, player.equippedWeapon.texture.Height / 2 - 2);
+                    Vector2 bottomOfBow = weaponDrawPosition + new Vector2(-player.equippedWeapon.texture.Width / 2 + 2, player.equippedWeapon.texture.Height / 2 - 2);
+
+                    float progress = player.useTimer / player.equippedWeapon.useTime;
+
+                    Vector2 middleOfBow = Vector2.Lerp(topOfBow, bottomOfBow, 0.5f);
+
+                    Vector2 rotatedTopOfBow = Vector2.Transform(topOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
+                    Vector2 rotatedBottomOfBow = Vector2.Transform(bottomOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
+                    Vector2 rotatedMiddleOfBow = Vector2.Transform(middleOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
+
+                    rotatedMiddleOfBow = Vector2.Lerp(player.center, rotatedMiddleOfBow, progress);
+
+                    spriteBatch.DrawLine(rotatedTopOfBow, rotatedMiddleOfBow, Color.White, player.isControlled ? 0.8515f : 0.7515f);
+                    spriteBatch.DrawLine(rotatedMiddleOfBow, rotatedBottomOfBow, Color.White, player.isControlled ? 0.8515f : 0.7515f);
                 }
+
             }
         }
 

@@ -107,5 +107,18 @@
     "useTime": 0.6,
     "knockBack": 24,
     "texturePath": "Textures/Weapons/Steel_Sword"
+  },
+  {
+    "name": "Hunter's Bow",
+    "type": "Weapon",
+    "damageType": "ranged",
+    "weaponType": "Bow",
+    "rarity": 1,
+    "damage": 6,
+    "useTime": 1.2,
+    "knockBack": 10,
+    "shootID": 4,
+    "shootSpeed": 200,
+    "texturePath": "Textures/Weapons/Hunters_Bow"
   }
 ]

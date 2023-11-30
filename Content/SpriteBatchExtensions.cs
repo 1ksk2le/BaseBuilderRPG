@@ -47,13 +47,14 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float layerDepth)
+        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float layerDepth, float thickness = 1.5f)
         {
             Vector2 edge = end - start;
             float angle = (float)Math.Atan2(edge.Y, edge.X);
 
-            spriteBatch.Draw(Main.pixel, start, null, color, angle, Vector2.Zero, new Vector2(edge.Length(), 1), SpriteEffects.None, layerDepth);
+            spriteBatch.Draw(Main.pixel, start, null, color, angle, Vector2.Zero, new Vector2(edge.Length(), thickness), SpriteEffects.None, layerDepth);
         }
+
 
         public static void DrawRectangleOutlineBetweenPoints(this SpriteBatch spriteBatch, Vector2 startPoint, Vector2 endPoint, Color color, float layerDepth)
         {

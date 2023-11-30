@@ -82,7 +82,7 @@ namespace BaseBuilderRPG.Content
             bool isMouseOverItem = false;
 
             player.inventory.SortItems();
-            AddItem(Keys.X, true, Main.random.Next(0, 11), itemDictionary, globalItem, groundItems, items);
+            AddItem(Keys.X, true, Main.random.Next(0, 12), itemDictionary, globalItem, groundItems, items);
             PickItem(groundItems, inputManager, textManager);
 
 
