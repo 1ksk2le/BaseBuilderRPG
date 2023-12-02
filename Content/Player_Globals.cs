@@ -48,7 +48,7 @@ namespace BaseBuilderRPG.Content
         {
             for (int i = 0; i < 1; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, (i < 5) ? "Player AI" : "Ranged", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, (i < 5) ? 1f : 0.5f, true));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, "East", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, 1f, true));
             }
         }
 
@@ -341,7 +341,7 @@ namespace BaseBuilderRPG.Content
             }
             foreach (Player player in players)
             {
-                player.visualHandler.Draw(spriteBatch);
+                player.visualHandler.Draw(gameTime, spriteBatch);
             }
 
             if (startPos != Vector2.Zero)

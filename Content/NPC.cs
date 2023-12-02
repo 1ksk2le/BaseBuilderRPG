@@ -63,7 +63,7 @@ namespace BaseBuilderRPG.Content
             aiHandler = new NPCAI_Handler(this);
         }
 
-        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Item_Globals globalItem, Particle_Globals globalParticle)
+        public void Update(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Item_Globals globalItem, Particle_Globals globalParticle, Projectile_Globals globalProjectile)
         {
             if (!didSpawn)
             {
@@ -100,7 +100,7 @@ namespace BaseBuilderRPG.Content
 
                     animationTimer = 0f;
                 }
-                aiHandler.ProcessAI(gameTime, players, projectiles, textManager, globalParticle);
+                aiHandler.ProcessAI(gameTime, players, projectiles, textManager, globalParticle, globalProjectile);
                 isAlive = true;
             }
             else

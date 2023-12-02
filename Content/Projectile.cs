@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 
 namespace BaseBuilderRPG.Content
 {
@@ -58,7 +59,7 @@ namespace BaseBuilderRPG.Content
             visualHandler = new Projectile_VisualHandler(this);
         }
 
-        public void Update(GameTime gameTime, Projectile_Globals globalProjectile, Particle_Globals globalParticle)
+        public void Update(GameTime gameTime, Projectile_Globals globalProjectile, Particle_Globals globalParticle, List<NPC> npcs)
         {
             visualHandler.SpawnProjectileParticles(globalParticle);
             if (!didSpawn)
@@ -89,9 +90,54 @@ namespace BaseBuilderRPG.Content
                 position += velocity * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
+            if (ai == 3)
+            {
+                float arcTimer = 1.0f - (lifeTime / lifeTimeMax);
+                arcTimer = MathHelper.Clamp(arcTimer, 0f, 1f);
+
+                if (lifeTime < lifeTimeMax / 16)
+                {
+                    position += velocity * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                }
+                else
+                {
+                    NPC targetNPC = null;
+                    float closestDistance = float.MaxValue;
+                    float maxSearchRange = 200f;
+
+                    foreach (NPC npc in npcs)
+                    {
+                        float distance = Vector2.DistanceSquared(center, npc.center);
+
+                        if (npc.isAlive && distance < closestDistance && distance < maxSearchRange * maxSearchRange)
+                        {
+                            closestDistance = distance;
+                            targetNPC = npc;
+                        }
+                    }
+
+                    if (targetNPC != null)
+                    {
+                        Vector2 targetDirection = targetNPC.center - center;
+                        targetDirection.Normalize();
+
+                        float interpolationFactor = 1.0f - arcTimer;
+
+                        Vector2 interpolatedDirection = Vector2.Lerp(velocity, targetDirection, interpolationFactor);
+                        interpolatedDirection.Normalize();
+
+                        position += interpolatedDirection * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    }
+                    else
+                    {
+                        isAlive = false;
+                    }
+                }
+            }
+
             if (ai == 2)
             {
-                if (owner.equippedWeapon != null && owner.equippedWeapon.weaponType == "One Handed Sword")
+                if (owner.equippedWeapon != null && (owner.equippedWeapon.weaponType == "One Handed Sword" || owner.equippedWeapon.weaponType == "One Handed Wand"))
                 {
                     texture = owner.equippedWeapon.texture;
                     float progress = owner.useTimer / owner.equippedWeapon.useTime;
@@ -102,7 +148,6 @@ namespace BaseBuilderRPG.Content
 
                     float angleToTarget = (float)Math.Atan2(target.Y - owner.center.Y, target.X - owner.center.X);
                     float midpointRotation = angleToTarget;
-
 
                     float startRotation = (owner.direction == 1) ? midpointRotation - (float)MathHelper.Pi + MathHelper.ToRadians(90) : midpointRotation - MathHelper.ToRadians(90);
                     float endRotation = (owner.direction == 1) ? midpointRotation - (float)MathHelper.Pi - MathHelper.ToRadians(90) : midpointRotation + MathHelper.ToRadians(90);

@@ -118,6 +118,17 @@ namespace BaseBuilderRPG.Content
                         spriteBatch.Draw(equipmentSlots[i].equippedItem.texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].equippedItem.texture.Width / 2, equipmentSlots[i].equippedItem.texture.Height / 2), scale, SpriteEffects.None, 0.98f);
                     }
                 }
+                else
+                {
+                    for (int a = 0; a < equipmentSlots.Count; a++)
+                    {
+                        Vector2 position = Main.EquipmentSlotPositions(i);
+                        if (player.hoveredItem != null && player.hoveredItem.type == equipmentSlots[i].SlotType)
+                        {
+                            spriteBatch.Draw(Main.texMainSlotBackground, position, null, Color.Lime, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        }
+                    }
+                }
             }
         }
 

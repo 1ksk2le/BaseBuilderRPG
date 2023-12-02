@@ -15,9 +15,10 @@ namespace BaseBuilderRPG.Content
         private readonly List<Projectile> projectiles;
         private readonly Item_Globals globalItem;
         private readonly Particle_Globals globalParticle;
+        private readonly Projectile_Globals globalProjectile;
         private readonly Text_Manager textManager;
 
-        public NPC_Globals(Game game, SpriteBatch spriteBatch, Item_Globals globalItem, Particle_Globals globalParticle, Text_Manager textManager, List<Player> players, List<Projectile> projectiles)
+        public NPC_Globals(Game game, SpriteBatch spriteBatch, Item_Globals globalItem, Particle_Globals globalParticle, Projectile_Globals globalProjectile, Text_Manager textManager, List<Player> players, List<Projectile> projectiles)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -37,6 +38,7 @@ namespace BaseBuilderRPG.Content
             this.players = players;
             this.globalItem = globalItem;
             this.globalParticle = globalParticle;
+            this.globalProjectile = globalProjectile;
             this.textManager = textManager;
             this.projectiles = projectiles;
         }
@@ -73,7 +75,7 @@ namespace BaseBuilderRPG.Content
                         }
                     }
 
-                    npc.Update(gameTime, players, projectiles, textManager, globalItem, globalParticle);
+                    npc.Update(gameTime, players, projectiles, textManager, globalItem, globalParticle, globalProjectile);
                 }
             }
 

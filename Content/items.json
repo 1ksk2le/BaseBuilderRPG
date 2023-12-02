@@ -35,6 +35,8 @@
     "knockBack": 10,
     "shootID": 1,
     "shootSpeed": 200,
+    "stringSColorHex": "#000000",
+    "stringEColorHex": "#ffffff",
     "texturePath": "Textures/tex_Test_Bow"
   },
   {
@@ -46,7 +48,7 @@
     "damage": 6,
     "useTime": 1.2,
     "knockBack": 10,
-    "shootID": 3,
+    "shootID": 2,
     "shootSpeed": 300,
     "texturePath": "Textures/Weapons/Flaming_Baton"
   },
@@ -117,8 +119,24 @@
     "damage": 6,
     "useTime": 1.2,
     "knockBack": 10,
-    "shootID": 4,
+    "shootID": 3,
     "shootSpeed": 200,
+    "stringSColorHex": "#724934",
+    "stringEColorHex": "#FFE97F",
     "texturePath": "Textures/Weapons/Hunters_Bow"
+  },
+  {
+    "name": "Wooden Targe",
+    "type": "Offhand",
+    "rarity": 1,
+    "stackLimit": 1,
+    "texturePath": "Textures/Offhand/Wooden_Targe"
+  },
+  {
+    "name": "Magical Orb",
+    "type": "Offhand",
+    "rarity": 3,
+    "stackLimit": 1,
+    "texturePath": "Textures/Offhand/Magical_Orb"
   }
 ]

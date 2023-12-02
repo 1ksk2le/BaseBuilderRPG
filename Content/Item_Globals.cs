@@ -43,7 +43,7 @@ namespace BaseBuilderRPG.Content
 
         public Item NewItem(Item itemData, Vector2 position, int prefixID, int suffixID, int dropAmount, bool onGround)
         {
-            return new Item(itemData.texture, itemData.texturePath, itemData.id, itemData.name, itemData.type, itemData.damageType, itemData.weaponType, position, itemData.shootSpeed, itemData.shootID, itemData.rarity, prefixID, suffixID, itemData.damage, itemData.knockBack, itemData.useTime, itemData.stackLimit, dropAmount, onGround);
+            return new Item(itemData.texture, itemData.texturePath, itemData.id, itemData.name, itemData.type, itemData.damageType, itemData.weaponType, position, itemData.shootSpeed, itemData.shootID, itemData.rarity, prefixID, suffixID, itemData.damage, itemData.knockBack, itemData.useTime, itemData.stackLimit, dropAmount, itemData.stringSColorHex, itemData.stringEColorHex, onGround);
         }
 
         public void DropItem(int itemID, int prefixID, int suffixID, int dropAmount, Vector2 position)
@@ -97,27 +97,9 @@ namespace BaseBuilderRPG.Content
 
                     spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, Main.outlineShader, null);
                     spriteBatch.Draw(item.texture, item.center, null, Color.White, 0, item.origin, scale, SpriteEffects.None, 0);
-
                     spriteBatch.End();
 
                     spriteBatch.Begin();
-                    string itemName;
-                    if (item.type != "Weapon")
-                    {
-                        if (item.stackLimit == 1)
-                        {
-                            itemName = "[" + item.name + "]";
-                        }
-                        else
-                        {
-                            itemName = "[" + item.name + " x" + item.stackSize + "]";
-                        }
-                    }
-                    else
-                    {
-                        itemName = "[" + item.prefixName + " " + item.name + " " + item.suffixName + "]";
-                    }
-
                     if (Main.drawDebugRectangles)
                     {
                         spriteBatch.DrawRectangleBorder(item.rectangle, Color.Yellow, 1f, 0.01f);

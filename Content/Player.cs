@@ -65,7 +65,7 @@ namespace BaseBuilderRPG.Content
 
             aiHandler = new Player_AIHandler(this);
             visualHandler = new Player_VisualHandler(this);
-            controlHandler = new Player_ControlHandler(this);
+            controlHandler = new Player_ControlHandler(this, visualHandler);
         }
 
         public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, Text_Manager textManager, Projectile_Globals globalProjectile, Particle_Globals globalParticle, List<NPC> npcs, List<Item> groundItems, List<Item> items)
@@ -77,13 +77,21 @@ namespace BaseBuilderRPG.Content
             if (equippedWeapon != null)
             {
                 meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
-                if (equippedWeapon.damageType == "ranged")
+                if (equippedWeapon.damageType == "ranged" || equippedWeapon.damageType == "magic")
                 {
                     rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
+                }
+                else
+                {
+                    rangedRange = 0f;
                 }
                 if (equippedWeapon.damageType == "melee")
                 {
                     rectangleMelee = new Rectangle((int)(center.X - equippedWeapon.texture.Height / 2 - width / 2), (int)(center.Y - equippedWeapon.texture.Height / 2 - height / 4), (int)(width + equippedWeapon.texture.Height), (int)(height / 2 + equippedWeapon.texture.Height));
+                }
+                else
+                {
+                    rectangleMelee = new Rectangle(0, 0, 0, 0);
                 }
             }
 

@@ -13,7 +13,7 @@ namespace BaseBuilderRPG.Content
             this.npc = npc;
         }
 
-        public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Particle_Globals globalParticle)
+        public void ProcessAI(GameTime gameTime, List<Player> players, List<Projectile> projectiles, Text_Manager textManager, Particle_Globals globalParticle, Projectile_Globals globalProjectile)
         {
             OnHitByProjectile(gameTime, projectiles, textManager, globalParticle);
             HitPlayer(gameTime, players, globalParticle, textManager);
@@ -33,11 +33,11 @@ namespace BaseBuilderRPG.Content
             }
             else
             {
-                AI_1(gameTime, players);
+                AI_1(gameTime, players, globalProjectile);
             }
         }
 
-        private void AI_1(GameTime gameTime, List<Player> players)
+        private void AI_1(GameTime gameTime, List<Player> players, Projectile_Globals globalProjectile)
         {
             if (npc.ai == 1)
             {

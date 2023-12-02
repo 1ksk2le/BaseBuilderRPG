@@ -12,6 +12,7 @@ namespace BaseBuilderRPG.Content
         private static Dictionary<int, Projectile> projectileDictionary;
         public List<Projectile> projectiles;
         private Particle_Globals globalParticle;
+        public List<NPC> npcs;
 
         public Projectile_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticle)
             : base(game)
@@ -61,7 +62,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (projectile.isAlive)
                 {
-                    projectile.Update(gameTime, this, globalParticle);
+                    projectile.Update(gameTime, this, globalParticle, npcs);
                 }
             }
 

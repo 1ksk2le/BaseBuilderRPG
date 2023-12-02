@@ -47,13 +47,33 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float layerDepth, float thickness = 1.5f)
+        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float layerDepth, float thickness = 2f)
         {
             Vector2 edge = end - start;
             float angle = (float)Math.Atan2(edge.Y, edge.X);
 
             spriteBatch.Draw(Main.pixel, start, null, color, angle, Vector2.Zero, new Vector2(edge.Length(), thickness), SpriteEffects.None, layerDepth);
         }
+
+        public static void DrawGradientLine(this SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color startColor, Color endColor, float layerDepth, float thickness = 2f)
+        {
+            Vector2 edge = end - start;
+            float angle = (float)Math.Atan2(edge.Y, edge.X);
+            float length = edge.Length();
+
+            for (int i = 0; i <= (int)length; i++)
+            {
+                float lerpAmount = i / length;
+
+                Vector2 pixelPosition = Vector2.Lerp(start, end, lerpAmount);
+                Color pixelColor = Color.Lerp(startColor, endColor, lerpAmount);
+
+                spriteBatch.Draw(Main.pixel, pixelPosition, null, pixelColor, angle, Vector2.Zero, new Vector2(1, thickness), SpriteEffects.None, layerDepth);
+            }
+        }
+
+
+
 
 
         public static void DrawRectangleOutlineBetweenPoints(this SpriteBatch spriteBatch, Vector2 startPoint, Vector2 endPoint, Color color, float layerDepth)

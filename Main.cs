@@ -81,15 +81,19 @@ namespace BaseBuilderRPG
             globalPlayer = new Player_Globals(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
             players = globalPlayer.players;
 
-            globalNPC = new NPC_Globals(this, spriteBatch, globalItem, globalParticle, textManager, players, projectiles);
+            globalNPC = new NPC_Globals(this, spriteBatch, globalItem, globalParticle, globalProjectile, textManager, players, projectiles);
             npcs = globalNPC.npcs;
             globalPlayer.npcs = globalNPC.npcs;
+            globalProjectile.npcs = globalNPC.npcs;
+
 
             Components.Add(globalItem);
             Components.Add(globalNPC);
             Components.Add(globalProjectile);
-            Components.Add(globalPlayer);
             Components.Add(globalParticle);
+            Components.Add(globalPlayer);
+
+
 
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;
@@ -182,7 +186,7 @@ namespace BaseBuilderRPG
 
             if (inputManager.IsKeySinglePress(Keys.G))
             {
-                globalNPC.NewNPC(1, inputManager.mousePosition);
+                globalNPC.NewNPC(0, inputManager.mousePosition);
             }
             if (inputManager.IsKeySinglePress(Keys.V))
             {

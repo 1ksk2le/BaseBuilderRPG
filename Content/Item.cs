@@ -8,6 +8,8 @@ namespace BaseBuilderRPG.Content
     {
         public Texture2D texture { get; set; }
         public Color rarityColor { get; set; }
+        public Color stringSColor { get; set; }
+        public Color stringEColor { get; set; }
         public Vector2 position { get; set; }
         public int id { get; set; }
         public int prefixID { get; set; }
@@ -27,6 +29,8 @@ namespace BaseBuilderRPG.Content
         public string type { get; set; }
         public string damageType { get; set; }
         public string weaponType { get; set; }
+        public string stringSColorHex { get; set; }
+        public string stringEColorHex { get; set; }
         public bool onGround { get; set; }
         public bool canBeUsed { get; set; }
 
@@ -36,7 +40,7 @@ namespace BaseBuilderRPG.Content
         public float levTimer = 0.0f;
         public bool didSpawn;
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, bool onGround)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, string stringSColorHex, string stringEColorHex, bool onGround)
         {
             this.texture = texture;
             this.texturePath = texturePath;
@@ -76,6 +80,28 @@ namespace BaseBuilderRPG.Content
                 {
                     this.shootID = -1;
                     this.shootSpeed = 0f;
+                }
+                if (this.weaponType == "Bow")
+                {
+                    this.stringSColorHex = stringSColorHex;
+                    this.stringEColorHex = stringEColorHex;
+                    this.stringSColor = Color.FromNonPremultiplied(
+                    int.Parse(stringSColorHex.Substring(1, 2), System.Globalization.NumberStyles.HexNumber),
+                    int.Parse(stringSColorHex.Substring(3, 2), System.Globalization.NumberStyles.HexNumber),
+                    int.Parse(stringSColorHex.Substring(5, 2), System.Globalization.NumberStyles.HexNumber),
+                    255
+                    );
+
+                    this.stringEColor = Color.FromNonPremultiplied(
+                        int.Parse(stringEColorHex.Substring(1, 2), System.Globalization.NumberStyles.HexNumber),
+                        int.Parse(stringEColorHex.Substring(3, 2), System.Globalization.NumberStyles.HexNumber),
+                        int.Parse(stringEColorHex.Substring(5, 2), System.Globalization.NumberStyles.HexNumber),
+                        255
+                    );
+                }
+                else
+                {
+                    this.stringSColor = this.stringEColor = Color.Transparent;
                 }
             }
 
@@ -235,7 +261,13 @@ namespace BaseBuilderRPG.Content
             {
                 toolTips.Add("'Shoots a fiery ball.'");
             }
-
+            if (name == "Magical Orb")
+            {
+                toolTips.Add("Damage: 10 magic damage");
+                toolTips.Add("Knockback: 0");
+                toolTips.Add("Shoot Speed: 150 pps");
+                toolTips.Add("'Shoots lost souls at nearby enemies at random intervals.'");
+            }
         }
     }
 }

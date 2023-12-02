@@ -123,18 +123,46 @@ namespace BaseBuilderRPG.Content
                 }
                 else if (ai == 1 || ai == 2)
                 {
-                    float alpha = 1.0f - (lifeTime / lifeTimeMax);
-                    alpha = MathHelper.Clamp(alpha, 0f, 1f);
-                    int trailingParticlesCount = 8;
+                    float scaleMultiplier = lifeTime / lifeTimeMax; // Adjust this multiplier as needed
+                    float trailingScaleMultiplier = lifeTime / lifeTimeMax; // Adjust this multiplier for the trailing particles
+
+                    int trailingParticlesCount = 10;
+
                     for (int i = 0; i < previousPositions.Count; i++)
                     {
-                        float trailingScale = MathHelper.Lerp(scale, 0.1f, i / (float)trailingParticlesCount);
-
-                        spriteBatch.Draw(texture, previousPositions[i], null, color * alpha, rotation, Vector2.Zero, trailingScale, SpriteEffects.None, 0);
+                        // Use the trailingScaleMultiplier for a consistent scale decrease in the trail
+                        float trailingScale = MathHelper.Lerp(scale, 0.01f, i / (float)trailingParticlesCount) * trailingScaleMultiplier;
+                        spriteBatch.Draw(texture, previousPositions[i], null, color * (1.0f - scaleMultiplier), rotation, Vector2.Zero, trailingScale, SpriteEffects.None, 0);
                     }
 
-                    spriteBatch.Draw(texture, position, null, color * alpha, rotation, Vector2.Zero, scale, SpriteEffects.None, 0);
+                    // Decrease the scale based on the remaining lifetime
+                    float currentScale = MathHelper.Lerp(scale, 0.01f, scaleMultiplier);
+
+                    spriteBatch.Draw(texture, position, null, color * (1.0f - scaleMultiplier), rotation, Vector2.Zero, currentScale, SpriteEffects.None, 0);
                 }
+                else if (ai == 3)
+                {
+                    float alpha = 1.0f - (lifeTime / lifeTimeMax);
+                    alpha = MathHelper.Clamp(alpha, 0f, 1f);
+
+                    // Calculate scale based on lifetime
+                    float scaleFactor = 1.0f + alpha;  // Invert alpha to make the scale decrease as lifetime decreases
+                    float currentScale = scale * scaleFactor;
+
+                    if (totalFrames > 1)
+                    {
+                        int sourceX = currentFrame * width;
+                        Rectangle sourceRectangle = new Rectangle(sourceX, 0, width, height);
+
+                        spriteBatch.Draw(texture, position, sourceRectangle, color * alpha, rotation, origin, currentScale, SpriteEffects.None, 0);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(texture, position, null, color * alpha, rotation, origin, currentScale, SpriteEffects.None, 0);
+                    }
+                }
+
+
             }
         }
     }

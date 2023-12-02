@@ -26,11 +26,11 @@ namespace BaseBuilderRPG.Content
             return Color.Lerp(black, white, progress);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             DrawDebugInformation(spriteBatch);
             PreDraw(spriteBatch);
-            PostDraw(spriteBatch, HeadRotation());
+            PostDraw(gameTime, spriteBatch, HeadRotation());
 
             if (player.hasMovementOrder)
             {
@@ -77,61 +77,47 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.equippedWeapon.weaponType == "One Handed Sword" && player.useTimer <= 0)
                 {
-                    float rotation = (player.direction == 1) ? 110 * MathHelper.Pi / 180 : -290 * MathHelper.Pi / 180;
+                    float rotation = (player.direction == 1) ? -70 * MathHelper.Pi / 180 : 250 * MathHelper.Pi / 180; //110 -290
                     Vector2 origin = (player.direction == 1) ? new Vector2(0, player.equippedWeapon.texture.Height) : new Vector2(0, 0);
-                    spriteBatch.Draw(player.equippedWeapon.texture, player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2), null, Color.White, rotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically, player.isControlled ? 0.841f : 0.741f);
+                    spriteBatch.Draw(player.equippedWeapon.texture, player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2 + player.equippedWeapon.texture.Height / 4), null, Color.White, rotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipVertically, player.isControlled ? 0.841f : 0.741f);
+                }
+                if (player.equippedWeapon.weaponType == "One Handed Wand")
+                {
+                    float rotation = BowRotation();
+                    Vector2 origin = new Vector2(player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Height);
+                    spriteBatch.Draw(player.equippedWeapon.texture, player.center + new Vector2(player.equippedWeapon.texture.Width / 2 * player.direction, player.equippedWeapon.texture.Width / 2), null, Color.White, (float)(rotation + MathHelper.Pi / 2), origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally, player.isControlled ? 0.8515f : 0.7515f);
                 }
                 if (player.equippedWeapon.weaponType == "Bow")
                 {
                     Vector2 origin = new Vector2(player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Height / 2);
+                    Vector2 drawPos = BowDrawPosition();
+                    float drawRotation = BowRotation();
 
-                    Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.center;
-                    float rotation;
-                    if (player.isControlled)
-                    {
-                        rotation = (float)Math.Atan2(directionToMouse.Y, directionToMouse.X);
-                    }
-                    else
-                    {
-                        if (player.target != null)
-                        {
-                            Vector2 targetDirection = player.target.center - player.center;
-                            rotation = (float)Math.Atan2(targetDirection.Y, targetDirection.X);
-                        }
-                        else
-                        {
-                            rotation = 0f;
-                        }
-                    }
+                    spriteBatch.Draw(player.equippedWeapon.texture, drawPos, null, Color.White, drawRotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
 
-                    float circularMotionX = (float)Math.Cos(rotation) * player.equippedWeapon.texture.Width;
-                    float circularMotionY = (float)Math.Sin(rotation) * player.equippedWeapon.texture.Width;
-
-                    Vector2 weaponDrawPosition = player.center + new Vector2(circularMotionX, circularMotionY);
-
-                    spriteBatch.Draw(player.equippedWeapon.texture, weaponDrawPosition, null, Color.White, rotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
-
-                    Vector2 topOfBow = weaponDrawPosition - new Vector2(player.equippedWeapon.texture.Width / 2 - 2, player.equippedWeapon.texture.Height / 2 - 2);
-                    Vector2 bottomOfBow = weaponDrawPosition + new Vector2(-player.equippedWeapon.texture.Width / 2 + 2, player.equippedWeapon.texture.Height / 2 - 2);
+                    Vector2 topOfBow = drawPos - new Vector2(player.equippedWeapon.texture.Width / 2 - 2, player.equippedWeapon.texture.Height / 2 - 2);
+                    Vector2 bottomOfBow = drawPos + new Vector2(-player.equippedWeapon.texture.Width / 2 + 2, player.equippedWeapon.texture.Height / 2 - 2);
 
                     float progress = player.useTimer / player.equippedWeapon.useTime;
 
                     Vector2 middleOfBow = Vector2.Lerp(topOfBow, bottomOfBow, 0.5f);
 
-                    Vector2 rotatedTopOfBow = Vector2.Transform(topOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
-                    Vector2 rotatedBottomOfBow = Vector2.Transform(bottomOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
-                    Vector2 rotatedMiddleOfBow = Vector2.Transform(middleOfBow - weaponDrawPosition, Matrix.CreateRotationZ(rotation)) + weaponDrawPosition;
+                    Vector2 rotatedTopOfBow = Vector2.Transform(topOfBow - drawPos, Matrix.CreateRotationZ(drawRotation)) + drawPos;
+                    Vector2 rotatedBottomOfBow = Vector2.Transform(bottomOfBow - drawPos, Matrix.CreateRotationZ(drawRotation)) + drawPos;
+                    Vector2 rotatedMiddleOfBow = Vector2.Transform(middleOfBow - drawPos, Matrix.CreateRotationZ(drawRotation)) + drawPos;
 
                     rotatedMiddleOfBow = Vector2.Lerp(player.center, rotatedMiddleOfBow, progress);
 
-                    spriteBatch.DrawLine(rotatedTopOfBow, rotatedMiddleOfBow, Color.White, player.isControlled ? 0.8515f : 0.7515f);
-                    spriteBatch.DrawLine(rotatedMiddleOfBow, rotatedBottomOfBow, Color.White, player.isControlled ? 0.8515f : 0.7515f);
+                    Color startColor = player.equippedWeapon.stringSColor;
+                    Color endColor = player.equippedWeapon.stringEColor;
+
+                    spriteBatch.DrawGradientLine(rotatedTopOfBow, rotatedMiddleOfBow, startColor, endColor, player.isControlled ? 0.85149f : 0.75149f);
+                    spriteBatch.DrawGradientLine(rotatedMiddleOfBow, rotatedBottomOfBow, endColor, startColor, player.isControlled ? 0.85149f : 0.75149f);
                 }
 
             }
         }
-
-        public void PostDraw(SpriteBatch spriteBatch, float headRot)
+        public void PostDraw(GameTime gameTime, SpriteBatch spriteBatch, float headRot)
         {
             if (player.health <= player.maxHealth)
             {
@@ -141,7 +127,23 @@ namespace BaseBuilderRPG.Content
             SpriteEffects eff = (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             if (player.equippedOffhand != null)
             {
-                spriteBatch.Draw(player.equippedOffhand.texture, player.position + new Vector2(player.direction == 1 ? 0 : 22, player.height / 1.2f), null, GetHitColor(true), 0f, player.origin, 1f, SpriteEffects.None, player.isControlled ? 0.8516f : 0.7516f);
+                if (player.equippedOffhand.id == 13)
+                {
+                    float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
+                    float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
+
+                    float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
+
+                    Vector2 drawPosition = player.center + new Vector2(player.equippedOffhand.texture.Width * -player.direction, -player.equippedOffhand.texture.Height);
+                    drawPosition.Y += verticalOffset;
+
+                    spriteBatch.Draw(player.equippedOffhand.texture, drawPosition, null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, SpriteEffects.None, player.isControlled ? 0.8516f : 0.7516f);
+                }
+
+                else
+                {
+                    spriteBatch.Draw(player.equippedOffhand.texture, player.center + new Vector2(player.equippedOffhand.texture.Width / 2.5f * -player.direction, player.equippedOffhand.texture.Height / 2), null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, SpriteEffects.None, player.isControlled ? 0.8516f : 0.7516f);
+                }
             }
             if (player.equippedBodyArmor != null)
             {
@@ -163,17 +165,22 @@ namespace BaseBuilderRPG.Content
         {
             if (player.equippedWeapon != null)
             {
-                if (player.equippedWeapon.id == 4 && player.useTimer <= 0)
+                if (player.equippedWeapon.id == 4)
                 {
                     for (int i = 0; i < 16; i++)
                     {
                         if (Main.random.Next(25) == 0)
                         {
-                            Vector2 posAdjuster = new Vector2((player.equippedWeapon.texture.Height + 5) * player.direction, (player.equippedWeapon.texture.Width + 5) / 2);
-                            globalParticle.NewParticle(3, 0, player.center + posAdjuster + new Vector2(Main.random.Next(-5, 5), Main.random.Next(-5, 5)), new Vector2(0, Main.random.Next(-30, -15)), Vector2.Zero, 0f, 0.6f, 0.2f + Main.random.NextFloat(0.5f, 2.5f), Color.Wheat, Color.OrangeRed, Color.White);
+                            float rotation = BowRotation();
+                            float radius = player.equippedWeapon.texture.Height;
+                            float circularMotionX = (float)Math.Cos(rotation) * radius;
+                            float circularMotionY = (float)Math.Sin(rotation) * radius;
+
+                            Vector2 pos = player.center + new Vector2((player.equippedWeapon.texture.Height / 2 + 10) * player.direction, player.equippedWeapon.texture.Width / 2 - 5);
+                            globalParticle.NewParticle(3, 0, new Vector2(circularMotionX, circularMotionY) + player.center + new Vector2(Main.random.Next(-5, 5), Main.random.Next(-5, 5)), new Vector2(0, Main.random.Next(-30, -15)), Vector2.Zero, 0f, 0.6f, 0.2f + Main.random.NextFloat(0.5f, 2.5f), Color.Wheat, Color.OrangeRed, Color.White);
                             if (Main.random.Next(25) == 0)
                             {
-                                globalParticle.NewParticle(1, 1, player.center + posAdjuster + new Vector2(Main.random.Next(-5, 5), Main.random.Next(-5, 5)), new Vector2(Main.random.Next(-20, 20), Main.random.Next(-110, -40)), Vector2.Zero, 0f, 1.2f, 2f + Main.random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
+                                globalParticle.NewParticle(1, 1, player.center + new Vector2(circularMotionX, circularMotionY) + new Vector2(Main.random.Next(-5, 5), Main.random.Next(-5, 20)), new Vector2(Main.random.Next(-5, 5), Main.random.Next(-110, -40)), Vector2.Zero, 0f, 1.2f, 2f + Main.random.NextFloat(0.5f, 3f), Color.Wheat, Color.OrangeRed, Color.White);
                             }
                         }
                     }
@@ -182,51 +189,33 @@ namespace BaseBuilderRPG.Content
                 {
                     if (player.equippedWeapon.weaponType == "One Handed Sword" && player.useTimer <= 0)
                     {
-                        Vector2 posAdjuster = new Vector2((player.equippedWeapon.texture.Height + 5) * player.direction, (player.equippedWeapon.texture.Width));
+                        Vector2 pos = player.position + new Vector2(player.direction == 1 ? player.width : 0, player.height / 2 - player.equippedWeapon.texture.Width / 2);
 
                         for (int i = 0; i < player.equippedWeapon.texture.Height / 2; i++)
                         {
                             if (Main.random.Next(150) == 0)
                             {
                                 globalParticle.NewParticle(3, 0,
-                                    (player.direction == 1) ? player.center + posAdjuster + new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : player.center + posAdjuster + new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height - 16), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)),
+                                    pos + (player.direction == 1 ? new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2))),
                                     new Vector2(Main.random.Next(-50, -10) * player.direction, Main.random.Next(-20, 20)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Lime, Color.Yellow);
                             }
                             if (Main.random.Next(150) == 0)
                             {
                                 globalParticle.NewParticle(3, 0,
-                                    (player.direction == 1) ? player.center + posAdjuster + new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : player.center + posAdjuster + new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height - 16), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)),
+                                    pos + (player.direction == 1 ? new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2))),
                                     new Vector2(Main.random.Next(-50, -10) * player.direction, Main.random.Next(-20, 20)), Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Aqua, Color.Magenta);
                             }
                             if (Main.random.Next(150) == 0)
                             {
                                 globalParticle.NewParticle(3, 1,
-                                    (player.direction == 1) ? player.center + posAdjuster + new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height + 16, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : player.center + posAdjuster + new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height - 16), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)),
+                                    pos + (player.direction == 1 ? new Vector2(Main.random.Next(-player.equippedWeapon.texture.Height, 0), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2)) : new Vector2(Main.random.Next(0, player.equippedWeapon.texture.Height), Main.random.Next(-player.equippedWeapon.texture.Width / 2, player.equippedWeapon.texture.Width / 2))),
                                     new Vector2(Main.random.Next(-50, -30) * player.direction, Main.random.Next(-10, 10)), Vector2.Zero, 2f * player.direction * Main.random.Next(-2, 2), 0.8f, 2f * Main.random.NextFloat(0.2f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
                             }
                         }
                     }
                     if (player.equippedWeapon.weaponType == "Bow")
                     {
-                        Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.center;
-                        float rotation;
-                        if (player.isControlled)
-                        {
-                            rotation = (float)Math.Atan2(directionToMouse.Y, directionToMouse.X);
-                        }
-                        else
-                        {
-                            if (player.target != null)
-                            {
-                                Vector2 targetDirection = player.target.center - player.center;
-                                rotation = (float)Math.Atan2(targetDirection.Y, targetDirection.X);
-                            }
-                            else
-                            {
-                                rotation = 0f;
-                            }
-                        }
-
+                        float rotation = BowRotation();
                         float radius = player.equippedWeapon.texture.Width * 1.5f;
                         float circularMotionX = (float)Math.Cos(rotation) * radius;
                         float circularMotionY = (float)Math.Sin(rotation) * radius;
@@ -241,6 +230,41 @@ namespace BaseBuilderRPG.Content
                             particleVelocity = Vector2.Transform(particleVelocity, Matrix.CreateRotationZ(rotation));
 
                             if (Main.random.Next(75) == 0)
+                            {
+                                globalParticle.NewParticle(3, 0,
+                                    particlePosition,
+                                    particleVelocity, Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Lime, Color.Yellow);
+                            }
+                            if (Main.random.Next(75) == 0)
+                            {
+                                globalParticle.NewParticle(3, 0,
+                                    particlePosition,
+                                    particleVelocity, Vector2.Zero, 0f, 0.8f, 0.45f + Main.random.NextFloat(0.5f, 1f), Color.Wheat, Color.Aqua, Color.Magenta);
+                            }
+                            if (Main.random.Next(100) == 0)
+                            {
+                                globalParticle.NewParticle(3, 1,
+                                    particlePosition,
+                                    particleVelocity, Vector2.Zero, -1f * player.direction * Main.random.Next(-2, 2), 0.8f, 2f * Main.random.NextFloat(0.2f, 0.8f), Color.Wheat, Color.Aqua, Color.Magenta);
+                            }
+                        }
+                    }
+                    if (player.equippedWeapon.weaponType == "One Handed Wand")
+                    {
+                        float rotation = BowRotation() + MathHelper.Pi;
+                        float radius = player.equippedWeapon.texture.Height;
+                        float circularMotionX = (float)Math.Cos(rotation) * radius;
+                        float circularMotionY = (float)Math.Sin(rotation) * radius;
+
+                        Vector2 weaponDrawPosition = player.center + new Vector2(circularMotionX, circularMotionY);
+
+                        for (int i = 0; i < 16; i++)
+                        {
+                            Vector2 particlePosition = weaponDrawPosition + new Vector2(Main.random.Next(player.equippedWeapon.texture.Height), Main.random.Next(-5, 5));
+                            Vector2 particleVelocity = new Vector2(-player.equippedWeapon.texture.Height / 2, Main.random.Next(-50, 50));
+                            particleVelocity = Vector2.Transform(particleVelocity, Matrix.CreateRotationZ(rotation));
+
+                            if (Main.random.Next(1) == 0)
                             {
                                 globalParticle.NewParticle(3, 0,
                                     particlePosition,
@@ -284,7 +308,7 @@ namespace BaseBuilderRPG.Content
                         spriteBatch.DrawCircle(player.center, player.meleeRange, Color.Cyan, 64, 0.012f);
                         spriteBatch.DrawRectangleBorder(player.rectangleMelee, Color.Cyan, 1f, 0.011f);
                     }
-                    else if (player.equippedWeapon.damageType == "ranged")
+                    else if (player.equippedWeapon.damageType == "ranged" || player.equippedWeapon.damageType == "magic")
                     {
                         spriteBatch.DrawCircle(player.center, player.rangedRange, Color.Cyan, 64, 0.012f);
                     }
@@ -352,6 +376,39 @@ namespace BaseBuilderRPG.Content
                 }
             }
             return rotation;
+        }
+
+        private float BowRotation()
+        {
+            Vector2 directionToMouse = Input_Manager.Instance.mousePosition - player.center;
+            float rotation;
+            if (player.isControlled)
+            {
+                rotation = (float)Math.Atan2(directionToMouse.Y, directionToMouse.X);
+            }
+            else
+            {
+                if (player.target != null)
+                {
+                    Vector2 targetDirection = player.target.center - player.center;
+                    rotation = (float)Math.Atan2(targetDirection.Y, targetDirection.X);
+                }
+                else
+                {
+                    rotation = player.direction == 1 ? 0 : MathHelper.Pi;
+                }
+            }
+            return rotation;
+        }
+        public Vector2 BowDrawPosition()
+        {
+            float rotation = BowRotation();
+            float circularMotionX = (float)Math.Cos(rotation) * player.equippedWeapon.texture.Height / 2;
+            float circularMotionY = (float)Math.Sin(rotation) * player.equippedWeapon.texture.Height / 2;
+
+            Vector2 weaponDrawPosition = player.center + new Vector2(circularMotionX, circularMotionY);
+
+            return weaponDrawPosition;
         }
     }
 }

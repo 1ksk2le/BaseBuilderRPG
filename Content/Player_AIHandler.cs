@@ -28,6 +28,9 @@ namespace BaseBuilderRPG.Content
                     case "ranged":
                         closestDistance = player.rangedRange * player.rangedRange;
                         break;
+                    case "magic":
+                        closestDistance = player.rangedRange * player.rangedRange;
+                        break;
                     default:
                         closestDistance = 0f;
                         break;
@@ -72,7 +75,7 @@ namespace BaseBuilderRPG.Content
                         player.aiState = "Waiting for orders";
                     }
                 }
-                if (player.equippedWeapon.damageType == "ranged")
+                if (player.equippedWeapon.damageType == "ranged" || player.equippedWeapon.damageType == "magic")
                 {
                     if (targetNPC != null)
                     {

@@ -9,10 +9,12 @@ namespace BaseBuilderRPG.Content
     public class Player_ControlHandler
     {
         private Player player;
+        private Player_VisualHandler visualHandler;
 
-        public Player_ControlHandler(Player player)
+        public Player_ControlHandler(Player player, Player_VisualHandler visualHandler)
         {
             this.player = player;
+            this.visualHandler = visualHandler;
         }
         public void Movement(Vector2 movement, KeyboardState keyboardState)
         {
@@ -53,7 +55,17 @@ namespace BaseBuilderRPG.Content
                         {
                             if (Input_Manager.Instance.IsButtonPressed(true))
                             {
-                                projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                                Vector2 pos;
+                                switch (player.equippedWeapon.weaponType)
+                                {
+                                    case "Bow":
+                                        pos = visualHandler.BowDrawPosition();
+                                        break;
+                                    default:
+                                        pos = player.center;
+                                        break;
+                                }
+                                projManager.NewProjectile(player.equippedWeapon.shootID, pos, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
                         }
@@ -67,10 +79,30 @@ namespace BaseBuilderRPG.Content
                         {
                             if (Input_Manager.Instance.IsButtonPressed(true))
                             {
+
+
                                 projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
                         }
+                    }
+                }
+            }
+            if (player.equippedOffhand != null)
+            {
+                if (player.equippedOffhand.id == 13)
+                {
+                    if (Main.random.Next(15) == 0)
+                    {
+                        float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
+                        float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
+
+                        float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
+
+                        Vector2 pos = player.center + new Vector2(player.direction == 1 ? -30 : 12, -player.textureBody.Height / 2 - 4);
+                        pos.Y += verticalOffset;
+
+                        projManager.NewProjectile(4, pos, player.center + new Vector2(Main.random.Next(-75, 75), Main.random.Next(-100, 100)), 10, 150f, 0f, player, true);
                     }
                 }
             }
@@ -269,7 +301,7 @@ namespace BaseBuilderRPG.Content
                     {
                         if (itemDictionary.TryGetValue(itemID, out var itemData))
                         {
-                            player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, prefixID, suffixID, 1, false), groundItems);
+                            player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, 2, suffixID, 1, false), groundItems);
                         }
                     }
                 }

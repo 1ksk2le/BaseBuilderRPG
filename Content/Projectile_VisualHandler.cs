@@ -57,7 +57,7 @@ namespace BaseBuilderRPG.Content
         }
         public void SpawnProjectileParticles(Particle_Globals globalParticle)
         {
-            if (projectile.id == 3)
+            if (projectile.id == 2)
             {
                 for (int i = 0; i < projectile.width; i++)
                 {
@@ -70,11 +70,19 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
+            if (projectile.id == 4)
+            {
+                for (int i = 0; i < 1; i++)
+                {
+                    Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
+                    globalParticle.NewParticle(3, 3, projectile.center, Vector2.Zero, Vector2.Zero, 0f, 0.3f, Main.random.NextFloat(0.2f, 1.5f), Color.Transparent, Color.LightSkyBlue, Color.DarkBlue);
+                }
+            }
         }
 
         public void SpawnProjectileKillParticles(Particle_Globals globalParticle)
         {
-            if (projectile.id == 3)
+            if (projectile.id == 2)
             {
                 for (int i = 0; i < projectile.width * 2; i++)
                 {
