@@ -58,7 +58,14 @@ namespace BaseBuilderRPG.Content
                 npcs.Add(new NPC(npc.texture, npc.texturePath, id, npc.ai, position, npc.name, npc.damage, npc.healthMax, npc.knockBack, npc.knockBackRes, npc.targetRange, npc.numFrames, true));
             }
         }
-
+        public NPC GetNPC(int id)
+        {
+            if (npcDictionary.TryGetValue(id, out var n))
+            {
+                return n;
+            }
+            return null;
+        }
         public override void Update(GameTime gameTime)
         {
             foreach (NPC npc in npcs)

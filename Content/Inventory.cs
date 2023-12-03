@@ -36,11 +36,11 @@ namespace BaseBuilderRPG.Content
 
             int slotSize = Main.inventorySlotSize;
 
-            Rectangle sourceRect = new Rectangle(0, 0, Main.texInventoryExtras.Width, Main.texInventoryExtras.Height / 2);
-            Rectangle sourceRect2 = new Rectangle(0, Main.texInventoryExtras.Height / 2, Main.texInventoryExtras.Width, Main.texInventoryExtras.Height / 2);
-            spriteBatch.Draw(Main.texInventoryExtras, Main.inventoryPos + new Vector2(0, -22), sourceRect, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9502f);
-            spriteBatch.Draw(Main.texInventoryExtras, Main.inventoryPos + new Vector2(0, 374), sourceRect2, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9501f);
-            spriteBatch.Draw(Main.texInventory, Main.inventoryPos, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.95f);
+            Rectangle sourceRect = new Rectangle(0, 0, Main.tex_InventoryExtras.Width, Main.tex_InventoryExtras.Height / 2);
+            Rectangle sourceRect2 = new Rectangle(0, Main.tex_InventoryExtras.Height / 2, Main.tex_InventoryExtras.Width, Main.tex_InventoryExtras.Height / 2);
+            spriteBatch.Draw(Main.tex_InventoryExtras, Main.inventoryPos + new Vector2(0, -22), sourceRect, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9502f);
+            spriteBatch.Draw(Main.tex_InventoryExtras, Main.inventoryPos + new Vector2(0, 374), sourceRect2, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9501f);
+            spriteBatch.Draw(Main.tex_Inventory, Main.inventoryPos, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.95f);
 
             Rectangle sortSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 84, (int)Main.inventoryPos.Y + 374, 20, 20);
             if (sortSlotRectangle.Contains(mousePosition))
@@ -70,7 +70,7 @@ namespace BaseBuilderRPG.Content
                     Item item = player.inventory.GetItem(width, height);
                     if (item != null)
                     {
-                        spriteBatch.Draw(Main.texInventorySlotBackground, new Vector2(x, y), null, new Color((int)item.rarityColor.R, item.rarityColor.G, item.rarityColor.B, 255), 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        spriteBatch.Draw(Main.tex_InventorySlotBackground, new Vector2(x, y), null, new Color((int)item.rarityColor.R, item.rarityColor.G, item.rarityColor.B, 255), 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
 
                         float scale = 1f;
                         int insideSlotSize = 38;
@@ -112,7 +112,7 @@ namespace BaseBuilderRPG.Content
 
                         Vector2 itemPosition = new(position.X + equipmentSlotSize / 2, position.Y + equipmentSlotSize / 2);
 
-                        spriteBatch.Draw(Main.texMainSlotBackground, position, null, equipmentSlots[i].equippedItem.rarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                        spriteBatch.Draw(Main.tex_MainSlotBackground, position, null, equipmentSlots[i].equippedItem.rarityColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
 
                         spriteBatch.Draw(equipmentSlots[i].equippedItem.texture, itemPosition + new Vector2(0, 4), null, new Color(0, 0, 0, 150), 0f, new Vector2(equipmentSlots[i].equippedItem.texture.Width / 2, equipmentSlots[i].equippedItem.texture.Height / 2), scale * 1.2f, SpriteEffects.None, 0.97f);
                         spriteBatch.Draw(equipmentSlots[i].equippedItem.texture, itemPosition + new Vector2(0, -2), null, Color.White, 0f, new Vector2(equipmentSlots[i].equippedItem.texture.Width / 2, equipmentSlots[i].equippedItem.texture.Height / 2), scale, SpriteEffects.None, 0.98f);
@@ -125,7 +125,7 @@ namespace BaseBuilderRPG.Content
                         Vector2 position = Main.EquipmentSlotPositions(i);
                         if (player.hoveredItem != null && player.hoveredItem.type == equipmentSlots[i].SlotType)
                         {
-                            spriteBatch.Draw(Main.texMainSlotBackground, position, null, Color.Lime, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
+                            spriteBatch.Draw(Main.tex_MainSlotBackground, position, null, Color.Lime, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.96f);
                         }
                     }
                 }
@@ -405,7 +405,7 @@ namespace BaseBuilderRPG.Content
 
         public bool IsInventoryHovered()
         {
-            Rectangle slotRect = new((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - Main.texInventoryExtras.Height / 2, Main.texInventory.Width, Main.texInventory.Height + Main.texInventoryExtras.Height);
+            Rectangle slotRect = new((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - Main.tex_InventoryExtras.Height / 2, Main.tex_Inventory.Width, Main.tex_Inventory.Height + Main.tex_InventoryExtras.Height);
             if (slotRect.Contains(Input_Manager.Instance.mousePosition))
             {
                 return true;

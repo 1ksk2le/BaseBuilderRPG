@@ -43,6 +43,28 @@ namespace BaseBuilderRPG.Content
             }
         }
 
+        public void PostUpdate(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
+        {
+            if (player.equippedOffhand != null)
+            {
+                if (player.equippedOffhand.id == 13)
+                {
+                    if (Main.random.Next(15) == 0)
+                    {
+                        float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
+                        float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
+
+                        float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
+
+                        Vector2 pos = player.center + new Vector2(player.direction == 1 ? -30 : 12, -player.textureBody.Height / 2 - 4);
+                        pos.Y += verticalOffset;
+
+                        projManager.NewProjectile(4, pos, player.center + new Vector2(Main.random.Next(-75, 75), Main.random.Next(-100, 100)), 10, 150f, 0f, player, true);
+                    }
+                }
+            }
+        }
+
         public void UseItem(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
         {
             if (player.equippedWeapon != null && !player.inventory.IsInventoryHovered())
@@ -88,24 +110,6 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
-            if (player.equippedOffhand != null)
-            {
-                if (player.equippedOffhand.id == 13)
-                {
-                    if (Main.random.Next(15) == 0)
-                    {
-                        float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
-                        float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
-
-                        float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
-
-                        Vector2 pos = player.center + new Vector2(player.direction == 1 ? -30 : 12, -player.textureBody.Height / 2 - 4);
-                        pos.Y += verticalOffset;
-
-                        projManager.NewProjectile(4, pos, player.center + new Vector2(Main.random.Next(-75, 75), Main.random.Next(-100, 100)), 10, 150f, 0f, player, true);
-                    }
-                }
-            }
         }
 
         public void PlayerInventoryInteractions(Keys key, List<Item> groundItems, Text_Manager textManager, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, List<Item> items)
@@ -114,7 +118,7 @@ namespace BaseBuilderRPG.Content
             bool isMouseOverItem = false;
 
             player.inventory.SortItems();
-            AddItem(Keys.X, true, Main.random.Next(0, 12), itemDictionary, globalItem, groundItems, items);
+            AddItem(Keys.X, true, Main.random.Next(0, 14), itemDictionary, globalItem, groundItems, items);
             PickItem(groundItems, inputManager, textManager);
 
 
@@ -131,7 +135,7 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.texInventory.Width / 2, inputManager.mousePosition.Y);
+                    Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.tex_Inventory.Width / 2, inputManager.mousePosition.Y);
                     player.inventoryVisible = true;
                 }
             }
@@ -309,6 +313,14 @@ namespace BaseBuilderRPG.Content
                 {
                     itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), inputManager.mousePosition);
                 }
+            }
+        }
+
+        public void AddItemQuick(int itemID, Dictionary<int, Item> itemDictionary, Item_Globals itemManager, List<Item> groundItems)
+        {
+            if (itemDictionary.TryGetValue(itemID, out var itemData))
+            {
+                player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, 0, 0, 1, false), groundItems);
             }
         }
 

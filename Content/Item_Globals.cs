@@ -54,6 +54,15 @@ namespace BaseBuilderRPG.Content
             }
         }
 
+        public Item GetItem(int id)
+        {
+            if (itemDictionary.TryGetValue(id, out var i))
+            {
+                return i;
+            }
+            return null;
+        }
+
         public override void Update(GameTime gameTime)
         {
             foreach (Item item in groundItems)
@@ -64,7 +73,7 @@ namespace BaseBuilderRPG.Content
                 }
             }
 
-            items.RemoveAll(item => !item.onGround);
+            //items.RemoveAll(item => !item.onGround);
             groundItems.RemoveAll(item => !item.onGround);
 
             base.Update(gameTime);

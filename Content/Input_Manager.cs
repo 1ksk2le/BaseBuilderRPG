@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Text;
 
 namespace BaseBuilderRPG.Content
 {
@@ -82,7 +84,7 @@ namespace BaseBuilderRPG.Content
         {
             if (inventoryVisible)
             {
-                Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.texInventory.Height + Main.texInventoryExtras.Height);
+                Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.tex_Inventory.Height + Main.tex_InventoryExtras.Height);
                 return inventoryRectangle.Contains(mousePosition) ? true : false;
             }
             else
@@ -90,11 +92,73 @@ namespace BaseBuilderRPG.Content
                 return false;
             }
         }
-
-        public Vector2 GetMouseDelta()
+        public string GetPressedKeys()
         {
-            Vector2 delta = new Vector2(currentMouseState.X - previousMouseState.X, currentMouseState.Y - previousMouseState.Y);
-            return delta;
+            Keys[] pressedKeys = currentKeyboardState.GetPressedKeys();
+
+            if (pressedKeys.Length == 0)
+            {
+                return "";
+            }
+
+            StringBuilder keysStringBuilder = new StringBuilder();
+
+            foreach (Keys key in pressedKeys)
+            {
+                if (!IsModifierKey(key) && !IsSpecialKey(key) && IsKeySinglePress(key))
+                {
+                    if (key == Keys.LeftShift && keysStringBuilder.Length > 0)
+                    {
+                        keysStringBuilder.Length--;
+                    }
+                    else
+                    {
+                        string keyString = GetKeyString(key);
+                        if (!string.IsNullOrEmpty(keyString))
+                        {
+                            keysStringBuilder.Append(keyString);
+                        }
+                    }
+                }
+            }
+
+            return keysStringBuilder.ToString();
+        }
+
+        private string GetKeyString(Keys key)
+        {
+            if (key >= Keys.D0 && key <= Keys.D9)
+            {
+                return (key - Keys.D0).ToString();
+            }
+
+            if (key >= Keys.NumPad0 && key <= Keys.NumPad9)
+            {
+                return (key - Keys.NumPad0).ToString();
+            }
+
+            switch (key)
+            {
+                case Keys.Space:
+                    return " ";
+                case Keys.Enter:
+                    return Environment.NewLine;
+                case Keys.Tab:
+                    return "\t";
+            }
+            return key.ToString();
+        }
+
+
+
+        private bool IsSpecialKey(Keys key)
+        {
+            return key == Keys.Enter || key == Keys.Back || key == Keys.Tab || key == Keys.CapsLock || key == Keys.Up || key == Keys.Down || key == Keys.None;
+        }
+
+        private bool IsModifierKey(Keys key)
+        {
+            return key == Keys.LeftShift || key == Keys.RightShift || key == Keys.LeftControl || key == Keys.RightControl || key == Keys.LeftAlt || key == Keys.RightAlt;
         }
     }
 }

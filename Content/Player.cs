@@ -125,7 +125,7 @@ namespace BaseBuilderRPG.Content
             equippedOffhand = inventory.equipmentSlots[2].equippedItem != null ? inventory.equipmentSlots[2].equippedItem : null;
             equippedHeadArmor = inventory.equipmentSlots[4].equippedItem != null ? inventory.equipmentSlots[4].equippedItem : null;
 
-            if (health > 0f)
+            if (health > 0f && !Main.isConsoleVisible)
             {
                 if (!isControlled)
                 {
@@ -139,6 +139,11 @@ namespace BaseBuilderRPG.Content
                     aiState = "";
                 }
                 visualHandler.ParticleEffects(globalParticle);
+                controlHandler.PostUpdate(gameTime, globalProjectile, inputManager.mousePosition);
+            }
+            else if (Main.isConsoleVisible)
+            {
+                hoveredItem = null;
             }
 
             if (useTimer > 0)

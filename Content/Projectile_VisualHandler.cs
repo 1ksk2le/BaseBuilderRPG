@@ -75,7 +75,7 @@ namespace BaseBuilderRPG.Content
                 for (int i = 0; i < 1; i++)
                 {
                     Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
-                    globalParticle.NewParticle(3, 3, projectile.center, Vector2.Zero, Vector2.Zero, 0f, 0.3f, Main.random.NextFloat(0.2f, 1.5f), Color.Transparent, Color.LightSkyBlue, Color.DarkBlue);
+                    globalParticle.NewParticle(0, 3, projectile.center, Vector2.Zero, Vector2.Zero, 0f, 0.35f, Main.random.NextFloat(0.2f, 0.7f), Color.Transparent, Color.White, Color.DarkBlue);
                 }
             }
         }

@@ -80,8 +80,12 @@ namespace BaseBuilderRPG.Content
 
             players.RemoveAll(player => (player.health <= 0));
 
-            PlayerSelect(players, Keys.E);
-            ClearItems(true, true, true, Keys.C);
+            if (!Main.isConsoleVisible)
+            {
+                PlayerSelect(players, Keys.E);
+                ClearItems(true, true, true, Keys.C);
+            }
+
 
             base.Update(gameTime);
         }

@@ -93,7 +93,7 @@ namespace BaseBuilderRPG.Content
                     Vector2 drawPos = BowDrawPosition();
                     float drawRotation = BowRotation();
 
-                    spriteBatch.Draw(player.equippedWeapon.texture, drawPos, null, Color.White, drawRotation, origin, 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
+                    spriteBatch.Draw(player.equippedWeapon.texture, drawPos, null, Color.White, drawRotation, origin, 1f, SpriteEffects.None, player.isControlled ? 0.8515f : 0.7515f);
 
                     Vector2 topOfBow = drawPos - new Vector2(player.equippedWeapon.texture.Width / 2 - 2, player.equippedWeapon.texture.Height / 2 - 2);
                     Vector2 bottomOfBow = drawPos + new Vector2(-player.equippedWeapon.texture.Width / 2 + 2, player.equippedWeapon.texture.Height / 2 - 2);
@@ -129,20 +129,20 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.equippedOffhand.id == 13)
                 {
-                    float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
-                    float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
+                    float offsetY = 15.0f;
+                    float oscillationSpeed = 2.0f;
 
                     float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
 
                     Vector2 drawPosition = player.center + new Vector2(player.equippedOffhand.texture.Width * -player.direction, -player.equippedOffhand.texture.Height);
                     drawPosition.Y += verticalOffset;
-
-                    spriteBatch.Draw(player.equippedOffhand.texture, drawPosition, null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, SpriteEffects.None, player.isControlled ? 0.8516f : 0.7516f);
+                    spriteBatch.Draw(Main.tex_EffShadow, drawPosition, null, Color.Lerp(Color.DarkBlue, Color.Red, player.hitEffectTimer), 0f, new Vector2(Main.tex_EffShadow.Width / 2, Main.tex_EffShadow.Height / 2), 1.3f + (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed) * 0.2f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally, player.isControlled ? 0.85159f : 0.75159f);
+                    spriteBatch.Draw(player.equippedOffhand.texture, drawPosition, null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally, player.isControlled ? 0.8516f : 0.7516f);
                 }
 
                 else
                 {
-                    spriteBatch.Draw(player.equippedOffhand.texture, player.center + new Vector2(player.equippedOffhand.texture.Width / 2.5f * -player.direction, player.equippedOffhand.texture.Height / 2), null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, SpriteEffects.None, player.isControlled ? 0.8516f : 0.7516f);
+                    spriteBatch.Draw(player.equippedOffhand.texture, player.center + new Vector2(player.equippedOffhand.texture.Width / 2.5f * -player.direction, player.equippedOffhand.texture.Height / 2), null, GetHitColor(true), 0f, new Vector2(player.equippedOffhand.texture.Width / 2, player.equippedOffhand.texture.Height / 2), 1f, (player.direction == 1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally, player.isControlled ? 0.8516f : 0.7516f);
                 }
             }
             if (player.equippedBodyArmor != null)

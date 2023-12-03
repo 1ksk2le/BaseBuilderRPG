@@ -13,11 +13,12 @@ namespace BaseBuilderRPG
         private SpriteBatch spriteBatch;
 
         public static Texture2D pixel;
-        public static Texture2D texInventory;
-        public static Texture2D texInventoryExtras;
-        public static Texture2D texInventorySlotBackground;
-        public static Texture2D texAccessorySlotBackground;
-        public static Texture2D texMainSlotBackground;
+        public static Texture2D tex_Inventory;
+        public static Texture2D tex_InventoryExtras;
+        public static Texture2D tex_InventorySlotBackground;
+        public static Texture2D tex_AccessorySlotBackground;
+        public static Texture2D tex_MainSlotBackground;
+        public static Texture2D tex_EffShadow;
 
         public static SpriteFont testFont;
 
@@ -46,7 +47,16 @@ namespace BaseBuilderRPG
 
         public static bool drawDebugRectangles;
 
+
         public static Random random;
+
+        #region CONSOLE VARIABLES
+        private string command;
+        private List<string> commandHistory = new List<string>();
+        private int currentCommandIndex = -1;
+        public static bool isConsoleVisible;
+        #endregion
+
 
         public Main()
         {
@@ -103,15 +113,18 @@ namespace BaseBuilderRPG
             drawDebugRectangles = false;
 
             random = Main_Globals.GetRandomInstance();
+            command = "";
+            isConsoleVisible = false;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            texInventory = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory");
-            texInventoryExtras = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Extras");
-            texInventorySlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Slot_Background");
-            texMainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
+            tex_Inventory = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory");
+            tex_InventoryExtras = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Extras");
+            tex_InventorySlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Inventory_Slot_Background");
+            tex_MainSlotBackground = Content.Load<Texture2D>("Textures/UI/tex_UI_Main_Slot_Background");
+            tex_EffShadow = Content.Load<Texture2D>("Textures/Effects/Shadow");
             pixel = new Texture2D(GraphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
 
@@ -136,16 +149,6 @@ namespace BaseBuilderRPG
             inputManager.PreUpdate();
             inputManager.PostUpdate(gameTime);
 
-            if (npcs.Count <= 0)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    Random rnd = new Random();
-                    Random rnd2 = new Random();
-                    globalNPC.NewNPC(1, new Vector2(rnd.Next(0, graphics.PreferredBackBufferWidth), rnd2.Next(0, graphics.PreferredBackBufferHeight)));
-                }
-            }
-
             foreach (Player p in players)
             {
                 if (p.position.X > graphics.PreferredBackBufferWidth || p.position.Y > graphics.PreferredBackBufferHeight)
@@ -154,7 +157,6 @@ namespace BaseBuilderRPG
                 }
             }
 
-            Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 22, 170, 24);
             Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, 24);
 
             if (inventoryRectangle.Contains(inputManager.mousePosition))
@@ -184,35 +186,204 @@ namespace BaseBuilderRPG
 
             textManager.Update(gameTime);
 
-            if (inputManager.IsKeySinglePress(Keys.G))
+            ConsoleCommands(inputManager);
+
+            if (inputManager.IsKeySinglePress(Keys.Tab))
             {
-                globalNPC.NewNPC(0, inputManager.mousePosition);
+                command = "";
+                isConsoleVisible = isConsoleVisible ? false : true;
             }
-            if (inputManager.IsKeySinglePress(Keys.V))
+
+            if (!isConsoleVisible)
             {
-                foreach (NPC npc in npcs)
+                if (inputManager.IsKeySinglePress(Keys.G))
                 {
-                    npc.health = -1;
-                    npc.Kill(globalItem, globalParticle);
+                    globalNPC.NewNPC(0, inputManager.mousePosition);
                 }
             }
-            if (inputManager.IsKeySinglePress(Keys.L))
+
+
+
+            base.Update(gameTime);
+        }
+
+        private void ConsoleCommands(Input_Manager inputManager)
+        {
+            if (isConsoleVisible)
             {
-                if (drawDebugRectangles)
+                if (inputManager.IsKeySinglePress(Keys.Enter))
                 {
-                    drawDebugRectangles = false;
+                    if (!string.IsNullOrWhiteSpace(command))
+                    {
+                        if (inputManager.IsKeySinglePress(Keys.Enter))
+                        {
+                            if (command.StartsWith("ADDITEM"))
+                            {
+                                string[] commandParts = command.Split(' ');
+
+                                if (commandParts.Length >= 2)
+                                {
+                                    if (int.TryParse(commandParts[1], out int itemID))
+                                    {
+                                        foreach (Player player in players)
+                                        {
+                                            if (itemID < items.Count)
+                                            {
+                                                if (player.isControlled)
+                                                {
+                                                    commandHistory.Insert(0, "Given " + globalItem.GetItem(itemID).name + " to " + player.name);
+                                                    currentCommandIndex = -1;
+                                                    player.controlHandler.AddItemQuick(itemID, itemDictionary, globalItem, groundItems);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                commandHistory.Insert(0, "[!] Invalid item ID");
+                                                currentCommandIndex = -1;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (command == "HELP")
+                            {
+                                commandHistory.Insert(0, "");
+                                commandHistory.Insert(0, "[?] SPAWNNPC [ID] [AMOUNT]- Spawns NPCs around the visible screen");
+                                commandHistory.Insert(0, "[?] KILLNPCS - Kills all NPCs");
+                                commandHistory.Insert(0, "[?] ADDITEM [ID] - Adds an item to the controlled player");
+                                commandHistory.Insert(0, "[?] ITEMLIST - Displays added items");
+                                commandHistory.Insert(0, "[?] DEVMODE - Displays stats for developers or hides them");
+                                commandHistory.Insert(0, "[?] CONTROLS - Displays controls");
+                                commandHistory.Insert(0, "[?] CLEAR - Clears commamnd prompt");
+                                commandHistory.Insert(0, "[?] HELP - Displays all commands");
+                                commandHistory.Insert(0, "");
+                            }
+                            else if (command == "CLEAR")
+                            {
+                                commandHistory.Clear();
+                            }
+                            else if (command == "ITEMLIST")
+                            {
+                                for (int i = items.Count - 1; i > -1; i--)
+                                {
+                                    commandHistory.Insert(0, "ID: " + i + " - " + items[i].name);
+                                }
+                            }
+                            else if (command == "DEVMODE")
+                            {
+                                if (drawDebugRectangles)
+                                {
+                                    drawDebugRectangles = false;
+                                }
+                                else
+                                {
+                                    drawDebugRectangles = true;
+                                }
+                            }
+                            else if (command == "KILLNPCS")
+                            {
+                                commandHistory.Insert(0, "Killed all NPCs");
+                                foreach (NPC npc in npcs)
+                                {
+                                    npc.health = -1;
+                                    npc.Kill(globalItem, globalParticle);
+                                }
+                            }
+                            else if (command == "CONTROLS")
+                            {
+                                commandHistory.Insert(0, "E- Control player at mouse position");
+                                commandHistory.Insert(0, "C- Clear items");
+                                commandHistory.Insert(0, "X- Add a random item to the controlled player");
+                                commandHistory.Insert(0, "I- Open/close inventory");
+                                commandHistory.Insert(0, "F- Pick item");
+                                commandHistory.Insert(0, "G- Spawn Test Enemy");
+                                commandHistory.Insert(0, "Left Shift + Left Mouse Button- Select players");
+                                commandHistory.Insert(0, "Right Mouse Button- Move selected players");
+                            }
+                            else if (command.StartsWith("SPAWNNPC"))
+                            {
+                                string[] commandParts = command.Split(' ');
+
+                                if (commandParts.Length == 3)
+                                {
+                                    if (int.TryParse(commandParts[1], out int npcID) && int.TryParse(commandParts[2], out int amount))
+                                    {
+                                        if (npcID >= 0 && npcID < 2)
+                                        {
+                                            Random rnd = new Random();
+                                            commandHistory.Insert(0, "Spawned " + amount + " " + globalNPC.GetNPC(npcID).name + "(s)");
+                                            for (int i = 0; i < amount; i++)
+                                            {
+                                                int x = rnd.Next(0, graphics.PreferredBackBufferWidth);
+                                                int y = rnd.Next(0, graphics.PreferredBackBufferHeight);
+
+                                                globalNPC.NewNPC(npcID, new Vector2(x, y));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            commandHistory.Insert(0, "[!] Invalid npc ID");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        commandHistory.Insert(0, "[!] Invalid NPC ID or amount");
+                                    }
+                                }
+                                else
+                                {
+                                    commandHistory.Insert(0, "[!] Invalid command format");
+                                }
+                            }
+                            else
+                            {
+                                commandHistory.Insert(0, "[!] Invalid command format");
+                            }
+                        }
+                    }
+                    if (command.Length > 0)
+                    {
+                        command = "";
+                    }
+                }
+                if (!inputManager.IsKeySinglePress(Keys.Back))
+                {
+                    command += inputManager.GetPressedKeys();
                 }
                 else
                 {
-                    drawDebugRectangles = true;
+                    if (command.Length > 0)
+                    {
+                        command = command.Remove(command.Length - 1, 1);
+                    }
+                }
+
+
+
+                if (inputManager.IsKeySinglePress(Keys.Down))
+                {
+                    if (currentCommandIndex < commandHistory.Count - 1)
+                    {
+                        currentCommandIndex++;
+                        command = commandHistory[currentCommandIndex];
+                    }
+                }
+                else if (inputManager.IsKeySinglePress(Keys.Up))
+                {
+                    if (currentCommandIndex >= 0)
+                    {
+                        currentCommandIndex--;
+                        if (currentCommandIndex >= 0)
+                        {
+                            command = commandHistory[currentCommandIndex];
+                        }
+                        else
+                        {
+                            command = "";
+                        }
+                    }
                 }
             }
-
-            //var position = players[0].position;
-            var position = inputManager.mousePosition;
-            var origin = Vector2.Zero;
-
-            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -236,7 +407,36 @@ namespace BaseBuilderRPG
                 spriteBatch.DrawRectangle(new Rectangle(10, graphics.PreferredBackBufferHeight - 112, 16, 16), Color.Yellow, 1f);
                 spriteBatch.DrawStringWithOutline(Main.testFont, "Item hitbox rectangle", new Vector2(32, graphics.PreferredBackBufferHeight - 108), Color.Black, Color.White, 1f, 0.99f);
             }
-            spriteBatch.DrawStringWithOutline(Main.testFont, "Controls", new Vector2(10, 20), Color.Black, Color.Yellow, 1f, 0.99f);
+            if (isConsoleVisible)
+            {
+                int consoleHeight = 55 + commandHistory.Count * 15;
+
+                spriteBatch.DrawRectangle(new Rectangle(0, 0, graphics.PreferredBackBufferWidth, consoleHeight), new Color(0, 0, 0, 125), 1f);
+                spriteBatch.DrawString(Main.testFont, "[Command Prompt]", new Vector2(10, 15), Color.Red);
+
+                for (int i = 0; i < commandHistory.Count; i++)
+                {
+                    Color commandColor = Color.Gray;
+                    if (commandHistory[i].StartsWith("[!]"))
+                    {
+                        commandColor = Color.Red;
+                    }
+                    if (commandHistory[i].StartsWith("[?]"))
+                    {
+                        commandColor = Color.LightSkyBlue;
+                    }
+                    if (commandHistory[i].StartsWith("Given"))
+                    {
+                        commandColor = Color.Lime;
+                    }
+                    spriteBatch.DrawString(Main.testFont, commandHistory[i], new Vector2(10, 30 + (i + 1) * 15), commandColor);
+                }
+
+                spriteBatch.DrawString(Main.testFont, ">> " + command, new Vector2(10, 30), Color.Yellow);
+            }
+
+
+            /*spriteBatch.DrawStringWithOutline(Main.testFont, "Controls", new Vector2(10, 20), Color.Black, Color.Yellow, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "E = Control player", new Vector2(10, 40), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "X = Spawn item", new Vector2(10, 60), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "C = Clear items", new Vector2(10, 80), Color.Black, Color.White, 1f, 0.99f);
@@ -246,7 +446,7 @@ namespace BaseBuilderRPG
             spriteBatch.DrawStringWithOutline(Main.testFont, "V = Kill npcs", new Vector2(10, 160), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "L = Turn on / off debug mode", new Vector2(10, 180), Color.Black, Color.White, 1f, 0.99f);
             spriteBatch.DrawStringWithOutline(Main.testFont, "Left Shift + Left Mouse = Select players", new Vector2(10, 200), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "Right Mouse = Move selected players", new Vector2(10, 220), Color.Black, Color.White, 1f, 0.99f);
+            spriteBatch.DrawStringWithOutline(Main.testFont, "Right Mouse = Move selected players", new Vector2(10, 220), Color.Black, Color.White, 1f, 0.99f);*/
             textManager.Draw(spriteBatch);
             spriteBatch.End();
         }
