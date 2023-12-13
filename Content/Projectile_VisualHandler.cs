@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace BaseBuilderRPG.Content
 {
@@ -55,7 +56,7 @@ namespace BaseBuilderRPG.Content
 
             return bottom;
         }
-        public void SpawnProjectileParticles(Particle_Globals globalParticle)
+        public void SpawnProjectileParticles(Particle_Globals globalParticle, GameTime gameTime)
         {
             if (projectile.id == 2)
             {
@@ -72,12 +73,54 @@ namespace BaseBuilderRPG.Content
             }
             if (projectile.id == 4)
             {
-                for (int i = 0; i < 1; i++)
+                globalParticle.NewParticle(0, 3, projectile.center, Vector2.Zero, Vector2.Zero, 0f, 0.35f, Main.random.NextFloat(0.2f, 0.7f), Color.Transparent, Color.White, Color.DarkBlue);
+            }
+
+            if (projectile.id == 5)
+            {
+                int numberOfParticles = 20;
+
+                for (int i = 0; i < numberOfParticles; i++)
                 {
-                    Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
-                    globalParticle.NewParticle(0, 3, projectile.center, Vector2.Zero, Vector2.Zero, 0f, 0.35f, Main.random.NextFloat(0.2f, 0.7f), Color.Transparent, Color.White, Color.DarkBlue);
+                    Vector2 direction = projectile.velocity;
+                    direction.Normalize();
+                    Vector2 spawnPosition = projectile.center + direction * i * 1;
+                    globalParticle.NewParticle(1, 3, spawnPosition, Vector2.Zero, Vector2.Zero, 0f, 0.1f, 1.2f, Color.Transparent, Color.Yellow, Color.Red);
+                }
+                if (projectile.lifeTime == (float)gameTime.ElapsedGameTime.TotalSeconds)
+                {
+                    Vector2 mouseDirection = Input_Manager.Instance.mousePosition - projectile.center;
+                    mouseDirection.Normalize();
+
+                    for (int i = 0; i < 15; i++)
+                    {
+                        Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
+                        float angle;
+                        if (projectile.owner.isControlled)
+                        {
+                            angle = (float)Math.Atan2(mouseDirection.Y, mouseDirection.X);
+                        }
+                        else
+                        {
+                            Vector2 projectileDirection = projectile.owner.target.center - projectile.center;
+                            projectileDirection.Normalize();
+                            angle = (float)Math.Atan2(projectileDirection.Y, projectileDirection.X);
+                        }
+
+
+                        Vector2 particleVelocity = new Vector2(Main.random.Next(25, 100), Main.random.Next(-25, 25));
+                        particleVelocity = Vector2.Transform(particleVelocity, Matrix.CreateRotationZ(angle));
+
+                        globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, particleVelocity, Vector2.Zero, 0f, Main.random.NextFloat(0.1f, 0.4f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.DarkGray, Color.Black);
+                        particleVelocity = new Vector2(Main.random.Next(30, 60), Main.random.Next(-30, 30));
+                        particleVelocity = Vector2.Transform(particleVelocity, Matrix.CreateRotationZ(angle));
+
+                        globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, particleVelocity, Vector2.Zero, 0f, Main.random.NextFloat(0.1f, 0.4f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.Gray, Color.DarkGray);
+                    }
                 }
             }
+
+
         }
 
         public void SpawnProjectileKillParticles(Particle_Globals globalParticle)
@@ -89,6 +132,14 @@ namespace BaseBuilderRPG.Content
                     Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
                     globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-100, 100), Main.random.Next(-100, 100)), Vector2.Zero, 0f, Main.random.NextFloat(0.2f, 0.8f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.OrangeRed, Color.LightYellow);
                     globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-60, 60), Main.random.Next(-60, 60)), Vector2.Zero, 0f, Main.random.NextFloat(0.2f, 0.8f), 3f * Main.random.NextFloat(0.2f, 2f), Color.Transparent, Color.Red, Color.Orange);
+                }
+            }
+            if (projectile.id == 5)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 posAdjuster = new Vector2(Main.random.Next(-projectile.width / 2, projectile.width / 2), Main.random.Next(-projectile.height / 2, projectile.height / 2));
+                    globalParticle.NewParticle(1, 2, projectile.center + posAdjuster, new Vector2(Main.random.Next(-60, 60), Main.random.Next(-60, 60)), Vector2.Zero, 0f, Main.random.NextFloat(0.1f, 0.6f), 5f * Main.random.NextFloat(0.2f, 1f), Color.Transparent, Color.Yellow, Color.Red);
                 }
             }
         }

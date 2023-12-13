@@ -138,5 +138,18 @@
     "rarity": 3,
     "stackLimit": 1,
     "texturePath": "Textures/Offhand/Magical_Orb"
+  },
+  {
+    "name": "Flintlock Pistol",
+    "type": "Weapon",
+    "damageType": "ranged",
+    "weaponType": "Pistol",
+    "rarity": 1,
+    "damage": 6,
+    "useTime": 0.2,
+    "knockBack": 10,
+    "shootID": 5,
+    "shootSpeed": 1200,
+    "texturePath": "Textures/Weapons/Flintlock_Pistol"
   }
 ]

@@ -34,7 +34,8 @@ namespace BaseBuilderRPG
         public static Projectile_Globals globalProjectile;
         public static Player_Globals globalPlayer;
         public static Item_Globals globalItem;
-        public static Particle_Globals globalParticle;
+        public static Particle_Globals globalParticleBelow;
+        public static Particle_Globals globalParticleAbove;
 
         public static Dictionary<int, Item> itemDictionary;
 
@@ -76,32 +77,35 @@ namespace BaseBuilderRPG
             outlineShader = Content.Load<Effect>("Shaders/Outline");
             testFont = Content.Load<SpriteFont>("Font_Test");
 
-            globalParticle = new Particle_Globals(this, spriteBatch);
+            globalParticleBelow = new Particle_Globals(this, spriteBatch);
+            globalParticleAbove = new Particle_Globals(this, spriteBatch);
 
-            globalProjectile = new Projectile_Globals(this, spriteBatch, globalParticle);
+            globalProjectile = new Projectile_Globals(this, spriteBatch, globalParticleBelow, globalParticleAbove);
             projectiles = globalProjectile.projectiles;
 
             textManager = new Text_Manager(testFont);
 
-            globalItem = new Item_Globals(this, spriteBatch, globalParticle);
+            globalItem = new Item_Globals(this, spriteBatch, globalParticleBelow, globalParticleAbove);
             items = globalItem.items;
             groundItems = globalItem.groundItems;
             itemDictionary = globalItem.itemDictionary;
 
-            globalPlayer = new Player_Globals(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticle);
+            globalPlayer = new Player_Globals(this, spriteBatch, npcs, items, groundItems, itemDictionary, globalItem, globalProjectile, textManager, globalParticleBelow, globalParticleAbove);
             players = globalPlayer.players;
 
-            globalNPC = new NPC_Globals(this, spriteBatch, globalItem, globalParticle, globalProjectile, textManager, players, projectiles);
+            globalNPC = new NPC_Globals(this, spriteBatch, globalItem, globalParticleBelow, globalParticleAbove, globalProjectile, textManager, players, projectiles);
             npcs = globalNPC.npcs;
             globalPlayer.npcs = globalNPC.npcs;
             globalProjectile.npcs = globalNPC.npcs;
 
 
+            Components.Add(globalParticleBelow);
             Components.Add(globalItem);
             Components.Add(globalNPC);
             Components.Add(globalProjectile);
-            Components.Add(globalParticle);
             Components.Add(globalPlayer);
+            Components.Add(globalParticleAbove);
+
 
 
 
@@ -129,7 +133,8 @@ namespace BaseBuilderRPG
             pixel.SetData(new[] { Color.White });
 
             base.LoadContent();
-            globalParticle.Load();
+            globalParticleBelow.Load();
+            globalParticleAbove.Load();
             globalProjectile.Load();
             globalItem.Load();
             globalPlayer.Load();
@@ -245,7 +250,7 @@ namespace BaseBuilderRPG
                                     }
                                 }
                             }
-                            if (command == "HELP")
+                            else if (command == "HELP")
                             {
                                 commandHistory.Insert(0, "");
                                 commandHistory.Insert(0, "[?] SPAWNNPC [ID] [AMOUNT]- Spawns NPCs around the visible screen");
@@ -286,7 +291,7 @@ namespace BaseBuilderRPG
                                 foreach (NPC npc in npcs)
                                 {
                                     npc.health = -1;
-                                    npc.Kill(globalItem, globalParticle);
+                                    npc.Kill(globalItem, globalParticleBelow);
                                 }
                             }
                             else if (command == "CONTROLS")
@@ -392,7 +397,19 @@ namespace BaseBuilderRPG
 
             base.Draw(gameTime);
 
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
+            foreach (Player player in players)
+            {
+                if (player.isControlled && player.inventoryVisible)
+                {
+                    player.inventory.Draw(spriteBatch, player);
+                }
+            }
+
+            spriteBatch.End();
+
             spriteBatch.Begin();
+
 
             if (drawDebugRectangles)
             {

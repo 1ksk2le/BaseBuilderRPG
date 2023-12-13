@@ -61,7 +61,7 @@ namespace BaseBuilderRPG.Content
 
         public void Update(GameTime gameTime, Projectile_Globals globalProjectile, Particle_Globals globalParticle, List<NPC> npcs)
         {
-            visualHandler.SpawnProjectileParticles(globalParticle);
+            visualHandler.SpawnProjectileParticles(globalParticle, gameTime);
             if (!didSpawn)
             {
                 didSpawn = true;

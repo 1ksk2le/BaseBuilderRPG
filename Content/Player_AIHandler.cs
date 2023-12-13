@@ -7,10 +7,12 @@ namespace BaseBuilderRPG.Content
     public class Player_AIHandler
     {
         private Player player;
+        private Player_VisualHandler visualHandler;
 
-        public Player_AIHandler(Player player)
+        public Player_AIHandler(Player player, Player_VisualHandler visualHandler)
         {
             this.player = player;
+            this.visualHandler = visualHandler;
         }
 
         public void ProcessAI(GameTime gameTime, List<NPC> npcs, Projectile_Globals projManager)
@@ -130,7 +132,20 @@ namespace BaseBuilderRPG.Content
                     {
                         if (!player.isControlled)
                         {
-                            projManager.NewProjectile(player.equippedWeapon.shootID, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                            Vector2 pos;
+                            switch (player.equippedWeapon.weaponType)
+                            {
+                                case "Bow":
+                                    pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2);
+                                    break;
+                                case "Pistol":
+                                    pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
+                                    break;
+                                default:
+                                    pos = player.center;
+                                    break;
+                            }
+                            projManager.NewProjectile(player.equippedWeapon.shootID, pos, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                             player.useTimer = player.equippedWeapon.useTime;
                         }
                     }

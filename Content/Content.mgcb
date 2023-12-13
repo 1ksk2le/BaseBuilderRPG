@@ -362,6 +362,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Weapons/Flaming_Baton.png
 
+#begin Textures/Weapons/Flintlock_Pistol.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Weapons/Flintlock_Pistol.png
+
 #begin Textures/Weapons/Hunters_Bow.png
 /importer:TextureImporter
 /processor:TextureProcessor

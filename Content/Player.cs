@@ -63,12 +63,12 @@ namespace BaseBuilderRPG.Content
 
             ownedProjectiles = new List<Projectile>();
 
-            aiHandler = new Player_AIHandler(this);
             visualHandler = new Player_VisualHandler(this);
+            aiHandler = new Player_AIHandler(this, visualHandler);
             controlHandler = new Player_ControlHandler(this, visualHandler);
         }
 
-        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, Text_Manager textManager, Projectile_Globals globalProjectile, Particle_Globals globalParticle, List<NPC> npcs, List<Item> groundItems, List<Item> items)
+        public void Update(GameTime gameTime, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, Text_Manager textManager, Projectile_Globals globalProjectile, Particle_Globals globalParticleBelow, Particle_Globals globalParticleAbove, List<NPC> npcs, List<Item> groundItems, List<Item> items)
         {
             var inputManager = Input_Manager.Instance;
             rectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
@@ -138,10 +138,10 @@ namespace BaseBuilderRPG.Content
                     controlHandler.PlayerInventoryInteractions(Keys.I, groundItems, textManager, itemDictionary, globalItem, items);
                     aiState = "";
                 }
-                visualHandler.ParticleEffects(globalParticle);
+                visualHandler.ParticleEffects(globalParticleBelow, globalParticleAbove);
                 controlHandler.PostUpdate(gameTime, globalProjectile, inputManager.mousePosition);
             }
-            else if (Main.isConsoleVisible)
+            else if (Main.isConsoleVisible || inputManager.IsMouseOnInventory(true))
             {
                 hoveredItem = null;
             }

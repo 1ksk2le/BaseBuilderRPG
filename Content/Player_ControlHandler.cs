@@ -81,7 +81,10 @@ namespace BaseBuilderRPG.Content
                                 switch (player.equippedWeapon.weaponType)
                                 {
                                     case "Bow":
-                                        pos = visualHandler.BowDrawPosition();
+                                        pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2);
+                                        break;
+                                    case "Pistol":
+                                        pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
                                         break;
                                     default:
                                         pos = player.center;
@@ -173,7 +176,7 @@ namespace BaseBuilderRPG.Content
 
             foreach (Item item in groundItems)
             {
-                if (item.InteractsWithMouse())
+                if (item.InteractsWithMouse() && !inputManager.IsMouseOnInventory(true))
                 {
                     player.hoveredItem = item;
                     isMouseOverItem = true;
@@ -320,7 +323,7 @@ namespace BaseBuilderRPG.Content
         {
             if (itemDictionary.TryGetValue(itemID, out var itemData))
             {
-                player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, 0, 0, 1, false), groundItems);
+                player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, -1, -1, 1, false), groundItems);
             }
         }
 

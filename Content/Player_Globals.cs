@@ -17,14 +17,15 @@ namespace BaseBuilderRPG.Content
         private Dictionary<int, Item> itemDictionary;
         private Item_Globals globalItem;
         private Projectile_Globals globalProjectile;
-        private Particle_Globals globalParticle;
+        private Particle_Globals globalParticleBelow;
+        private Particle_Globals globalParticleAbove;
         private Text_Manager textManager;
         public Texture2D _texture;
         public Texture2D _textureHead;
         public Texture2D _textureEyes;
 
         public Player_Globals(Game game, SpriteBatch spriteBatch, List<NPC> npcs, List<Item> items, List<Item> groundItems, Dictionary<int,
-            Item> itemDictionary, Item_Globals globalItem, Projectile_Globals globalProjectile, Text_Manager textManager, Particle_Globals globalParticle)
+            Item> itemDictionary, Item_Globals globalItem, Projectile_Globals globalProjectile, Text_Manager textManager, Particle_Globals globalParticleBelow, Particle_Globals globalParticleAbove)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -41,7 +42,8 @@ namespace BaseBuilderRPG.Content
             this.globalItem = globalItem;
             this.textManager = textManager;
             this.globalProjectile = globalProjectile;
-            this.globalParticle = globalParticle;
+            this.globalParticleBelow = globalParticleBelow;
+            this.globalParticleAbove = globalParticleAbove;
         }
 
         public void Load()
@@ -61,7 +63,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (player.health > 0)
                 {
-                    player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, globalParticle, npcs, groundItems, items);
+                    player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, globalParticleBelow, globalParticleAbove, npcs, groundItems, items);
                     if (player.isPicked)
                     {
                         PlayerMovementOrder(player);

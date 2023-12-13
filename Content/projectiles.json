@@ -36,5 +36,13 @@
     "lifeTimeMax": 1.5,
     "width": 10,
     "height": 10
+  },
+  {
+    "ai": 0,
+    "name": "Bullet",
+    "lifeTimeMax": 1,
+    "penetrate": 0,
+    "width": 10,
+    "height": 10
   }
 ]

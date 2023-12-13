@@ -11,10 +11,11 @@ namespace BaseBuilderRPG.Content
         private SpriteBatch spriteBatch;
         private static Dictionary<int, Projectile> projectileDictionary;
         public List<Projectile> projectiles;
-        private Particle_Globals globalParticle;
+        private Particle_Globals globalParticleBelow;
+        private Particle_Globals globalParticleAbove;
         public List<NPC> npcs;
 
-        public Projectile_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticle)
+        public Projectile_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticleBelow, Particle_Globals globalParticleAbove)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -30,7 +31,8 @@ namespace BaseBuilderRPG.Content
                 projectileDictionary.Add(projectiles[i].id, projectiles[i]);
             }
 
-            this.globalParticle = globalParticle;
+            this.globalParticleBelow = globalParticleBelow;
+            this.globalParticleAbove = globalParticleAbove;
         }
 
         public void Load()
@@ -62,7 +64,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (projectile.isAlive)
                 {
-                    projectile.Update(gameTime, this, globalParticle, npcs);
+                    projectile.Update(gameTime, this, globalParticleBelow, npcs);
                 }
             }
 

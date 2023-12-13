@@ -13,16 +13,18 @@ namespace BaseBuilderRPG.Content
         public Dictionary<int, Item> itemDictionary;
         public List<Item> items;
         public List<Item> groundItems;
-        private readonly Particle_Globals globalParticle;
+        private readonly Particle_Globals globalParticleBelow;
+        private readonly Particle_Globals globalParticleAbove;
 
-        public Item_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticle) : base(game)
+        public Item_Globals(Game game, SpriteBatch spriteBatch, Particle_Globals globalParticleBelow, Particle_Globals globalParticleAbove) : base(game)
         {
             this.spriteBatch = spriteBatch;
 
             items = new List<Item>();
             groundItems = new List<Item>();
             itemDictionary = new Dictionary<int, Item>();
-            this.globalParticle = globalParticle;
+            this.globalParticleBelow = globalParticleBelow;
+            this.globalParticleAbove = globalParticleAbove;
 
             string itemsJson = File.ReadAllText("Content/items.json");
             items = JsonConvert.DeserializeObject<List<Item>>(itemsJson);
@@ -69,7 +71,7 @@ namespace BaseBuilderRPG.Content
             {
                 if (item.onGround)
                 {
-                    item.Update(gameTime, globalParticle);
+                    item.Update(gameTime, globalParticleBelow);
                 }
             }
 
