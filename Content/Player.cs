@@ -17,7 +17,7 @@ namespace BaseBuilderRPG.Content
 
         public NPC target;
         public List<Projectile> ownedProjectiles;
-        public Item equippedWeapon, equippedOffhand, equippedBodyArmor, equippedHeadArmor, equippedBoots, mouseItem, hoveredItem;
+        public Item equippedWeapon, equippedOffhand, equippedBodyArmor, equippedHeadArmor, equippedBoots, mouseItem, hoverItem;
         public Texture2D textureBody;
         public Texture2D textureHead;
         public Texture2D textureEye;
@@ -27,7 +27,7 @@ namespace BaseBuilderRPG.Content
         public int direction = 1;
         public int width, height;
         public float meleeRange, rangedRange, speed, useTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax, eyeTimer;
-        public bool inventoryVisible, isImmune, isPicked, hasMovementOrder;
+        public bool isImmune, isPicked, hasMovementOrder;
         public string aiState;
         public Player_AIHandler aiHandler;
         public Player_VisualHandler visualHandler;
@@ -35,7 +35,7 @@ namespace BaseBuilderRPG.Content
 
         public Player(Texture2D bodyTexture, Texture2D headTexture, Texture2D eyeTexture, string name, Vector2 position, int healthMax, float skinColor, bool isActive)
         {
-            this.skinColorFloat = skinColor;
+            skinColorFloat = skinColor;
             this.position = position;
             this.name = name;
 
@@ -56,7 +56,6 @@ namespace BaseBuilderRPG.Content
             height = textureBody.Height;
             origin = new Vector2(width / 2, height / 2);
             inventory = new Inventory(5, 6);
-            inventoryVisible = true;
             hasMovementOrder = false;
             isPicked = false;
             aiState = "";
@@ -77,7 +76,7 @@ namespace BaseBuilderRPG.Content
             if (equippedWeapon != null)
             {
                 meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
-                if (equippedWeapon.damageType == "ranged" || equippedWeapon.damageType == "magic")
+                if (equippedWeapon.damageType == "ranged" && equippedWeapon.shootID > -1)
                 {
                     rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
                 }
@@ -143,9 +142,8 @@ namespace BaseBuilderRPG.Content
             }
             else if (Main.isConsoleVisible || inputManager.IsMouseOnInventory(true))
             {
-                hoveredItem = null;
+                hoverItem = null;
             }
-
             if (useTimer > 0)
             {
                 useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;

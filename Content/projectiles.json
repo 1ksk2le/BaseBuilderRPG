@@ -9,36 +9,6 @@
   },
   {
     "ai": 0,
-    "name": "Test Arrow",
-    "lifeTimeMax": 2,
-    "width": 10,
-    "height": 10,
-    "texturePath": "Textures/tex_Wooden_Arrow"
-  },
-  {
-    "ai": 1,
-    "name": "Fireball",
-    "lifeTimeMax": 2,
-    "width": 10,
-    "height": 10
-  },
-  {
-    "ai": 0,
-    "name": "Wooden Arrow",
-    "lifeTimeMax": 2,
-    "width": 10,
-    "height": 10,
-    "texturePath": "Textures/Projectiles/Wooden_Arrow"
-  },
-  {
-    "ai": 3,
-    "name": "Magical Spirit",
-    "lifeTimeMax": 1.5,
-    "width": 10,
-    "height": 10
-  },
-  {
-    "ai": 0,
     "name": "Bullet",
     "lifeTimeMax": 1,
     "penetrate": 0,

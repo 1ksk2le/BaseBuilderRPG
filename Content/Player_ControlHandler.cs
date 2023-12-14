@@ -45,24 +45,6 @@ namespace BaseBuilderRPG.Content
 
         public void PostUpdate(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
         {
-            if (player.equippedOffhand != null)
-            {
-                if (player.equippedOffhand.id == 13)
-                {
-                    if (Main.random.Next(15) == 0)
-                    {
-                        float offsetY = 5.0f; // Adjust this value to control the amplitude of the motion
-                        float oscillationSpeed = 2.0f; // Adjust this value to control the speed of the oscillation
-
-                        float verticalOffset = offsetY * (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * oscillationSpeed);
-
-                        Vector2 pos = player.center + new Vector2(player.direction == 1 ? -30 : 12, -player.textureBody.Height / 2 - 4);
-                        pos.Y += verticalOffset;
-
-                        projManager.NewProjectile(4, pos, player.center + new Vector2(Main.random.Next(-75, 75), Main.random.Next(-100, 100)), 10, 150f, 0f, player, true);
-                    }
-                }
-            }
         }
 
         public void UseItem(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
@@ -80,11 +62,8 @@ namespace BaseBuilderRPG.Content
                                 Vector2 pos;
                                 switch (player.equippedWeapon.weaponType)
                                 {
-                                    case "Bow":
-                                        pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2);
-                                        break;
                                     case "Pistol":
-                                        pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
+                                        pos = player.center + new Vector2((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
                                         break;
                                     default:
                                         pos = player.center;
@@ -104,8 +83,6 @@ namespace BaseBuilderRPG.Content
                         {
                             if (Input_Manager.Instance.IsButtonPressed(true))
                             {
-
-
                                 projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                                 player.useTimer = player.equippedWeapon.useTime;
                             }
@@ -128,22 +105,22 @@ namespace BaseBuilderRPG.Content
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
             if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))
             {
-                player.inventoryVisible = false;
+                Main.inventoryVisible = false;
             }
             if (player.isControlled && inputManager.IsKeySinglePress(key))
             {
-                if (player.inventoryVisible)
+                if (Main.inventoryVisible)
                 {
-                    player.inventoryVisible = false;
+                    Main.inventoryVisible = false;
                 }
                 else
                 {
                     Main.inventoryPos = new Vector2(inputManager.mousePosition.X - Main.tex_Inventory.Width / 2, inputManager.mousePosition.Y);
-                    player.inventoryVisible = true;
+                    Main.inventoryVisible = true;
                 }
             }
 
-            if (player.isControlled && player.inventoryVisible)
+            if (Main.inventoryVisible)
             {
                 for (int i = 0; i < player.inventory.equipmentSlots.Count; i++)
                 {
@@ -153,7 +130,7 @@ namespace BaseBuilderRPG.Content
                         if (player.inventory.IsEquipmentSlotHovered((int)position.X, (int)position.Y, i))
                         {
                             isMouseOverItem = true;
-                            player.hoveredItem = player.inventory.GetEquippedItem(i);
+                            player.hoverItem = player.inventory.GetEquippedItem(i);
                         }
                     }
                 }
@@ -167,30 +144,21 @@ namespace BaseBuilderRPG.Content
 
                         if (player.inventory.IsSlotHovered(slotX, slotY))
                         {
-                            player.hoveredItem = player.inventory.GetItem(x, y);
+                            player.hoverItem = player.inventory.GetItem(x, y);
                             isMouseOverItem = true;
                         }
                     }
                 }
             }
 
-            foreach (Item item in groundItems)
-            {
-                if (item.InteractsWithMouse() && !inputManager.IsMouseOnInventory(true))
-                {
-                    player.hoveredItem = item;
-                    isMouseOverItem = true;
-                }
-            }
-
             if (!isMouseOverItem)
             {
-                player.hoveredItem = null;
+                player.hoverItem = null;
             }
 
             if (inputManager.IsButtonSingleClick(true))
             {
-                if (player.isControlled && player.inventoryVisible)
+                if (player.isControlled && Main.inventoryVisible)
                 {
                     for (int y = 0; y < player.inventory.height; y++)
                     {
@@ -253,7 +221,7 @@ namespace BaseBuilderRPG.Content
                         player.mouseItem = null;
                     }
 
-                    if (player.inventoryVisible)
+                    if (Main.inventoryVisible)
                     {
                         for (int y = 0; y < player.inventory.height; y++)
                         {
@@ -264,10 +232,10 @@ namespace BaseBuilderRPG.Content
                                 int slotY = (int)Main.inventoryPos.Y + y * slotSize + Main.inventorySlotStartPos;
                                 if (player.inventory.IsSlotHovered(slotX, slotY))
                                 {
-                                    player.hoveredItem = player.inventory.GetItem(x, y);
-                                    if (player.hoveredItem != null)
+                                    player.hoverItem = player.inventory.GetItem(x, y);
+                                    if (player.hoverItem != null)
                                     {
-                                        player.inventory.EquipItem(player.hoveredItem, x, y);
+                                        player.inventory.EquipItem(player.hoverItem, x, y);
                                     }
                                 }
                             }

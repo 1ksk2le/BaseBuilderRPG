@@ -100,7 +100,7 @@ namespace BaseBuilderRPG.Content
         private void PlayerMovementOrder(Player player)
         {
             var inputManager = Input_Manager.Instance;
-            if (!inputManager.IsMouseOnInventory(player.inventoryVisible))
+            if (!inputManager.IsMouseOnInventory(Main.inventoryVisible))
             {
                 if (inputManager.IsButtonSingleClick(false))
                 {

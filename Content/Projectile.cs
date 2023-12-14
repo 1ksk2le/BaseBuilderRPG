@@ -155,7 +155,6 @@ namespace BaseBuilderRPG.Content
                     rotation = MathHelper.Lerp(startRotation, endRotation, progress);
 
                     rectangle = CalculateRotatedRectangle(texture.Bounds, position, origin, rotation);
-                    visualHandler.SpawnMeleeParticles(globalParticle, texture.Bounds, position, origin, rotation);
 
                     if (owner.direction == 1)
                     {

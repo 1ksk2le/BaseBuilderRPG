@@ -77,7 +77,7 @@ namespace BaseBuilderRPG.Content
                         player.aiState = "Waiting for orders";
                     }
                 }
-                if (player.equippedWeapon.damageType == "ranged" || player.equippedWeapon.damageType == "magic")
+                if (player.equippedWeapon.damageType == "ranged")
                 {
                     if (targetNPC != null)
                     {
@@ -135,11 +135,8 @@ namespace BaseBuilderRPG.Content
                             Vector2 pos;
                             switch (player.equippedWeapon.weaponType)
                             {
-                                case "Bow":
-                                    pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Height / 2);
-                                    break;
                                 case "Pistol":
-                                    pos = visualHandler.RangedDrawPos((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
+                                    pos = player.center + new Vector2((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
                                     break;
                                 default:
                                     pos = player.center;

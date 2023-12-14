@@ -209,7 +209,7 @@ namespace BaseBuilderRPG.Content
                     rarityColor = Color.Red;
                     break;
             }
-            switch (prefixID)
+            /*switch (prefixID)
             {
                 case 0:
                     prefixName = "Broken";
@@ -252,22 +252,22 @@ namespace BaseBuilderRPG.Content
                 default:
                     suffixName = "";
                     break;
-            }
+            }*/
         }
 
         private void TooltipsBasedOnID()
         {
-            if (name == "Flaming Baton")
-            {
-                toolTips.Add("'Shoots a fiery ball.'");
-            }
-            if (name == "Magical Orb")
-            {
-                toolTips.Add("Damage: 10 magic damage");
-                toolTips.Add("Knockback: 0");
-                toolTips.Add("Shoot Speed: 150 pps");
-                toolTips.Add("'Shoots lost souls at nearby enemies at random intervals.'");
-            }
+            /* if (name == "Flaming Baton")
+             {
+                 toolTips.Add("'Shoots a fiery ball.'");
+             }
+             if (name == "Magical Orb")
+             {
+                 toolTips.Add("Damage: 10 magic damage");
+                 toolTips.Add("Knockback: 0");
+                 toolTips.Add("Shoot Speed: 150 pps");
+                 toolTips.Add("'Shoots lost souls at nearby enemies at random intervals.'");
+             }*/
         }
     }
 }

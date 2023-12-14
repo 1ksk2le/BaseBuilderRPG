@@ -1,155 +1,15 @@
 [
   {
-    "name": "Test Sword",
-    "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 10,
-    "damage": 10,
-    "useTime": 0.3,
-    "knockBack": 20,
-    "texturePath": "Textures/tex_Test_Sword"
-  },
-  {
-    "name": "Test Material",
-    "type": "Material",
-    "rarity": 10,
-    "stackLimit": 9999,
-    "texturePath": "Textures/tex_Ruby"
-  },
-  {
-    "name": "Test Shield",
-    "type": "Offhand",
-    "rarity": 10,
-    "stackLimit": 1,
-    "texturePath": "Textures/tex_Test_Shield"
-  },
-  {
-    "name": "Test Bow",
-    "type": "Weapon",
-    "damageType": "ranged",
-    "weaponType": "Bow",
-    "rarity": 10,
-    "damage": 6,
-    "useTime": 1.2,
-    "knockBack": 10,
-    "shootID": 1,
-    "shootSpeed": 200,
-    "stringSColorHex": "#000000",
-    "stringEColorHex": "#ffffff",
-    "texturePath": "Textures/tex_Test_Bow"
-  },
-  {
-    "name": "Flaming Baton",
-    "type": "Weapon",
-    "damageType": "magic",
-    "weaponType": "One Handed Wand",
-    "rarity": 2,
-    "damage": 6,
-    "useTime": 1.2,
-    "knockBack": 10,
-    "shootID": 2,
-    "shootSpeed": 300,
-    "texturePath": "Textures/Weapons/Flaming_Baton"
-  },
-  {
-    "name": "Leather Armor",
-    "type": "Body Armor",
-    "rarity": 0,
-    "stackLimit": 1,
-    "texturePath": "Textures/Player/Armors/tex_Leather_Armor"
-  },
-  {
-    "name": "Leather Cap",
-    "type": "Head Armor",
-    "rarity": 0,
-    "stackLimit": 1,
-    "texturePath": "Textures/Player/Armors/tex_Leather_Cap"
-  },
-  {
-    "name": "Wooden Sword",
-    "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 0,
-    "damage": 5,
-    "useTime": 0.7,
-    "knockBack": 20,
-    "texturePath": "Textures/Weapons/Wooden_Sword"
-  },
-  {
-    "name": "Stone Sword",
-    "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 0,
-    "damage": 6,
-    "useTime": 0.7,
-    "knockBack": 22,
-    "texturePath": "Textures/Weapons/Stone_Sword"
-  },
-  {
-    "name": "Brass Sword",
-    "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 1,
-    "damage": 7,
-    "useTime": 0.6,
-    "knockBack": 22,
-    "texturePath": "Textures/Weapons/Brass_Sword"
-  },
-  {
-    "name": "Steel Sword",
-    "type": "Weapon",
-    "damageType": "melee",
-    "weaponType": "One Handed Sword",
-    "rarity": 2,
-    "damage": 8,
-    "useTime": 0.6,
-    "knockBack": 24,
-    "texturePath": "Textures/Weapons/Steel_Sword"
-  },
-  {
-    "name": "Hunter's Bow",
-    "type": "Weapon",
-    "damageType": "ranged",
-    "weaponType": "Bow",
-    "rarity": 1,
-    "damage": 6,
-    "useTime": 1.2,
-    "knockBack": 10,
-    "shootID": 3,
-    "shootSpeed": 200,
-    "stringSColorHex": "#724934",
-    "stringEColorHex": "#FFE97F",
-    "texturePath": "Textures/Weapons/Hunters_Bow"
-  },
-  {
-    "name": "Wooden Targe",
-    "type": "Offhand",
-    "rarity": 1,
-    "stackLimit": 1,
-    "texturePath": "Textures/Offhand/Wooden_Targe"
-  },
-  {
-    "name": "Magical Orb",
-    "type": "Offhand",
-    "rarity": 3,
-    "stackLimit": 1,
-    "texturePath": "Textures/Offhand/Magical_Orb"
-  },
-  {
     "name": "Flintlock Pistol",
     "type": "Weapon",
     "damageType": "ranged",
     "weaponType": "Pistol",
     "rarity": 1,
     "damage": 6,
-    "useTime": 0.2,
+    "useTime": 1,
     "knockBack": 10,
-    "shootID": 5,
-    "shootSpeed": 1200,
+    "shootID": 1,
+    "shootSpeed": 900,
     "texturePath": "Textures/Weapons/Flintlock_Pistol"
   }
 ]

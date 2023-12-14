@@ -48,6 +48,8 @@ namespace BaseBuilderRPG
 
         public static bool drawDebugRectangles;
 
+        public static Item hoverItem;
+
 
         public static Random random;
 
@@ -58,6 +60,7 @@ namespace BaseBuilderRPG
         public static bool isConsoleVisible;
         #endregion
 
+        public static bool inventoryVisible = true;
 
         public Main()
         {
@@ -106,9 +109,6 @@ namespace BaseBuilderRPG
             Components.Add(globalPlayer);
             Components.Add(globalParticleAbove);
 
-
-
-
             inventoryPos = new Vector2(graphics.PreferredBackBufferWidth - 200, graphics.PreferredBackBufferHeight - 400);
             inventorySlotSize = 38;
 
@@ -119,6 +119,9 @@ namespace BaseBuilderRPG
             random = Main_Globals.GetRandomInstance();
             command = "";
             isConsoleVisible = false;
+
+            hoverItem = null;
+
             base.Initialize();
         }
 
@@ -153,14 +156,6 @@ namespace BaseBuilderRPG
             var inputManager = Input_Manager.Instance;
             inputManager.PreUpdate();
             inputManager.PostUpdate(gameTime);
-
-            foreach (Player p in players)
-            {
-                if (p.position.X > graphics.PreferredBackBufferWidth || p.position.Y > graphics.PreferredBackBufferHeight)
-                {
-                    p.position = new Vector2(100, 100);
-                }
-            }
 
             Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, 24);
 
@@ -207,8 +202,17 @@ namespace BaseBuilderRPG
                 }
             }
 
-
-
+            foreach (Item item in groundItems)
+            {
+                if (item.InteractsWithMouse())
+                {
+                    hoverItem = item;
+                }
+                else
+                {
+                    hoverItem = null;
+                }
+            }
             base.Update(gameTime);
         }
 
@@ -397,18 +401,19 @@ namespace BaseBuilderRPG
 
             base.Draw(gameTime);
 
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
+            spriteBatch.Begin();
+
             foreach (Player player in players)
             {
-                if (player.isControlled && player.inventoryVisible)
+                if (player.isControlled && inventoryVisible)
                 {
                     player.inventory.Draw(spriteBatch, player);
                 }
             }
-
-            spriteBatch.End();
-
-            spriteBatch.Begin();
+            if (!Input_Manager.Instance.IsMouseOnInventory(inventoryVisible))
+            {
+                DrawGlobalHoverItem(spriteBatch, hoverItem);
+            }
 
 
             if (drawDebugRectangles)
@@ -502,6 +507,73 @@ namespace BaseBuilderRPG
                     break;
             }
             return position;
+        }
+
+        private void DrawGlobalHoverItem(SpriteBatch spriteBatch, Item hoverItem)
+        {
+            if (hoverItem != null)
+            {
+                float maxTextWidth = 0;
+                foreach (string tooltip in hoverItem.toolTips)
+                {
+                    Vector2 textSize = Main.testFont.MeasureString(tooltip);
+                    maxTextWidth = Math.Max(maxTextWidth, textSize.X);
+                }
+
+                int initialX = (int)Input_Manager.Instance.mousePosition.X + 18;
+                int initialY = (int)Input_Manager.Instance.mousePosition.Y;
+
+                for (int i = 0; i < hoverItem.toolTips.Count; i++)
+                {
+                    Color toolTipColor, bgColor;
+                    switch (i)
+                    {
+                        case 0:
+                            toolTipColor = Color.White;
+                            bgColor = hoverItem.rarityColor;
+                            break;
+
+                        case 1:
+                            toolTipColor = Color.Yellow;
+                            bgColor = Color.Black;
+                            break;
+
+                        default:
+                            toolTipColor = Color.White;
+                            bgColor = Color.Black;
+                            break;
+                    }
+
+                    if (hoverItem.toolTips[i].StartsWith("'"))
+                    {
+                        toolTipColor = Color.Aquamarine;
+                    }
+
+                    Vector2 textSize = Main.testFont.MeasureString(hoverItem.toolTips[i]);
+                    Vector2 backgroundSize = new Vector2(maxTextWidth, textSize.Y);
+
+                    int tooltipX = initialX;
+                    int tooltipY = initialY + i * ((int)textSize.Y);
+
+                    if (tooltipX + (int)backgroundSize.X + 8 > /*GraphicsDevice.Viewport.Width*/1500)
+                    {
+                        tooltipX = (int)Input_Manager.Instance.mousePosition.X - (int)backgroundSize.X - 18;
+                    }
+
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 8, tooltipY + 8, (int)backgroundSize.X + 6, (int)backgroundSize.Y + 6), Color.Black, 0.98210f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoverItem.rarityColor, 0.98211f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor, 0.98212f);
+
+                    if (i == 0 || i == 1)
+                    {
+                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), Color.Black, toolTipColor, 1f, 0.9822f);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX, tooltipY + 5), Color.Black, toolTipColor, 1f, 0.9822f);
+                    }
+                }
+            }
         }
     }
 }
