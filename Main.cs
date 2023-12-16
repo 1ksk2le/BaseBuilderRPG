@@ -226,7 +226,7 @@ namespace BaseBuilderRPG
                     {
                         if (inputManager.IsKeySinglePress(Keys.Enter))
                         {
-                            if (command.StartsWith("ADDITEM"))
+                            if (command.StartsWith("SPAWNITEM"))
                             {
                                 string[] commandParts = command.Split(' ');
 
@@ -259,9 +259,9 @@ namespace BaseBuilderRPG
                                 commandHistory.Insert(0, "");
                                 commandHistory.Insert(0, "[?] SPAWNNPC [ID] [AMOUNT]- Spawns NPCs around the visible screen");
                                 commandHistory.Insert(0, "[?] KILLNPCS - Kills all NPCs");
-                                commandHistory.Insert(0, "[?] ADDITEM [ID] - Adds an item to the controlled player");
+                                commandHistory.Insert(0, "[?] SPAWNITEM [ID] - Adds an item to the controlled player");
                                 commandHistory.Insert(0, "[?] ITEMLIST - Displays added items");
-                                commandHistory.Insert(0, "[?] DEVMODE - Displays stats for developers or hides them");
+                                commandHistory.Insert(0, "[?] DEBUGMODE - Displays stats for developers or hides them");
                                 commandHistory.Insert(0, "[?] CONTROLS - Displays controls");
                                 commandHistory.Insert(0, "[?] CLEAR - Clears commamnd prompt");
                                 commandHistory.Insert(0, "[?] HELP - Displays all commands");
@@ -278,7 +278,7 @@ namespace BaseBuilderRPG
                                     commandHistory.Insert(0, "ID: " + i + " - " + items[i].name);
                                 }
                             }
-                            else if (command == "DEVMODE")
+                            else if (command == "DEBUGMODE")
                             {
                                 if (drawDebugRectangles)
                                 {
@@ -410,7 +410,7 @@ namespace BaseBuilderRPG
                     player.inventory.Draw(spriteBatch, player);
                 }
             }
-            if (!Input_Manager.Instance.IsMouseOnInventory(inventoryVisible))
+            if (!Input_Manager.Instance.IsMouseOnInventory())
             {
                 DrawGlobalHoverItem(spriteBatch, hoverItem);
             }
@@ -456,19 +456,6 @@ namespace BaseBuilderRPG
 
                 spriteBatch.DrawString(Main.testFont, ">> " + command, new Vector2(10, 30), Color.Yellow);
             }
-
-
-            /*spriteBatch.DrawStringWithOutline(Main.testFont, "Controls", new Vector2(10, 20), Color.Black, Color.Yellow, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "E = Control player", new Vector2(10, 40), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "X = Spawn item", new Vector2(10, 60), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "C = Clear items", new Vector2(10, 80), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "I = Open / Close inventory", new Vector2(10, 100), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "F = Pick item", new Vector2(10, 120), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "G = Spawn a slime", new Vector2(10, 140), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "V = Kill npcs", new Vector2(10, 160), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "L = Turn on / off debug mode", new Vector2(10, 180), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "Left Shift + Left Mouse = Select players", new Vector2(10, 200), Color.Black, Color.White, 1f, 0.99f);
-            spriteBatch.DrawStringWithOutline(Main.testFont, "Right Mouse = Move selected players", new Vector2(10, 220), Color.Black, Color.White, 1f, 0.99f);*/
             textManager.Draw(spriteBatch);
             spriteBatch.End();
         }
@@ -483,7 +470,7 @@ namespace BaseBuilderRPG
                     break;
 
                 case 1: //body armor
-                    position = inventoryPos + new Vector2(74, 52); //+46
+                    position = inventoryPos + new Vector2(74, 52);
                     break;
 
                 case 2: //off hand
@@ -560,17 +547,17 @@ namespace BaseBuilderRPG
                         tooltipX = (int)Input_Manager.Instance.mousePosition.X - (int)backgroundSize.X - 18;
                     }
 
-                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 8, tooltipY + 8, (int)backgroundSize.X + 6, (int)backgroundSize.Y + 6), Color.Black, 0.98210f);
-                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoverItem.rarityColor, 0.98211f);
-                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor, 0.98212f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 8, tooltipY + 8, (int)backgroundSize.X + 6, (int)backgroundSize.Y + 6), Color.Black, 1f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 4, tooltipY + 4, (int)backgroundSize.X + 8, (int)backgroundSize.Y + 4), hoverItem.rarityColor, 1f);
+                    spriteBatch.DrawRectangle(new Rectangle(tooltipX - 2, tooltipY + 6, (int)backgroundSize.X + 4, (int)backgroundSize.Y), bgColor, 1f);
 
                     if (i == 0 || i == 1)
                     {
-                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), Color.Black, toolTipColor, 1f, 0.9822f);
+                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX + (maxTextWidth - textSize.X) / 2, tooltipY + 5), Color.Black, toolTipColor, 1f, 1f);
                     }
                     else
                     {
-                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX, tooltipY + 5), Color.Black, toolTipColor, 1f, 0.9822f);
+                        spriteBatch.DrawStringWithOutline(Main.testFont, hoverItem.toolTips[i], new Vector2(tooltipX, tooltipY + 5), Color.Black, toolTipColor, 1f, 1f);
                     }
                 }
             }

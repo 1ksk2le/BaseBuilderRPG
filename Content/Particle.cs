@@ -92,6 +92,22 @@ namespace BaseBuilderRPG.Content
                 {
                     velocity.Y += 3f;
                 }
+
+                if (ai == 4)
+                {
+                    float ovalWidth = 4;
+                    float ovalHeight = 1f;
+
+                    float angle = lifeTime * 2f * MathHelper.Pi;
+
+                    // Calculate the position on the oval using parametric equations
+                    float x = ovalWidth * 0.5f * (float)Math.Cos(angle);
+                    float y = ovalHeight * 0.5f * (float)Math.Sin(angle);
+
+                    // Apply the rotation offset
+                    Vector2 rotationOffset = new Vector2(x, y);
+                    position += rotationOffset;
+                }
             }
         }
 
@@ -104,7 +120,7 @@ namespace BaseBuilderRPG.Content
         {
             if (texture != null && isAlive)
             {
-                if (ai == 0)
+                if (ai == 0 || ai == 4)
                 {
                     float alpha = 1.0f - (lifeTime / lifeTimeMax);
                     alpha = MathHelper.Clamp(alpha, 0f, 1f);
@@ -158,8 +174,6 @@ namespace BaseBuilderRPG.Content
                         spriteBatch.Draw(texture, position, null, color * alpha, rotation, origin, currentScale, SpriteEffects.None, 0);
                     }
                 }
-
-
             }
         }
     }

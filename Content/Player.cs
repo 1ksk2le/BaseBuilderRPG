@@ -26,8 +26,8 @@ namespace BaseBuilderRPG.Content
         public Rectangle rectangle, rectangleMelee;
         public int direction = 1;
         public int width, height;
-        public float meleeRange, rangedRange, speed, useTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax, eyeTimer;
-        public bool isImmune, isPicked, hasMovementOrder;
+        public float meleeRange, rangedRange, speed, useTimer, animationTimer, immunityTime, hitEffectTimer, rotationAngle, immunityTimeMax, hitEffectTimerMax, eyeTimer;
+        public bool isImmune, isSelected, hasMovementOrder;
         public string aiState;
         public Player_AIHandler aiHandler;
         public Player_VisualHandler visualHandler;
@@ -46,9 +46,10 @@ namespace BaseBuilderRPG.Content
             maxHealth = healthMax;
             health = maxHealth;
             immunityTimeMax = 0.5f;
-            speed = 1.5f;
+            speed = 100f;
             eyeTimer = 0f;
             immunityTime = 0f;
+            animationTimer = 0f;
             hitEffectTimer = 0f;
             hitEffectTimerMax = 0.75f;
             targetMovement = center;
@@ -57,7 +58,7 @@ namespace BaseBuilderRPG.Content
             origin = new Vector2(width / 2, height / 2);
             inventory = new Inventory(5, 6);
             hasMovementOrder = false;
-            isPicked = false;
+            isSelected = false;
             aiState = "";
 
             ownedProjectiles = new List<Projectile>();
@@ -78,7 +79,7 @@ namespace BaseBuilderRPG.Content
                 meleeRange = (equippedWeapon.damageType == "melee") ? 200f : 0;
                 if (equippedWeapon.damageType == "ranged" && equippedWeapon.shootID > -1)
                 {
-                    rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
+                    rangedRange = globalProjectile.GetProjectile(equippedWeapon.shootID).lifeTimeMax * equippedWeapon.shootSpeed;
                 }
                 else
                 {
@@ -132,21 +133,23 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    controlHandler.Movement(Vector2.Zero, inputManager.currentKeyboardState);
+                    controlHandler.Movement(gameTime, inputManager.currentKeyboardState);
                     controlHandler.UseItem(gameTime, globalProjectile, inputManager.mousePosition);
                     controlHandler.PlayerInventoryInteractions(Keys.I, groundItems, textManager, itemDictionary, globalItem, items);
                     aiState = "";
+                    isSelected = false;
+                    hasMovementOrder = false;
                 }
                 visualHandler.ParticleEffects(globalParticleBelow, globalParticleAbove);
-                controlHandler.PostUpdate(gameTime, globalProjectile, inputManager.mousePosition);
             }
-            else if (Main.isConsoleVisible || inputManager.IsMouseOnInventory(true))
-            {
-                hoverItem = null;
-            }
-            if (useTimer > 0)
+
+            if (useTimer >= 0)
             {
                 useTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            if (animationTimer >= 0)
+            {
+                animationTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
         }
     }

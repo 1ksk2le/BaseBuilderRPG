@@ -15,9 +15,9 @@ namespace BaseBuilderRPG.Content
             this.visualHandler = visualHandler;
         }
 
-        public void ProcessAI(GameTime gameTime, List<NPC> npcs, Projectile_Globals projManager)
+        public void ProcessAI(GameTime gameTime, List<NPC> npcs, Projectile_Globals globalProjectile)
         {
-            Movement();
+            Movement(gameTime);
             if (player.equippedWeapon != null)
             {
                 NPC targetNPC = null;
@@ -28,9 +28,6 @@ namespace BaseBuilderRPG.Content
                         closestDistance = player.meleeRange * player.meleeRange;
                         break;
                     case "ranged":
-                        closestDistance = player.rangedRange * player.rangedRange;
-                        break;
-                    case "magic":
                         closestDistance = player.rangedRange * player.rangedRange;
                         break;
                     default:
@@ -52,14 +49,14 @@ namespace BaseBuilderRPG.Content
                     if (targetNPC != null)
                     {
                         player.target = targetNPC;
-                        player.direction = player.position.X > (int)player.target.position.X ? -1 : 1;
+                        player.direction = player.center.X > (int)player.target.center.X ? -1 : 1;
                         if (!player.rectangleMelee.Intersects(targetNPC.rectangle))
                         {
                             if (!player.hasMovementOrder)
                             {
                                 Vector2 targetDirection = player.target.center - player.center;
                                 targetDirection.Normalize();
-                                player.position += targetDirection * player.speed;
+                                player.position += targetDirection * player.speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                                 player.aiState = "Moving to target: [" + targetNPC.name + "]";
                             }
 
@@ -68,7 +65,7 @@ namespace BaseBuilderRPG.Content
                         else
                         {
                             player.aiState = "Attacking target: [" + targetNPC.name + "]";
-                            UseItem(gameTime, projManager, player.target.center);
+                            UseItem(globalProjectile, player.target.center);
                         }
                     }
                     else
@@ -82,14 +79,14 @@ namespace BaseBuilderRPG.Content
                     if (targetNPC != null)
                     {
                         player.target = targetNPC;
-                        player.direction = player.position.X > (int)player.target.position.X ? -1 : 1;
+                        player.direction = player.center.X > (int)player.target.center.X ? -1 : 1;
                         if (Vector2.Distance(player.target.center, player.center) > player.rangedRange * 0.8f)
                         {
                             if (!player.hasMovementOrder)
                             {
                                 Vector2 targetDirection = player.target.center - player.center;
                                 targetDirection.Normalize();
-                                player.position += targetDirection * player.speed;
+                                player.position += targetDirection * player.speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                                 player.aiState = "Moving to target: [" + targetNPC.name + "]";
                             }
                         }
@@ -101,14 +98,14 @@ namespace BaseBuilderRPG.Content
                                 {
                                     Vector2 targetDirection = player.target.center - player.center;
                                     targetDirection.Normalize();
-                                    player.position -= targetDirection * player.speed;
+                                    player.position -= targetDirection * player.speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                                     player.aiState = "Running away from: [" + targetNPC.name + "]";
                                 }
                             }
                             else
                             {
 
-                                UseItem(gameTime, projManager, player.target.center);
+                                UseItem(globalProjectile, player.target.center);
                                 player.aiState = "Shooting at target: [" + targetNPC.name + "]";
                             }
                         }
@@ -122,7 +119,7 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        public void UseItem(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
+        public void UseItem(Projectile_Globals globalProjectile, Vector2 target)
         {
             if (player.equippedWeapon != null)
             {
@@ -137,12 +134,13 @@ namespace BaseBuilderRPG.Content
                             {
                                 case "Pistol":
                                     pos = player.center + new Vector2((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
+                                    player.animationTimer = player.equippedWeapon.animationTime;
                                     break;
                                 default:
                                     pos = player.center;
                                     break;
                             }
-                            projManager.NewProjectile(player.equippedWeapon.shootID, pos, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                            globalProjectile.NewProjectile(player.equippedWeapon.shootID, pos, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                             player.useTimer = player.equippedWeapon.useTime;
                         }
                     }
@@ -153,7 +151,7 @@ namespace BaseBuilderRPG.Content
                     {
                         if (!player.isControlled)
                         {
-                            projManager.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
+                            globalProjectile.NewProjectile(0, player.center, target, player.equippedWeapon.damage, player.equippedWeapon.shootSpeed, player.equippedWeapon.knockBack, player, true);
                             player.useTimer = player.equippedWeapon.useTime;
                         }
                     }
@@ -161,11 +159,11 @@ namespace BaseBuilderRPG.Content
             }
         }
 
-        private void Movement()
+        private void Movement(GameTime gameTime)
         {
             if (player.hasMovementOrder && !player.isControlled)
             {
-                player.direction = (player.position.X > player.targetMovement.X) ? -1 : 1;
+                player.direction = (player.center.X > player.targetMovement.X) ? -1 : 1;
 
                 float distanceThreshold = 1f;
                 float deltaX = player.targetMovement.X - player.center.X;
@@ -179,22 +177,11 @@ namespace BaseBuilderRPG.Content
                 }
                 else
                 {
-                    float directionX = deltaX / distance;
-                    float directionY = deltaY / distance;
-                    float newPositionX = player.position.X + directionX * player.speed;
-                    float newPositionY = player.position.Y + directionY * player.speed;
+                    Vector2 velocity = (player.targetMovement - player.center);
+                    velocity.Normalize();
+                    player.position += velocity * player.speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                     player.aiState = "Moving to: [" + player.targetMovement.ToString() + "]";
-                    player.position = new Vector2(newPositionX, newPositionY);
                 }
-            }
-            else
-            {
-                if (player.isControlled)
-                {
-                    player.isPicked = false;
-                }
-                player.targetMovement = player.center;
-                player.hasMovementOrder = false;
             }
         }
 

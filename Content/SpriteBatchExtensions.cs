@@ -71,11 +71,6 @@ namespace BaseBuilderRPG.Content
                 spriteBatch.Draw(Main.pixel, pixelPosition, null, pixelColor, angle, Vector2.Zero, new Vector2(1, thickness), SpriteEffects.None, layerDepth);
             }
         }
-
-
-
-
-
         public static void DrawRectangleOutlineBetweenPoints(this SpriteBatch spriteBatch, Vector2 startPoint, Vector2 endPoint, Color color, float layerDepth)
         {
             Vector2[] corners = new Vector2[4];

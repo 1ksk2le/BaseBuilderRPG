@@ -48,9 +48,9 @@ namespace BaseBuilderRPG.Content
 
         public void Load()
         {
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 3; i++)
             {
-                players.Add(new Player(_texture, _textureHead, _textureEyes, "East", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, 1f, true));
+                players.Add(new Player(_texture, _textureHead, _textureEyes, "East", new Vector2(Main.random.Next(200, 600), Main.random.Next(200, 600)), 30000, 1f, false));
             }
         }
 
@@ -64,7 +64,7 @@ namespace BaseBuilderRPG.Content
                 if (player.health > 0)
                 {
                     player.Update(gameTime, itemDictionary, globalItem, textManager, globalProjectile, globalParticleBelow, globalParticleAbove, npcs, groundItems, items);
-                    if (player.isPicked)
+                    if (player.isSelected)
                     {
                         PlayerMovementOrder(player);
                     }
@@ -72,9 +72,9 @@ namespace BaseBuilderRPG.Content
                     {
                         if (player != otherPlayer && player.rectangle.Intersects(otherPlayer.rectangle))
                         {
-                            Vector2 separationVector = player.position - otherPlayer.position;
+                            Vector2 separationVector = player.center - otherPlayer.center;
                             separationVector.Normalize();
-                            player.position += separationVector * player.width * 1f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                            player.position += separationVector * player.speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                         }
                     }
                 }
@@ -100,7 +100,7 @@ namespace BaseBuilderRPG.Content
         private void PlayerMovementOrder(Player player)
         {
             var inputManager = Input_Manager.Instance;
-            if (!inputManager.IsMouseOnInventory(Main.inventoryVisible))
+            if (!inputManager.IsMouseOnInventory())
             {
                 if (inputManager.IsButtonSingleClick(false))
                 {
@@ -119,7 +119,7 @@ namespace BaseBuilderRPG.Content
                     previewPositions.Clear();
                     previewPositionsRed.Clear();
 
-                    List<Player> selectedPlayers = players.Where(p => p.isPicked).ToList();
+                    List<Player> selectedPlayers = players.Where(p => p.isSelected).ToList();
                     int numberOfPlayers = selectedPlayers.Count;
 
                     if (numberOfPlayers > 1)
@@ -184,7 +184,7 @@ namespace BaseBuilderRPG.Content
             previewPositions.Clear();
             previewPositionsRed.Clear();
 
-            List<Player> selectedPlayers = players.Where(p => p.isPicked).ToList();
+            List<Player> selectedPlayers = players.Where(p => p.isSelected).ToList();
             int numberOfPlayers = selectedPlayers.Count;
 
             if (numberOfPlayers > 1)
@@ -276,7 +276,7 @@ namespace BaseBuilderRPG.Content
                 {
                     foreach (Player player in players)
                     {
-                        player.isPicked = false;
+                        player.isSelected = false;
                     }
 
                     bool anyPlayerSelected = false;
@@ -287,12 +287,12 @@ namespace BaseBuilderRPG.Content
                         {
                             if (!player.isControlled)
                             {
-                                player.isPicked = true;
+                                player.isSelected = true;
                                 anyPlayerSelected = true;
                             }
                             else
                             {
-                                player.isPicked = false;
+                                player.isSelected = false;
                             }
                         }
                     }
@@ -306,6 +306,12 @@ namespace BaseBuilderRPG.Content
                     isSelecting = false;
                 }
             }
+            else
+            {
+                startPos = Vector2.Zero;
+                endPos = Vector2.Zero;
+            }
+
 
             foreach (Player player in players)
             {
@@ -313,13 +319,13 @@ namespace BaseBuilderRPG.Content
                 {
                     if (player.rectangle.Contains(inputManager.mousePosition))
                     {
-                        if (player.isPicked)
+                        if (player.isSelected)
                         {
-                            player.isPicked = false;
+                            player.isSelected = false;
                         }
                         else
                         {
-                            player.isPicked = true;
+                            player.isSelected = true;
                         }
                     }
                 }
@@ -328,6 +334,20 @@ namespace BaseBuilderRPG.Content
 
         public override void Draw(GameTime gameTime) //8617f max
         {
+            spriteBatch.Begin();
+            foreach (Player player in players)
+            {
+                if (player.hasMovementOrder)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        globalParticleBelow.NewParticle(1, 4, player.targetMovement + new Vector2(0, player.origin.Y * 0.65f), Vector2.Zero, Vector2.Zero, 0f, 1f, 2f, Color.Transparent, Color.Lime, Color.Lime);
+                    }
+                    player.visualHandler.DrawPlayer(spriteBatch, 0f, 125, player.targetMovement - player.origin);
+                    player.visualHandler.DrawPlayerMisc(spriteBatch, 125);
+                }
+            }
+            spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.Identity);
             spriteBatch.DrawStringWithOutline(Main.testFont, "PLAYER COUNT: " + players.Count, new Vector2(10, 300), Color.Black, Color.White, 1f, 0.99f);
             if (Main.drawDebugRectangles)
@@ -337,6 +357,10 @@ namespace BaseBuilderRPG.Content
 
 
             }
+            foreach (Player player in players)
+            {
+                player.visualHandler.Draw(spriteBatch);
+            }
             foreach (Vector2 position in previewPositions)
             {
                 spriteBatch.DrawCircle(position, 8, Color.Aquamarine, 16, 0);
@@ -345,12 +369,8 @@ namespace BaseBuilderRPG.Content
             {
                 spriteBatch.DrawCircle(position, 8, Color.Coral, 16, 0);
             }
-            foreach (Player player in players)
-            {
-                player.visualHandler.Draw(gameTime, spriteBatch);
-            }
 
-            if (startPos != Vector2.Zero)
+            if (startPos != Vector2.Zero && Input_Manager.Instance.IsButtonPressed(true) && Input_Manager.Instance.IsKeyDown(Keys.LeftShift))
             {
                 spriteBatch.DrawRectangleOutlineBetweenPoints(startPos, endPos, Color.Black, 1f);
             }

@@ -137,7 +137,7 @@ namespace BaseBuilderRPG.Content
 
             if (ai == 2)
             {
-                if (owner.equippedWeapon != null && (owner.equippedWeapon.weaponType == "One Handed Sword" || owner.equippedWeapon.weaponType == "One Handed Wand"))
+                if (owner.equippedWeapon != null && (owner.equippedWeapon.weaponType == "One Handed Sword"))
                 {
                     texture = owner.equippedWeapon.texture;
                     float progress = owner.useTimer / owner.equippedWeapon.useTime;

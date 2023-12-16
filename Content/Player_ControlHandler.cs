@@ -16,8 +16,10 @@ namespace BaseBuilderRPG.Content
             this.player = player;
             this.visualHandler = visualHandler;
         }
-        public void Movement(Vector2 movement, KeyboardState keyboardState)
+
+        public void Movement(GameTime gameTime, KeyboardState keyboardState)
         {
+            Vector2 movement = Vector2.Zero;
             if (player.isControlled)
             {
                 if (player.isControlled)
@@ -37,19 +39,15 @@ namespace BaseBuilderRPG.Content
                 if (movement != Vector2.Zero)
                     movement.Normalize();
 
-                player.velocity = movement * player.speed;
+                player.velocity = player.speed * movement * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 player.position += player.velocity;
             }
         }
 
-        public void PostUpdate(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
-        {
-        }
-
         public void UseItem(GameTime gameTime, Projectile_Globals projManager, Vector2 target)
         {
-            if (player.equippedWeapon != null && !player.inventory.IsInventoryHovered())
+            if (player.equippedWeapon != null && !Input_Manager.Instance.IsMouseOnInventory())
             {
                 if (player.equippedWeapon.shootID > -1)
                 {
@@ -64,6 +62,7 @@ namespace BaseBuilderRPG.Content
                                 {
                                     case "Pistol":
                                         pos = player.center + new Vector2((float)Math.Cos(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f, (float)Math.Sin(visualHandler.MouseRot()) * player.equippedWeapon.texture.Width * 1.2f);
+                                        player.animationTimer = player.equippedWeapon.animationTime;
                                         break;
                                     default:
                                         pos = player.center;
@@ -95,13 +94,12 @@ namespace BaseBuilderRPG.Content
         public void PlayerInventoryInteractions(Keys key, List<Item> groundItems, Text_Manager textManager, Dictionary<int, Item> itemDictionary, Item_Globals globalItem, List<Item> items)
         {
             var inputManager = Input_Manager.Instance;
-            bool isMouseOverItem = false;
 
             player.inventory.SortItems();
-            AddItem(Keys.X, true, Main.random.Next(0, 14), itemDictionary, globalItem, groundItems, items);
+            AddItem(Keys.X, true, Main.random.Next(0, items.Count), itemDictionary, globalItem, groundItems, items);
             PickItem(groundItems, inputManager, textManager);
 
-
+            #region CLOSEINVENTORY
             Rectangle closeInvSlotRectangle = new Rectangle((int)Main.inventoryPos.X + 170, (int)Main.inventoryPos.Y - 22, 20, 20);
             if (closeInvSlotRectangle.Contains(inputManager.mousePosition) && inputManager.IsButtonSingleClick(true))
             {
@@ -119,7 +117,10 @@ namespace BaseBuilderRPG.Content
                     Main.inventoryVisible = true;
                 }
             }
+            #endregion
 
+            #region SETHOVERITEM
+            bool isMouseOverItem = false;
             if (Main.inventoryVisible)
             {
                 for (int i = 0; i < player.inventory.equipmentSlots.Count; i++)
@@ -150,16 +151,18 @@ namespace BaseBuilderRPG.Content
                     }
                 }
             }
-
             if (!isMouseOverItem)
             {
                 player.hoverItem = null;
             }
+            #endregion
 
+            #region LEFT CLICK INTERACTIONS
             if (inputManager.IsButtonSingleClick(true))
             {
                 if (player.isControlled && Main.inventoryVisible)
                 {
+                    #region INVENTORY ITEM GRABBING
                     for (int y = 0; y < player.inventory.height; y++)
                     {
                         for (int x = 0; x < player.inventory.width; x++)
@@ -184,6 +187,8 @@ namespace BaseBuilderRPG.Content
                             }
                         }
                     }
+                    #endregion
+                    #region EQUIPMENT SLOT ITEM GRABBING
                     for (int i = 0; i < player.inventory.equipmentSlots.Count; i++)
                     {
                         Vector2 position = Main.EquipmentSlotPositions(i);
@@ -206,13 +211,17 @@ namespace BaseBuilderRPG.Content
                             }
                         }
                     }
+                    #endregion
                 }
             }
+            #endregion
 
+            #region RIGHT CLICK INTERACTIONS
             if (inputManager.IsButtonSingleClick(false))
             {
                 if (player.isControlled)
                 {
+                    #region DROP ITEM
                     if (player.mouseItem != null)
                     {
                         player.mouseItem.position = player.position;
@@ -220,7 +229,9 @@ namespace BaseBuilderRPG.Content
                         groundItems.Add(player.mouseItem);
                         player.mouseItem = null;
                     }
+                    #endregion
 
+                    #region EQUIP/UNEQUIP ITEM
                     if (Main.inventoryVisible)
                     {
                         for (int y = 0; y < player.inventory.height; y++)
@@ -254,8 +265,10 @@ namespace BaseBuilderRPG.Content
                             }
                         }
                     }
+                    #endregion
                 }
             }
+            #endregion
         }
 
         public void AddItem(Keys key, bool addInventory, int itemID, Dictionary<int, Item> itemDictionary, Item_Globals itemManager, List<Item> groundItems, List<Item> items)
@@ -264,25 +277,25 @@ namespace BaseBuilderRPG.Content
             if (inputManager.IsKeySinglePress(key))
             {
                 Random rand = new Random();
-                int prefixID;
-                int suffixID;
+                /* int prefixID;
+                 int suffixID;
 
-                prefixID = rand.Next(0, 4);
-                suffixID = rand.Next(0, 4);
-
+                 prefixID = rand.Next(0, 4);
+                 suffixID = rand.Next(0, 4);
+                 */
                 if (addInventory)
                 {
                     if (player.isControlled)
                     {
                         if (itemDictionary.TryGetValue(itemID, out var itemData))
                         {
-                            player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, 2, suffixID, 1, false), groundItems);
+                            player.inventory.AddItem(itemManager.NewItem(itemData, Vector2.Zero, 2, -1, 1, false), groundItems);
                         }
                     }
                 }
                 else
                 {
-                    itemManager.DropItem(rand.Next(items.Count), prefixID, suffixID, rand.Next(1, 4), inputManager.mousePosition);
+                    itemManager.DropItem(rand.Next(items.Count), -1, -1, rand.Next(1, 4), inputManager.mousePosition);
                 }
             }
         }
@@ -298,10 +311,10 @@ namespace BaseBuilderRPG.Content
         public void PickItem(List<Item> groundItems, Input_Manager inputManager, Text_Manager textManager)
         {
             Item targetItem = null;
-            float closestDistance = 30f * 30f;
 
             foreach (Item item in groundItems.ToList())
             {
+                float closestDistance = item.texture.Height * item.texture.Width;
                 float distance = Vector2.DistanceSquared(player.center, item.center);
 
                 if (distance < closestDistance)
@@ -310,7 +323,7 @@ namespace BaseBuilderRPG.Content
                     targetItem = item;
                 }
             }
-            if (targetItem != null && targetItem.PlayerClose(player, 40f) && inputManager.IsKeySinglePress(Keys.F) && targetItem.onGround && !player.inventory.IsFull())
+            if (targetItem != null && targetItem.PlayerClose(player, Math.Max(targetItem.texture.Width, targetItem.texture.Height)) && inputManager.IsKeySinglePress(Keys.F) && targetItem.onGround && !player.inventory.IsFull())
             {
                 string text = "Picked: " + targetItem.prefixName + " " + targetItem.name + " " + targetItem.suffixName;
                 Vector2 textSize = Main.testFont.MeasureString(text);

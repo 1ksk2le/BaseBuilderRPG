@@ -20,6 +20,7 @@ namespace BaseBuilderRPG.Content
         public int stackSize { get; set; }
         public int shootID { get; set; }
         public float useTime { get; set; }
+        public float animationTime { get; set; }
         public float shootSpeed { get; set; }
         public float knockBack { get; set; }
         public string texturePath { get; set; }
@@ -40,7 +41,7 @@ namespace BaseBuilderRPG.Content
         public float levTimer = 0.0f;
         public bool didSpawn;
 
-        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, int stackLimit, int dropAmount, string stringSColorHex, string stringEColorHex, bool onGround)
+        public Item(Texture2D texture, string texturePath, int id, string name, string type, string damageType, string weaponType, Vector2 position, float shootSpeed, int shoot, int rarity, int prefixID, int suffixID, int damage, float knockBack, float useTime, float animationTime, int stackLimit, int dropAmount, string stringSColorHex, string stringEColorHex, bool onGround)
         {
             this.texture = texture;
             this.texturePath = texturePath;
@@ -51,6 +52,7 @@ namespace BaseBuilderRPG.Content
             this.prefixID = prefixID;
             this.suffixID = suffixID;
             this.useTime = useTime;
+            this.animationTime = animationTime;
             this.knockBack = knockBack;
             this.damage = damage;
             this.damageType = damageType;
@@ -65,6 +67,7 @@ namespace BaseBuilderRPG.Content
                 this.damage = -1;
                 this.prefixID = -1;
                 this.suffixID = -1;
+                this.animationTime = -1;
                 this.useTime = -1;
                 this.knockBack = -1;
                 this.stackLimit = stackLimit;
@@ -209,65 +212,11 @@ namespace BaseBuilderRPG.Content
                     rarityColor = Color.Red;
                     break;
             }
-            /*switch (prefixID)
-            {
-                case 0:
-                    prefixName = "Broken";
-                    break;
-
-                case 1:
-                    prefixName = "Reinforced";
-                    break;
-
-                case 2:
-                    prefixName = "Magical";
-                    break;
-
-                case 3:
-                    prefixName = "Unwieldy";
-                    break;
-
-                default:
-                    prefixName = "";
-                    break;
-            }
-            switch (suffixID)
-            {
-                case 0:
-                    suffixName = "of Flames";
-                    break;
-
-                case 1:
-                    suffixName = "of Death";
-                    break;
-
-                case 2:
-                    suffixName = "of Arthur";
-                    break;
-
-                case 3:
-                    suffixName = "of King";
-                    break;
-
-                default:
-                    suffixName = "";
-                    break;
-            }*/
         }
 
         private void TooltipsBasedOnID()
         {
-            /* if (name == "Flaming Baton")
-             {
-                 toolTips.Add("'Shoots a fiery ball.'");
-             }
-             if (name == "Magical Orb")
-             {
-                 toolTips.Add("Damage: 10 magic damage");
-                 toolTips.Add("Knockback: 0");
-                 toolTips.Add("Shoot Speed: 150 pps");
-                 toolTips.Add("'Shoots lost souls at nearby enemies at random intervals.'");
-             }*/
+
         }
     }
 }

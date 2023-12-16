@@ -7,9 +7,10 @@
     "rarity": 1,
     "damage": 6,
     "useTime": 1,
+    "animationTime": 0.5,
     "knockBack": 10,
     "shootID": 1,
-    "shootSpeed": 900,
+    "shootSpeed": 1000,
     "texturePath": "Textures/Weapons/Flintlock_Pistol"
   }
 ]

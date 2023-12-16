@@ -42,7 +42,7 @@ namespace BaseBuilderRPG.Content
             if (Main.drawDebugRectangles)
             {
                 spriteBatch.DrawCircle(projectile.center, 4f, Color.Lime * 1.5f, 64, 1f);
-                spriteBatch.DrawRectangleBorder(projectile.rectangle, Color.Lime, 1f, 0.01f);
+                spriteBatch.DrawRectangleBorder(projectile.rectangle, Color.Lime, 1f, 1F);
             }
         }
 

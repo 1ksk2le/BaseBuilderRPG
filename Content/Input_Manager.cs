@@ -80,11 +80,11 @@ namespace BaseBuilderRPG.Content
                 : currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released;
         }
 
-        public bool IsMouseOnInventory(bool inventoryVisible)
+        public bool IsMouseOnInventory()
         {
-            if (inventoryVisible)
+            if (Main.inventoryVisible)
             {
-                Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, 190, Main.tex_Inventory.Height + Main.tex_InventoryExtras.Height);
+                Rectangle inventoryRectangle = new Rectangle((int)Main.inventoryPos.X, (int)Main.inventoryPos.Y - 24, Main.tex_Inventory.Width, Main.tex_Inventory.Height + Main.tex_InventoryExtras.Height);
                 return inventoryRectangle.Contains(mousePosition) ? true : false;
             }
             else
